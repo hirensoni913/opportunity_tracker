@@ -1,6 +1,9 @@
 <!--prettier-ignore-->
 {% extends "base.html" %} {% block title %}Opportunity Tracker {%endblock title%} {% block content %}
 {% load tz %}
+{% load static %}
+<script src="{% static 'js/charts/bar.js' %}"></script>
+<script src="{% static 'js/charts/pie.js' %}"></script>
 
 <div class="p-3">
   <div class="row justify-content-center">
@@ -40,265 +43,135 @@
       </div>
     </div>
   </div>
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="shadow-lg p-3 mb-4 bg-body rounded">
+        <canvas id="top5Valued"></canvas>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="shadow-lg p-3 mb-4 bg-body rounded">
+        <canvas id="top5ValuedCurrent"></canvas>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock content %} {% block scripts %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.4.2/chroma.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+<script src="{% static "js/chroma.min.js" %}"></script>
+<script src="{% static "chartjs-plugin-datalabels.js" %}"></script>
 <script>
-  // Function to generate a random RGB color
-  function getRandomColor() {
-    var r = Math.floor(Math.random() * 256); // Random red value (0-255)
-    var g = Math.floor(Math.random() * 256); // Random green value (0-255)
-    var b = Math.floor(Math.random() * 256); // Random blue value (0-255)
-    return `rgb(${r}, ${g}, ${b})`;
-  }
-
-  // Generate a random color palette with 10 colors
-  function generateRandomPalette() {
-    var colors = [];
-    for (var i = 0; i < 25; i++) {
-      colors.push(getRandomColor());
-    }
-    return colors;
-  }
-
-  // Apply opacity to the generated random colors
-  function applyOpacityToPalette(palette, opacity) {
-    return palette.map((color) => chroma(color).alpha(opacity).css());
-  }
-
   // Generate the random colors
-  var randomPalette = generateRandomPalette();
+   var randomPalette = generateRandomPalette();
 
-  // Apply 0.25 opacity to the random palette
-  var opaqueRandomPalette = applyOpacityToPalette(randomPalette, 0.25);
+   // Apply 0.25 opacity to the random palette
+   var opaqueRandomPalette = applyOpacityToPalette(randomPalette, 0.25);
 
-  function loadChart(chart, endpoint, title) {
-    $.ajax({
-      url: endpoint,
-      type: "GET",
-      dataType: "json",
-      success: (response) => {
-        // Bar chart for status
+   function loadChart(chart, endpoint, title) {
+     $.ajax({
+       url: endpoint,
+       type: "GET",
+       dataType: "json",
+       success: (response) => {
+         // Bar chart for status
 
-        const status_datasets = response.status_data.map((item, index) => {
-          return {
-            label:item.label,
-            data:item.data,
-            backgroundColor: opaqueRandomPalette[index % opaqueRandomPalette.length],
-            borderColor: randomPalette[index % randomPalette.length],
-          }
-        });
-        var ctx = document
-          .getElementById("proposalStatusChart")
-          .getContext("2d");
-        var statusChart = new Chart(ctx, {
-          type: "bar",
-          data: {
-            labels: response.status_labels,
-            datasets: status_datasets
-          },
-          options: {
-            responsive:true,
-            plugins:{
-              legend:{
-                position:'top'
-              },
-              title:{
-                display:true,
-                text:"Opportunities by Type and Status ({% now "Y" %})"
-              },
-            },
-            scales: {
-              x:{
-                stacked:true
-              },
-              y: {
-                stacked:true,
-                ticks:{
-                  callback: function(value){
-                    if (Number.isInteger(value)) {
-                      return value; // Show only integers
-                    }
-                    return null; // Skip float values
-                  }
-                }
-              },
-            },
-          },
-        });
+         const status_datasets = response.status_data.map((item, index) => {
+           return {
+             label:item.label,
+             data:item.data,
+             backgroundColor: opaqueRandomPalette[index % opaqueRandomPalette.length],
+             borderColor: randomPalette[index % randomPalette.length],
+           }
+         });
+         var ctx = document
+           .getElementById("proposalStatusChart")
+           .getContext("2d");
 
-        // Bar chart for funding agency
+         var titleText = "Opportunities by Type and Status ({% now "Y" %})"
+         createBarChart(ctx, response.status_labels, status_datasets, titleText)
 
-        const fa_datasets = response.funding_agency_data.map((item, index) => {
-          return {
-            label:item.label,
-            data:item.data,
-            backgroundColor: opaqueRandomPalette[index % opaqueRandomPalette.length],
-            borderColor: randomPalette[index % randomPalette.length],
-          }
-        });
-        var ctx = document
-          .getElementById("fundingAgencyChart")
-          .getContext("2d");
-        var fundingAgencyChart = new Chart(ctx, {
-          type: "bar",
-          data: {
-            labels: response.funding_agency_labels,
-            datasets: fa_datasets
-          },
-          options: {
-            responsive:true,
-            plugins:{
-              legend:{
-                position:'top'
-              },
-              title:{
-                display:true,
-                text:"Opportunities by Funding Agency and Status ({% now "Y" %})"
-              },
-            },
-            scales: {
-              x:{
-                stacked:true
-              },
-              y: {
-                stacked:true,
-                ticks:{
-                  callback: function(value){
-                    if (Number.isInteger(value)) {
-                      return value; // Show only integers
-                    }
-                    return null; // Skip float values
-                  }
-                }
-              },
-            },
-          },
-        });
+         // Bar chart for funding agency
+         const fa_datasets = response.funding_agency_data.map((item, index) => {
+           return {
+             label:item.label,
+             data:item.data,
+             backgroundColor: opaqueRandomPalette[index % opaqueRandomPalette.length],
+             borderColor: randomPalette[index % randomPalette.length],
+           }
+         });
+         var ctx = document
+           .getElementById("fundingAgencyChart")
+           .getContext("2d");
 
-        // Doughnut Lead Unit
-        var ctx = document
-          .getElementById("leadUnitChart")
-          .getContext("2d");
+         var titleText = "Opportunities by Funding Agency and Status ({% now "Y" %})"
+         createBarChart(ctx, response.funding_agency_labels, fa_datasets, titleText)
 
-          var leadUnitChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-              labels: response.lead_unit_labels,
-              datasets: [{
-                label: 'Total Opportunities',
-                data: response.lead_unit_data,
-                backgroundColor: opaqueRandomPalette,
-                hoverOffset: 4
-              }]
-            },
-            options: {
-              responsive:true,
-              plugins:{
-                legend:{
-                  position:'top'
-                },
-                title:{
-                  display:true,
-                  text:"Opportunities by Lead Unit ({% now "Y" %})"
-                },
+         // Doughnut Lead Unit
+         var ctx = document
+           .getElementById("leadUnitChart")
+           .getContext("2d");
 
-              },
+         var titleText = "Opportunities by Lead Unit ({% now "Y" %})"
+         var datasetLabel = "Total Opportunities";
+         createPieChart(ctx, response.lead_unit_labels, response.lead_unit_data, 'doughnut', titleText, datasetLabel, opaqueRandomPalette);
 
-            },
+         // Doughnut Lead Unit
+         var ctx = document
+         .getElementById("leadInstituteChart")
+         .getContext("2d");
 
-          });
+         var titleText = "Opportunities by Lead Institute ({% now "Y" %})"
+         var datasetLabel = "Total Opportunities";
+         createPieChart(ctx, response.lead_institute_labels, response.lead_institute_data, 'doughnut', titleText, datasetLabel, opaqueRandomPalette);
 
-          // Doughnut Lead Unit
-        var ctx = document
-        .getElementById("leadInstituteChart")
-        .getContext("2d");
+         // Doughnut Proposal Lead
+         var ctx = document
+           .getElementById("proposalLeadChart")
+           .getContext("2d");
 
-        var leadUnitChart = new Chart(ctx, {
-          type: 'doughnut',
-          data: {
-            labels: response.lead_institute_labels,
-            datasets: [{
-              label: 'Total Opportunities',
-              data: response.lead_institute_data,
-              backgroundColor: opaqueRandomPalette,
-              hoverOffset: 4
-            }]
-          },
-          options: {
-            responsive:true,
-            plugins:{
-              legend:{
-                position:'top'
-              },
-              title:{
-                display:true,
-                text:"Opportunities by Lead Institute ({% now "Y" %})"
-              },
+         var titleText = "Opportunities by Proposal Lead ({% now "Y" %})"
+         var datasetLabel = "Total Opportunities";
+         createPieChart(ctx, response.proposal_lead_labels, response.proposal_lead_data, 'doughnut', titleText, datasetLabel, opaqueRandomPalette);
 
-            },
+         // Bar chart for top 5 valued funding agencies
+         var ctx = document
+         .getElementById("top5Valued")
+         .getContext("2d");
 
-          },
-
-        });
-
-        // Doughnut Proposal Lead
-        var ctx = document
-          .getElementById("proposalLeadChart")
-          .getContext("2d");
-
-          var leadUnitChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-              labels: response.proposal_lead_labels,
-              datasets: [{
-                label: 'Total Opportunities',
-                data: response.proposal_lead_data,
-                backgroundColor: opaqueRandomPalette,
-                hoverOffset: 4
-              }]
-            },
-            options: {
-              responsive:true,
-              plugins:{
-                legend:{
-                  position:'top'
-                },
-                title:{
-                  display:true,
-                  text:"Opportunities by Proposal Lead ({% now "Y" %})"
-                },
-
-              },
-
-            },
-
-          });
+         var titleText = "Top 5 Valued Opportunities by Funding Agency [Won/Lost/Cancelled] ({% now "Y" %})";
+         var datasetLabel = "Top 5 Valued Opportunities";
+         createSimpleVerticalBarChart(ctx, response.top5_valued_labels, response.top5_valued_data, titleText, datasetLabel, opaqueRandomPalette, randomPalette);
 
 
+       // Bar chart for top 5 current valued funding agencies
+         var ctx = document
+         .getElementById("top5ValuedCurrent")
+         .getContext("2d");
 
-      },
-      error: () =>
-        console.log("Failed to fetch chart data from " + endpoint + "!"),
-    });
-  }
+         var titleText = "Top 5 Valued in Progress Opportunities by Funding Agency ({% now "Y" %})";
+         var datasetLabel = "Top 5 Valued in Progress Opportunities";
+         createSimpleVerticalBarChart(ctx, response.top5_valued_current_labels, response.top5_valued_current_data, titleText, datasetLabel, opaqueRandomPalette, randomPalette);
 
-  function loadAllCharts() {
-    loadChart(null, '{% url "dashboard_data" %}', "Opportunities by Status");
-  }
+       },
+       error: () =>
+         console.log("Failed to fetch chart data from " + endpoint + "!"),
+     });
+   }
 
-  function getRandomColor() {
-    const letters = "0123456789ABCDEF";
-    let color = "#";
-    for (let i = 0; i < 6; i++) {
-      color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-  }
+   function loadAllCharts() {
+     loadChart(null, '{% url "dashboard_data" %}', "Opportunities by Status");
+   }
 
-  $(document).ready(function () {
-    loadAllCharts();
-  });
+   function getRandomColor() {
+     const letters = "0123456789ABCDEF";
+     let color = "#";
+     for (let i = 0; i < 6; i++) {
+       color += letters[Math.floor(Math.random() * 16)];
+     }
+     return color;
+   }
+
+   $(document).ready(function () {
+     loadAllCharts();
+   });
 </script>
 {% endblock scripts %}

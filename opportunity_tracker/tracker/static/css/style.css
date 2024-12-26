@@ -32,7 +32,8 @@ body {
 
 .card-header,
 .card-footer {
-  background-color: #c7e8f3;
+  background-color: #455a64;
+  color: white;
 }
 
 .opp-list-card {
@@ -45,7 +46,7 @@ body {
 }
 
 .opp-list-card .card-header {
-  background-color: rgb(199, 198, 198);
+  background-color: #546e7a;
   color: white;
   padding: 0.75rem 1rem;
   font-weight: bold;
