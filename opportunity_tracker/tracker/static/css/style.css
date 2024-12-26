@@ -1,0 +1,173 @@
+body {
+  background-color: #ededed;
+}
+
+.form-switch .form-check-input {
+  border-radius: 2em;
+}
+
+#login .container #login-row #login-column #login-box {
+  margin-top: 120px;
+  max-width: 600px;
+  height: 320px;
+  border: 1px solid #9c9c9c;
+  background-color: #eaeaea;
+}
+#login .container #login-row #login-column #login-box #login-form {
+  padding: 20px;
+}
+#login
+  .container
+  #login-row
+  #login-column
+  #login-box
+  #login-form
+  #register-link {
+  margin-top: -85px;
+}
+
+.navbar {
+  background-color: #003844;
+}
+
+.card-header,
+.card-footer {
+  background-color: #c7e8f3;
+}
+
+.opp-list-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.opp-list-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.opp-list-card .card-header {
+  background-color: rgb(199, 198, 198);
+  color: white;
+  padding: 0.75rem 1rem;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.opp-list-card .card-header .badge {
+  background-color: #28a745;
+}
+
+.opp-list-card .card-text {
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.opp-list-card .icon-text {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.opp-list-card .icon-text i {
+  margin-right: 0.5rem;
+  color: #007bff;
+}
+
+.opp-list-card .card-footer {
+  border: none;
+  background-color: transparent;
+  font-size: 0.8rem; /* Smaller font size */
+  color: #6c757d; /* Muted text color */
+  text-align: right; /* Align to the right */
+  border-top: 1px solid #dee2e6;
+  font-style: italic;
+}
+
+/* Floating button style */
+.fab {
+  position: fixed;
+  bottom: 20px; /* Distance from the bottom */
+  right: 20px; /* Distance from the right */
+  border-radius: 50%; /* Round shape */
+  width: 56px; /* Button size */
+  height: 56px; /* Button size */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow */
+  z-index: 1050; /* Ensure it's on top */
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.fab:hover {
+  background-color: #007bff; /* Hover color */
+  transform: scale(1.1); /* Slight scaling effect */
+}
+
+/* Font Awesome icon style */
+.fab i {
+  font-size: 24px; /* Icon size */
+  color: #fff; /* Icon color */
+}
+
+.opportunity-header {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.opportunity-header h1 {
+  margin: 0;
+  font-size: 1.8rem;
+  color: #333;
+}
+
+.section {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.section-header {
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: #495057;
+  border-bottom: 2px solid #e9ecef;
+  margin-bottom: 15px;
+  padding-bottom: 5px;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.detail-label {
+  font-weight: bold;
+  color: #495057;
+}
+
+.detail-value {
+  color: #6c757d;
+}
+
+.detail-item:last-child {
+  border-bottom: none;
+}
+
+.chart-container {
+  background-color: #fff;
+  margin-top: 1rem;
+}
+
+.chart-title {
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+}

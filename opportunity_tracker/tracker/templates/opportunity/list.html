@@ -1,0 +1,180 @@
+{% extends "base.html" %} {% block title %}Opportunities{% endblock title %}
+{%block content %} {% load form_tags %} {% load static %}
+
+<form method="GET">
+  <div class="card">
+    <div class="card-header">
+      <h3>
+        Opportunities
+        <button type="submit" class="btn text-dark float-end h-100">
+          <i class="fa fa-search"></i> Search
+        </button>
+      </h3>
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="form-floating col-md-4">
+          {{form.ref_no|add_class:"form-control"}}
+          <label for="ref_no" class="form-label">Ref#</label>
+        </div>
+        <div class="form-floating col-md-4">
+          {{form.title|add_class:"form-control"}}
+          <label for="title" class="form-label">Title</label>
+        </div>
+        <div class="form-floating col-md-4">
+          {{form.funding_agency|add_class:"form-select"}}
+          <label for="funding_agency" class="form-label">Funding Agency</label>
+        </div>
+        <div class="form-floating col-md-4">
+          {{form.client|add_class:"form-select"}}
+          <label for="client" class="form-label">Client</label>
+        </div>
+        <div class="form-floating col-md-4">
+          {{form.status|add_class:"form-select"}}
+          <label for="status" class="form-label">Status</label>
+        </div>
+        <div class="form-floating col-md-4">
+          {{form.opp_type|add_class:"form-select"}}
+          <label for="opp_type" class="form-label">Type</label>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+<div class="card mt-1">
+  <div class="card-header bg-secondary.bg-gradient">
+    <h4>
+      {{page_obj.paginator.count}} Opportunities Found
+      <a href="{% url 'new_opportunity' %}" class="btn btn-lg btn-primary fab"
+        ><i class="fa fa-plus"></i
+      ></a>
+    </h4>
+  </div>
+
+  <div class="card-body">
+    <div id="opportunity-container" class="row row-cols-sm-1 row-cols-lg-3 g-2">
+      {% include "opportunity/opportunity_cards.html" %}
+    </div>
+  </div>
+
+  <div id="loading-spinner" class="text-center my-3" style="display: none">
+    <img
+      src="{% static 'images/loading.webp' %}"
+      alt="Loading..."
+      style="width: 10%"
+    />
+  </div>
+</div>
+
+<!--Detail Modal-->
+<div
+  class="modal fade"
+  id="detailModal"
+  tabindex="-1"
+  aria-labelledby="detailModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content" style="background-color: #f4f6f9">
+      <div class="modal-header">
+        <h5 class="modal-title" id="detailModalLabel">Opportunity Details</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body" id="modalBodyContent">
+        <!-- Form content will be dynamically inserted here -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  $(document).ready(function () {
+    // Infinite scroll
+    let nextPage = 2;
+    let hasNext = {{ has_next|lower }};
+    let isLoading = false; // Flag to prevent multiple requests
+    const container = $("#opportunity-container");
+    const spinner = $("#loading-spinner");
+
+    $(window).scroll(function () {
+      if (
+        $(window).scrollTop() + $(window).height() >=
+          $(document).height() - 100 &&
+        hasNext &&
+        !isLoading // Ensures no ongoing requests
+      ) {
+        isLoading = true; // Set loading state
+        const queryParams = getQueryParams(); // Get current query parameters
+        const url =
+          "{% url 'opportunities' %}?page=" + nextPage + "&" + queryParams;
+        spinner.show();
+
+        $.ajax({
+          url: url,
+          type: "get",
+          headers: {
+            "X-Requested-With": "XMLHttpRequest",
+          },
+          success: function (data) {
+            container.append(data.html); // Append new Opportunities
+            hasNext = data.has_next; // Update hasNext, if there is a next page
+            nextPage += 1; // Increment nextPage
+            isLoading = false; // Reset loading state
+            spinner.hide(); // Hide spinner
+
+            $(".created_at").each(function () {
+              const rawTimeStamp = $(this).data("timestamp"); // Get the data-timestamp value
+              if (rawTimeStamp) {
+                const formattedTime = moment(rawTimeStamp).fromNow();
+                $(this).text(formattedTime);
+              }
+            });
+          },
+          error: function (xhr, status, error) {
+            console.error("Failed to load opportunities", error);
+            isLoading = false;
+            spinner.hide(); // Hide spinner
+          },
+        });
+      }
+    });
+
+    // Setting date time to relative time
+    $(".created_at").each(function () {
+      const rawTimeStamp = $(this).data("timestamp"); // Get the data-timestamp value
+      if (rawTimeStamp) {
+        const formattedTime = moment(rawTimeStamp).fromNow();
+        $(this).text(formattedTime);
+      }
+    });
+  });
+
+  $('#detailModal').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget); // Button that triggered the modal
+    var url = button.data('url'); // Get the URL for the detail view
+
+    // Make an AJAX request to fetch the content of the form
+    $.ajax({
+      url: url,
+      success: function(data) {
+        // Insert the fetched form data into the modal's body
+        $('#modalBodyContent').html(data.html);
+      },
+      error: function() {
+        alert("Failed to load data.");
+      }
+    });
+  });
+</script>
+{% endblock content %}

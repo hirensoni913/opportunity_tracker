@@ -1,0 +1,124 @@
+{% extends "base.html" %} {% block title %}Opportunities{% endblock title %}
+{%block content %}
+{% load form_tags %}
+{% load file_filters %}
+
+<div class="card">
+  <div class="card-header text-center"><h3> New Opportunity</h3></div>
+  <div class="card-body">
+  <form class="row g-3" id="opportunityForm" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{form.status}}
+    <div class="form-floating col-md-3">
+      {{form.ref_no|add_class:"form-control"}}
+      <label for="ref_no" class="form-label">Ref# *</label>
+      {% if form.ref_no.errors %}
+      <div class="text-danger">{{ form.ref_no.errors|striptags }}</div>
+      {% endif%}
+    </div>
+    <div class="form-floating col-md-9">
+      {{form.title|add_class:"form-control"}}
+      <label for="title" class="form-label">Title *</label>
+      {%if form.title.errors%}
+      <div class="text-danger">{{form.title.errors|striptags}}</div>
+      {%endif%}
+    </div>
+
+    <div class="form-floating col-md-4">
+      {{form.funding_agency|add_class:"form-select"}}
+      <label for="funding_agency" class="form-label">Funding Agency</label>
+      {%if form.funding_agency.errors%}
+      <div class="text-danger">{{form.funding_agency.errors|striptags}}</div>
+      {%endif%}
+    </div>
+    <div class="form-floating col-md-4">
+      {{form.client|add_class:"form-select"}}
+      <label for="client" class="form-label">Client</label>
+      {%if form.client.errors%}
+      <div class="text-danger">{{form.client.errors|striptags}}</div>
+      {%endif%}
+    </div>
+    <div class="form-floating col-md-4">
+      {{form.opp_type|add_class:"form-select"}}
+      <label for="opp_type" class="form-label">Type</label>
+      {%if form.opp_type.errors%}
+      <div class="text-danger">{{form.opp_type.errors|striptags}}</div>
+      {%endif%}
+    </div>
+
+    <div class="col-md-6">
+    <div class="input-group col-md-6">
+      <div class="input-group-text">Countries</div>
+      {{form.countries|add_class:"form-select"}}
+      {%if form.countries.errors%}
+      <div class="text-danger">{{form.countries.errors|striptags}}</div>
+      {%endif%}
+    </div>
+  </div>
+
+  <div class="form-floating col-md-6">
+    {{form.duration_months|add_class:"form-control"}}
+    <label for="duration_months" class="form-label">Duration (months)</label>
+    {%if form.duration_months.errors%}
+    <div class="text-danger">{{form.duration_months.errors|striptags}}</div>
+    {%endif%}
+  </div>
+    
+    <div class="form-floating col-md-4">
+      {{form.due_date|add_class:"form-control"}}
+      <label for="due_date" class="form-label">Due Date</label>
+      {%if form.due_date.errors%}
+      <div class="text-danger">{{form.due_date.errors|striptags}}</div>
+      {%endif%}
+    </div>
+    
+    <div class="form-floating col-md-4">
+      {{form.clarification_date|add_class:"form-control"}}
+      <label for="clarification_date" class="form-label">Clarification Date</label>
+      {%if form.clarification_date.errors%}
+      <div class="text-danger">{{form.clarification_date.errors|striptags}}</div>
+      {%endif%}
+    </div>
+
+    <div class="form-floating col-md-4">
+      {{form.intent_bid_date|add_class:"form-control"}}
+      <label for="intent_bid_date" class="form-label">Intent to Bid</label>
+      {%if form.intent_bid_date.errors%}
+      <div class="text-danger">{{form.intent_bid_date.errors|striptags}}</div>
+      {%endif%}
+    </div>
+
+    <div class="form-floating col-12">
+      {{form.notes|add_class:"form-control"}}
+      <label for="notes" class="form-label">Notes</label>
+      {%if form.notes.errors%}
+      <div class="text-danger">{{form.notes.errors|striptags}}</div>
+      {%endif%}
+    </div>
+    
+   <div class="col-md-6">
+      <input class="form-control" type="file" name="files" id="files" multiple>
+    </div>
+    
+  </div>
+    <div class="card-footer">
+        <button type="submit" class="btn btn-lg btn-success float-end">
+          <i class="fa-solid fa-save"></i>
+          Save
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+  </div>
+</div>
+
+{% endblock content %}
+
+{% block scripts %}
+<script>
+  
+  $("#id_countries").select2({theme: 'bootstrap-5', placeholder: 'Choose countries', allowClear: true});
+  
+</script>
+{% endblock  %}

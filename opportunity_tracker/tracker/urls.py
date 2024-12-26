@@ -1,0 +1,33 @@
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+
+from .views import DownloadFolderView, FileDeleteView, OpportunityListView, OpportunityViewSet, OpportunityUpdateView, OpportunityCreateView, OpportunitySubmitView, OpportunityStatusUpdateView, OpportunityDetailView, IndexView, DashboardDataView
+from django.contrib.auth.views import LoginView, LogoutView
+
+router = DefaultRouter()
+router.register(r"Opportunity", OpportunityViewSet)
+
+urlpatterns = [
+    path("api/", include(router.urls)),
+    path("", IndexView.as_view(), name="home"),
+    path("login/", LoginView.as_view(template_name="login.html"), name="login"),
+    path('logout/', LogoutView.as_view(next_page="login"), name="logout"),
+    path("opportunities/", OpportunityListView.as_view(), name="opportunities"),
+    path("opportunity/new/", OpportunityCreateView.as_view(), name="new_opportunity"),
+    path("opportunity/<uuid:pk>/",
+         OpportunityDetailView.as_view(), name="opportunity"),
+    path("opportunity/<uuid:pk>/update",
+         OpportunityUpdateView.as_view(), name="update_opportunity"),
+    path("opportunity/<uuid:pk>/submit",
+         OpportunitySubmitView.as_view(), name="submit_proposal"),
+    path("opportunity/<uuid:pk>/status",
+         OpportunityStatusUpdateView.as_view(), name="udpate_status"),
+    path("delete_attachment/<int:pk>/",
+         FileDeleteView.as_view(), name="delete_attachment"),
+    path("opportunity/download/<uuid:pk>/",
+         DownloadFolderView.as_view(), name="download_folder"),
+
+    # Chart urls
+    path("opportunity/chart/data/",
+         DashboardDataView.as_view(), name="dashboard_data")
+]
