@@ -135,10 +135,21 @@ class OpportunitySearchForm(forms.Form):
     ref_no = forms.CharField(required=False, label='Ref#')
     title = forms.CharField(required=False, label='Title')
     funding_agency = forms.ModelChoiceField(
-        queryset=FundingAgency.objects.all(), required=False, label="Funding Agency")
+        queryset=FundingAgency.objects.all(), required=False, label="Funding Agency", widget=forms.Select(attrs={'hx-get': '/opportunities/', 'hx-trigger': 'change delay:500ms'}))
     client = forms.ModelChoiceField(
         queryset=Client.objects.all(), required=False, label='Client')
     status = forms.ChoiceField(
         choices=[('', '')] + Opportunity.OPP_STATUS, required=False, label="Status")
     opp_type = forms.ChoiceField(
         choices=[('', '')] + Opportunity.OPP_TYPE, required=False, label="Type")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Set the htmx attributes
+        for field_name in self.fields:
+            self.fields[field_name].widget.attrs.update({
+                'hx-get': '/opportunities/',
+                'hx-target': '#opportunity-container',
+                'hx-trigger': 'change delay:500ms' if isinstance(self.fields[field_name].widget, forms.Select) else 'keyup changed delay:500ms',
+            })
