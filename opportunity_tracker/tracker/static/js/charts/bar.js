@@ -4,6 +4,8 @@ function createSimpleVerticalBarChart(
   data,
   titleText,
   datasetLabel,
+  xLabel,
+  yLabel,
   backgroundColors,
   borderColors
 ) {
@@ -30,6 +32,26 @@ function createSimpleVerticalBarChart(
         title: {
           display: true,
           text: titleText,
+        },
+      },
+      scales: {
+        x: {
+          title: {
+            display: true,
+            text: xLabel ?? "",
+            font: {
+              weight: "bold",
+            },
+          },
+        },
+        y: {
+          title: {
+            display: true,
+            text: yLabel ?? "",
+            font: {
+              weight: "bold",
+            },
+          },
         },
       },
     },

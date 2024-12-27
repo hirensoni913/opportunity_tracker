@@ -71,7 +71,7 @@
 </div>
 {% endblock content %} {% block scripts %}
 <script src="{% static "js/chroma.min.js" %}"></script>
-<script src="{% static "chartjs-plugin-datalabels.js" %}"></script>
+<script src="{% static "js/chartjs-plugin-datalabels.js" %}"></script>
 <script>
   // Generate the random colors
    var randomPalette = generateRandomPalette();
@@ -152,7 +152,7 @@
 
          var titleText = "Top 5 Valued Won Opportunities by Funding Agency ({% now "Y" %})";
          var datasetLabel = "Top 5 Valued Won Opportunities";
-         createSimpleVerticalBarChart(ctx, response.top5_won_valued_labels, response.top5_won_valued_data, titleText, datasetLabel, opaqueRandomPalette, randomPalette);
+         createSimpleVerticalBarChart(ctx, response.top5_won_valued_labels, response.top5_won_valued_data, titleText, datasetLabel, "", "", opaqueRandomPalette, randomPalette);
 
 
        // Bar chart for top 5 current valued funding agencies
@@ -162,7 +162,7 @@
 
          var titleText = "Top 5 Valued Awaiting Opportunities by Funding Agency ({% now "Y" %})";
          var datasetLabel = "Top 5 Valued Awaiting Opportunities";
-         createSimpleVerticalBarChart(ctx, response.top5_valued_submitted_labels, response.top5_valued_submitted_data, titleText, datasetLabel, opaqueRandomPalette, randomPalette);
+         createSimpleVerticalBarChart(ctx, response.top5_valued_submitted_labels, response.top5_valued_submitted_data, titleText, datasetLabel, "", "", opaqueRandomPalette, randomPalette);
 
       // Bar chart for top 5 duration funding agencies
       var ctx = document
@@ -171,7 +171,7 @@
 
       var titleText = "Top 5 Long-term Won Opportunities by Funding Agency ({% now "Y" %})";
       var datasetLabel = "Top 5 Long-term Won Opportunities";
-      createSimpleVerticalBarChart(ctx, response.top5_duration_won_labels, response.top5_duration_won_data, titleText, datasetLabel, opaqueRandomPalette, randomPalette);
+      createSimpleVerticalBarChart(ctx, response.top5_duration_won_labels, response.top5_duration_won_data, titleText, datasetLabel, "In Months", "", opaqueRandomPalette, randomPalette);
 
       // Bar chart for top 5 duration Submitted by funding agencies
       var ctx = document
@@ -180,7 +180,7 @@
 
       var titleText = "Top 5 Long-term Awaiting Opportunities by Funding Agency ({% now "Y" %})";
       var datasetLabel = "Top 5 Long-term Awaiting Opportunities";
-      createSimpleVerticalBarChart(ctx, response.top5_duration_submitted_labels, response.top5_duration_submitted_data, titleText, datasetLabel, opaqueRandomPalette, randomPalette);
+      createSimpleVerticalBarChart(ctx, response.top5_duration_submitted_labels, response.top5_duration_submitted_data, titleText, datasetLabel, "In Months", "", opaqueRandomPalette, randomPalette);
 
 
        },
@@ -193,14 +193,7 @@
      loadChart(null, '{% url "dashboard_data" %}', "Opportunities by Status");
    }
 
-   function getRandomColor() {
-     const letters = "0123456789ABCDEF";
-     let color = "#";
-     for (let i = 0; i < 6; i++) {
-       color += letters[Math.floor(Math.random() * 16)];
-     }
-     return color;
-   }
+   
 
    $(document).ready(function () {
      loadAllCharts();
