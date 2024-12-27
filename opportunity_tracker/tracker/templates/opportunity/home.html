@@ -46,12 +46,25 @@
   <div class="row justify-content-center">
     <div class="col-md-6">
       <div class="shadow-lg p-3 mb-4 bg-body rounded">
-        <canvas id="top5Valued"></canvas>
+        <canvas id="top5ValuedWon"></canvas>
       </div>
     </div>
     <div class="col-md-6">
       <div class="shadow-lg p-3 mb-4 bg-body rounded">
-        <canvas id="top5ValuedCurrent"></canvas>
+        <canvas id="top5ValuedSubmitted"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="shadow-lg p-3 mb-4 bg-body rounded">
+        <canvas id="top5DurationWon"></canvas>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="shadow-lg p-3 mb-4 bg-body rounded">
+        <canvas id="top5DurationSubmitted"></canvas>
       </div>
     </div>
   </div>
@@ -132,24 +145,43 @@
          var datasetLabel = "Total Opportunities";
          createPieChart(ctx, response.proposal_lead_labels, response.proposal_lead_data, 'doughnut', titleText, datasetLabel, opaqueRandomPalette);
 
-         // Bar chart for top 5 valued funding agencies
+         // Bar chart for top 5 won valued funding agencies
          var ctx = document
-         .getElementById("top5Valued")
+         .getElementById("top5ValuedWon")
          .getContext("2d");
 
-         var titleText = "Top 5 Valued Opportunities by Funding Agency [Won/Lost/Cancelled] ({% now "Y" %})";
-         var datasetLabel = "Top 5 Valued Opportunities";
-         createSimpleVerticalBarChart(ctx, response.top5_valued_labels, response.top5_valued_data, titleText, datasetLabel, opaqueRandomPalette, randomPalette);
+         var titleText = "Top 5 Valued Won Opportunities by Funding Agency ({% now "Y" %})";
+         var datasetLabel = "Top 5 Valued Won Opportunities";
+         createSimpleVerticalBarChart(ctx, response.top5_won_valued_labels, response.top5_won_valued_data, titleText, datasetLabel, opaqueRandomPalette, randomPalette);
 
 
        // Bar chart for top 5 current valued funding agencies
          var ctx = document
-         .getElementById("top5ValuedCurrent")
+         .getElementById("top5ValuedSubmitted")
          .getContext("2d");
 
-         var titleText = "Top 5 Valued in Progress Opportunities by Funding Agency ({% now "Y" %})";
-         var datasetLabel = "Top 5 Valued in Progress Opportunities";
-         createSimpleVerticalBarChart(ctx, response.top5_valued_current_labels, response.top5_valued_current_data, titleText, datasetLabel, opaqueRandomPalette, randomPalette);
+         var titleText = "Top 5 Valued Awaiting Opportunities by Funding Agency ({% now "Y" %})";
+         var datasetLabel = "Top 5 Valued Awaiting Opportunities";
+         createSimpleVerticalBarChart(ctx, response.top5_valued_submitted_labels, response.top5_valued_submitted_data, titleText, datasetLabel, opaqueRandomPalette, randomPalette);
+
+      // Bar chart for top 5 duration funding agencies
+      var ctx = document
+      .getElementById("top5DurationWon")
+      .getContext("2d");
+
+      var titleText = "Top 5 Long-term Won Opportunities by Funding Agency ({% now "Y" %})";
+      var datasetLabel = "Top 5 Long-term Won Opportunities";
+      createSimpleVerticalBarChart(ctx, response.top5_duration_won_labels, response.top5_duration_won_data, titleText, datasetLabel, opaqueRandomPalette, randomPalette);
+
+      // Bar chart for top 5 duration Submitted by funding agencies
+      var ctx = document
+      .getElementById("top5DurationSubmitted")
+      .getContext("2d");
+
+      var titleText = "Top 5 Long-term Awaiting Opportunities by Funding Agency ({% now "Y" %})";
+      var datasetLabel = "Top 5 Long-term Awaiting Opportunities";
+      createSimpleVerticalBarChart(ctx, response.top5_duration_submitted_labels, response.top5_duration_submitted_data, titleText, datasetLabel, opaqueRandomPalette, randomPalette);
+
 
        },
        error: () =>

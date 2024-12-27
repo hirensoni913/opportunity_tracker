@@ -85,16 +85,28 @@ class DashboardDataView(TemplateView):
         proposal_lead_data = proposal_lead["proposal_lead_data"]
 
         # Top 5 Valued Opportunities
-        top5_valued_opportunities = self.get_top5_valued_opportunities(
+        top5_valued_opportunities = self.get_top5_won_valued_opportunities(
             year_period)
-        top5_valued_labels = top5_valued_opportunities["top5_valued_labels"]
-        top5_valued_data = top5_valued_opportunities["top5_valued_data"]
+        top5_won_valued_labels = top5_valued_opportunities["top5_won_valued_labels"]
+        top5_won_valued_data = top5_valued_opportunities["top5_won_valued_data"]
 
         # Top 5 Valued Opportunities
-        top5_valued_current = self.get_top5_valued_current(
+        top5_valued_submitted = self.get_top5_valued_submitted(
             year_period)
-        top5_valued_current_labels = top5_valued_current["top5_valued_current_labels"]
-        top5_valued_current_data = top5_valued_current["top5_valued_current_data"]
+        top5_valued_submitted_labels = top5_valued_submitted["top5_valued_submitted_labels"]
+        top5_valued_submitted_data = top5_valued_submitted["top5_valued_submitted_data"]
+
+        # Top 5 duration Opportunities
+        top5_duration_opportunities_won = self.get_top5_duration_opportunities_won(
+            year_period)
+        top5_duration_won_labels = top5_duration_opportunities_won["top5_duration_won_labels"]
+        top5_duration_won_data = top5_duration_opportunities_won["top5_duration_won_data"]
+
+        # Top 5 duration Opportunities
+        top5_duration_submitted = self.get_top5_duration_submitted(
+            year_period)
+        top5_duration_submitted_labels = top5_duration_submitted["top5_duration_submitted_labels"]
+        top5_duration_submitted_data = top5_duration_submitted["top5_duration_submitted_data"]
 
         return JsonResponse({
             "status_labels": list(status_labels),
@@ -107,10 +119,14 @@ class DashboardDataView(TemplateView):
             "lead_institute_data": lead_institute_data,
             "proposal_lead_labels": proposal_lead_labels,
             "proposal_lead_data": proposal_lead_data,
-            "top5_valued_labels": top5_valued_labels,
-            "top5_valued_data": top5_valued_data,
-            "top5_valued_current_labels": top5_valued_current_labels,
-            "top5_valued_current_data": top5_valued_current_data
+            "top5_won_valued_labels": top5_won_valued_labels,
+            "top5_won_valued_data": top5_won_valued_data,
+            "top5_valued_submitted_labels": top5_valued_submitted_labels,
+            "top5_valued_submitted_data": top5_valued_submitted_data,
+            "top5_duration_won_labels": top5_duration_won_labels,
+            "top5_duration_won_data": top5_duration_won_data,
+            "top5_duration_submitted_labels": top5_duration_submitted_labels,
+            "top5_duration_submitted_data": top5_duration_submitted_data
         })
 
     def get_status_overview(self, period):
@@ -226,22 +242,40 @@ class DashboardDataView(TemplateView):
             "proposal_lead_data": [opp["count"] for opp in opportunities]
         }
 
-    def get_top5_valued_opportunities(self, period):
+    def get_top5_won_valued_opportunities(self, period):
         opportunities = Opportunity.objects.filter(
-            created_at__year=period, status__gt=5).order_by("-proposal_amount")[:5]
+            created_at__year=period, status__exact=7, proposal_amount__gt=0).order_by("-proposal_amount")[:5]
 
         return {
-            "top5_valued_labels": [opp.funding_agency.code if opp.funding_agency else "unknown" for opp in opportunities],
-            "top5_valued_data": [opp.proposal_amount for opp in opportunities]
+            "top5_won_valued_labels": [opp.funding_agency.code if opp.funding_agency else "unknown" for opp in opportunities],
+            "top5_won_valued_data": [opp.proposal_amount for opp in opportunities]
         }
 
-    def get_top5_valued_current(self, period):
+    def get_top5_valued_submitted(self, period):
         opportunities = Opportunity.objects.filter(
-            created_at__year=period, status__exact=5).order_by("-proposal_amount")[:5]
+            created_at__year=period, status__exact=5, proposal_amount__gt=0).order_by("-proposal_amount")[:5]
 
         return {
-            "top5_valued_current_labels": [opp.funding_agency.code if opp.funding_agency else "unknown" for opp in opportunities],
-            "top5_valued_current_data": [opp.proposal_amount for opp in opportunities]
+            "top5_valued_submitted_labels": [opp.funding_agency.code if opp.funding_agency else "unknown" for opp in opportunities],
+            "top5_valued_submitted_data": [opp.proposal_amount for opp in opportunities]
+        }
+
+    def get_top5_duration_opportunities_won(self, period):
+        opportunities = Opportunity.objects.filter(
+            created_at__year=period, status__exact=7, duration_months__gt=0).order_by("-duration_months")[:5]
+
+        return {
+            "top5_duration_won_labels": [opp.funding_agency.code if opp.funding_agency else "unknown" for opp in opportunities],
+            "top5_duration_won_data": [opp.duration_months for opp in opportunities]
+        }
+
+    def get_top5_duration_submitted(self, period):
+        opportunities = Opportunity.objects.filter(
+            created_at__year=period, status__exact=5, duration_months__gt=0).order_by("-duration_months")[:5]
+
+        return {
+            "top5_duration_submitted_labels": [opp.funding_agency.code if opp.funding_agency else "unknown" for opp in opportunities],
+            "top5_duration_submitted_data": [opp.duration_months for opp in opportunities]
         }
 
 
