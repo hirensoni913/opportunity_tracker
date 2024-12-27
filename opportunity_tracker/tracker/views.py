@@ -25,7 +25,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.views.generic import UpdateView, CreateView, DetailView, DeleteView, ListView, TemplateView
 from django.contrib.auth.decorators import login_not_required
 from django.template.loader import render_to_string
-from django.db.models import Count
+from django.db.models import Count, Sum, Case, When, IntegerField
 
 # from opportunity_tracker.tracker.middleware import is_authenticated
 from .serializers import OpportunitySerializer
@@ -59,6 +59,9 @@ class DashboardDataView(TemplateView):
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> JsonResponse:
 
         year_period = now().year
+
+        # Get total opportunities
+        totals = self.get_card_numbers(year_period)
 
         status_overview = self.get_status_overview(year_period)
         status_labels = status_overview["status_labels"]
@@ -109,6 +112,9 @@ class DashboardDataView(TemplateView):
         top5_duration_submitted_data = top5_duration_submitted["top5_duration_submitted_data"]
 
         return JsonResponse({
+            "total_opportunities": totals["total_opportunities"],
+            "total_submitted_proposal_amount": totals["total_submitted_proposal_amount"],
+            "total_won_proposal_amount": totals["total_won_proposal_amount"],
             "status_labels": list(status_labels),
             "status_data": status_data,
             "funding_agency_labels": list(funding_agency_labels),
@@ -276,6 +282,31 @@ class DashboardDataView(TemplateView):
         return {
             "top5_duration_submitted_labels": [opp.funding_agency.code if opp.funding_agency else "unknown" for opp in opportunities],
             "top5_duration_submitted_data": [opp.duration_months for opp in opportunities]
+        }
+
+    def get_card_numbers(self, period):
+        result = Opportunity.objects.filter(created_at__year=period).aggregate(
+            total_opportunities=Count("id"),
+            total_submitted_proposal_amount=Sum(
+                Case(
+                    When(status=5, then="proposal_amount"),
+                    default=0,
+                    output_field=IntegerField(),
+                )
+            ),
+            total_won_proposal_amount=Sum(
+                Case(
+                    When(status=7, then="proposal_amount"),
+                    default=0,
+                    output_field=IntegerField()
+                )
+            )
+        )
+
+        return {
+            "total_opportunities": result["total_opportunities"],
+            "total_submitted_proposal_amount": result["total_submitted_proposal_amount"],
+            "total_won_proposal_amount": result["total_won_proposal_amount"]
         }
 
 

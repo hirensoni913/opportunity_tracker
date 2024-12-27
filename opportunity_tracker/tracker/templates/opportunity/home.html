@@ -2,10 +2,37 @@
 {% extends "base.html" %} {% block title %}Opportunity Tracker {%endblock title%} {% block content %}
 {% load tz %}
 {% load static %}
+{% load l10n %}
+
 <script src="{% static 'js/charts/bar.js' %}"></script>
 <script src="{% static 'js/charts/pie.js' %}"></script>
 
 <div class="p-3">
+  <div class="row justify-content-center">
+    <div class="col-md-4">
+      <div class="shadow-lg p-3 mb-4 bg-body rounded">
+        <h1 id="totalOpportunities" class="display-1">0</h1>
+        <span class="text-muted">Total Opportunities Captured in {% now "Y" %}</span>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="shadow-lg p-3 mb-4 bg-body rounded">
+        <h1 id="totalWonProposalAmount" class="display-1">0</h1>
+        <span class="text-muted">Total Won Amount in {% now "Y" %}</span>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="shadow-lg p-3 mb-4 bg-body rounded">
+        <h1 id="totalSubmittedProposalAmount" class="display-1">0</h1>
+        <span class="text-muted">Total Submitted Amount in {% now "Y" %}</span>
+      </div>
+    </div>
+    {% comment %} <div class="col-md-3">
+      <div class="shadow-lg p-3 mb-4 bg-body rounded"></div>
+    </div> {% endcomment %}
+  </div>
+
+
   <div class="row justify-content-center">
     <div class="col-md-6">
       <!-- Card with shadow to display the chart -->
@@ -85,9 +112,14 @@
        type: "GET",
        dataType: "json",
        success: (response) => {
-         // Bar chart for status
-
-         const status_datasets = response.status_data.map((item, index) => {
+        
+        // Total Opportunities
+        animateNumbers($("#totalOpportunities"), response.total_opportunities);
+        animateNumbers($("#totalSubmittedProposalAmount"), response.total_submitted_proposal_amount);
+        animateNumbers($("#totalWonProposalAmount"), response.total_won_proposal_amount);
+        
+        // Bar chart for status
+        const status_datasets = response.status_data.map((item, index) => {
            return {
              label:item.label,
              data:item.data,

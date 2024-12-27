@@ -24,3 +24,17 @@ function generateRandomPalette() {
 function applyOpacityToPalette(palette, opacity) {
   return palette.map((color) => chroma(color).alpha(opacity).css());
 }
+
+// Animate numbers
+function animateNumbers(element, value) {
+  anime({
+    targets: element[0],
+    innerHTML: [0, value], // Animate from 0 to the fetched value
+    easing: "easeOutExpo", // Smooth easing
+    duration: 1000, // Duration of the animation in ms
+    round: 1, // Round numbers to integers
+    update: function (anim) {
+      element[0].innerHTML = Number(element[0].innerHTML).toLocaleString(); // Format with commas
+    },
+  });
+}
