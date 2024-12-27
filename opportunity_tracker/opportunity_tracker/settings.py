@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'drf_yasg',
-    # 'bootstrap5',
+    'django_cotton',
     'fontawesomefree',
     'crispy_forms',
     'crispy_bootstrap5',
