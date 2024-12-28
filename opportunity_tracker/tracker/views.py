@@ -330,7 +330,7 @@ class OpportunityListView(ListView):
             opp_type = form.cleaned_data.get('opp_type', None)
 
             if ref_no:
-                opportunities = opportunities.filter(ref_no__iexact=ref_no)
+                opportunities = opportunities.filter(ref_no__icontains=ref_no)
             if title:
                 opportunities = opportunities.filter(title__icontains=title)
             if funding_agency:
@@ -388,7 +388,14 @@ class OpportunityCreateView(CreateView):
         for f in files:
             OpportunityFile.objects.create(opportunity=self.object, file=f)
 
-        return response
+        headers = {"HX-Trigger": "new_opportunity_added"}
+        return HttpResponse(status=204, headers=headers)
+
+    def get_template_names(self):
+        if self.request.htmx:
+            return "opportunity/new.html"
+        else:
+            return self.template_name
 
 
 class OpportunityUpdateView(UpdateView):

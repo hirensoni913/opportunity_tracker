@@ -8,6 +8,7 @@
         hx-swap="afterend"
         data-filters="{{ request.GET.urlencode }}"
         hx-include="#filterForm"
+        hx-indicator="#spinner"
         >
     {% else %}
         <div class="col">

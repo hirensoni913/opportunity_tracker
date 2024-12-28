@@ -2,11 +2,11 @@
 {%block content %} {% load form_tags %} {% load static %}
 
 <form
-  method="get"
   hx-get="{% url 'opportunities' %}"
   hx-target="#opportunity-container"
   hx-include="this"
   id="filterForm"
+  hx-trigger="new_opportunity_added from:body"
 >
   <div class="card">
     <div class="card-header">
@@ -45,9 +45,16 @@
 <div class="card mt-1">
   <div class="card-header">
     <h4 id="oppCount">{{page_obj.paginator.count}} Opportunities Found</h4>
-    <a href="{% url 'new_opportunity' %}" class="btn btn-lg btn-primary fab"
-      ><i class="fa fa-plus"></i
-    ></a>
+    <button
+      data-bs-toggle="modal"
+      data-bs-target="#modal"
+      class="btn btn-lg btn-primary fab"
+      hx-get="{% url 'new_opportunity' %}"
+      hx-target="#dialog"
+      hx-trigger="click"
+    >
+      <i class="fa fa-plus"></i>
+    </button>
   </div>
 
   <!-- prettier-ignore -->
@@ -59,21 +66,16 @@
     {% include "opportunity/opportunity_cards.html" %}
     
   </div>
-  
-  
-
 </div>
-
-  <div id="loading-spinner" class="text-center my-3" style="display: none">
-    <img
-      src="{% static 'images/loading.webp' %}"
-      alt="Loading..."
-      style="width: 10%"
-    />
+  <div id="spinner" class="text-center text-primary htmx-indicator">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
   </div>
 </div>
 
 <!--Detail Modal-->
+{% comment %}
 <div
   class="modal fade"
   id="detailModal"
@@ -103,35 +105,52 @@
     </div>
   </div>
 </div>
+{% endcomment %}
 
-<script>
-  $(document).ready(function () {
-    formatTimeStamp();
-  });
+<!--New Modal-->
+<div
+  id="modal"
+  class="modal fade"
+  tabindex="-1"
+  aria-labelledby="newModalLabel"
+  aria-hidden="true"
+  data-bs-backdrop="static"
+  data-bs-keyboard="false"
+>
+    <div id="dialog" class="modal-dialog modal-xl modal-dialog-centered">
+      <!-- Form content will be dynamically inserted here -->
+    </div>
+</div>
 
-  document.addEventListener("htmx:afterSwap", function (event) {
-    formatTimeStamp();
+  <script>
+    $(document).ready(function () {
+      formatTimeStamp();
+    });
 
-    const hiddenField = document.querySelector("#opportunity-count");
-    if (hiddenField) {
-      const oppCount = hiddenField.value;
-      if (oppCount) {
-        document.querySelector(
-          "#oppCount"
-        ).textContent = `${oppCount} Opportunities Found`;
-      }
-    }
-  });
+    document.addEventListener("htmx:afterSwap", function (event) {
+      formatTimeStamp();
 
-  function formatTimeStamp() {
-    // Setting date time to relative time
-    $(".created_at").each(function () {
-      const rawTimeStamp = $(this).data("timestamp"); // Get the data-timestamp value
-      if (rawTimeStamp) {
-        const formattedTime = moment(rawTimeStamp).fromNow();
-        $(this).text(formattedTime);
+      const hiddenField = document.querySelector("#opportunity-count");
+      if (hiddenField) {
+        const oppCount = hiddenField.value;
+        if (oppCount) {
+          document.querySelector(
+            "#oppCount"
+          ).textContent = `${oppCount} Opportunities Found`;
+        }
       }
     });
-  }
-</script>
-{% endblock content %}
+
+    function formatTimeStamp() {
+      // Setting date time to relative time
+      $(".created_at").each(function () {
+        const rawTimeStamp = $(this).data("timestamp"); // Get the data-timestamp value
+        if (rawTimeStamp) {
+          const formattedTime = moment(rawTimeStamp).fromNow();
+          $(this).text(formattedTime);
+        }
+      });
+    }
+  </script>
+  {% endblock content %}
+</div>

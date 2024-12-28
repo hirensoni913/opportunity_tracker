@@ -144,12 +144,13 @@ class OpportunitySearchForm(forms.Form):
         choices=[('', '')] + Opportunity.OPP_TYPE, required=False, label="Type")
 
     def __init__(self, *args, **kwargs):
+        from django.urls import reverse
         super().__init__(*args, **kwargs)
 
         # Set the htmx attributes
         for field_name in self.fields:
             self.fields[field_name].widget.attrs.update({
-                'hx-get': '/opportunities/',
+                'hx-get':  reverse('opportunities'),
                 'hx-target': '#opportunity-container',
-                'hx-trigger': 'change delay:500ms' if isinstance(self.fields[field_name].widget, forms.Select) else 'keyup changed delay:500ms',
+                'hx-trigger': 'change' if isinstance(self.fields[field_name].widget, forms.Select) else 'keyup changed delay:500ms',
             })

@@ -1,12 +1,24 @@
-{% extends "base.html" %} {% block title %}Opportunities{% endblock title %}
-{%block content %}
-{% load form_tags %}
-{% load file_filters %}
+{%block content %} {% load form_tags %} {% load file_filters %} {% load static
+%}
 
-<div class="card">
-  <div class="card-header text-center"><h3> New Opportunity</h3></div>
-  <div class="card-body">
-  <form class="row g-3" id="opportunityForm" method="POST" enctype="multipart/form-data">
+<form
+  class="modal-content"
+  id="opportunityForm"
+  enctype="multipart/form-data"
+  hx-post="{% url 'new_opportunity' %}"
+>
+  <div class="modal-header">
+    <h5 class="modal-title">New Opportunity</h5>
+    <button
+      type="button"
+      class="btn-close"
+      data-bs-dismiss="modal"
+      aria-label="Close"
+    ></button>
+  </div>
+
+  <div class="row g-3 card-body modal-body">
+    
     {% csrf_token %}
     {{form.status}}
     <div class="form-floating col-md-3">
@@ -46,17 +58,17 @@
       {%endif%}
     </div>
 
-    <div class="col-md-6">
-    <div class="input-group col-md-6">
+    <div class="col-md-9">
+    <div class="input-group col-md-9">
       <div class="input-group-text">Countries</div>
       {{form.countries|add_class:"form-select"}}
-      {%if form.countries.errors%}
-      <div class="text-danger">{{form.countries.errors|striptags}}</div>
-      {%endif%}
     </div>
+    {%if form.countries.errors%}
+    <div class="text-danger">{{form.countries.errors|striptags}}</div>
+    {%endif%}
   </div>
 
-  <div class="form-floating col-md-6">
+  <div class="form-floating col-md-3">
     {{form.duration_months|add_class:"form-control"}}
     <label for="duration_months" class="form-label">Duration (months)</label>
     {%if form.duration_months.errors%}
@@ -96,29 +108,50 @@
       {%endif%}
     </div>
     
-   <div class="col-md-6">
+  <div class="col-md-6">
       <input class="form-control" type="file" name="files" id="files" multiple>
     </div>
     
   </div>
-    <div class="card-footer">
-        <button type="submit" class="btn btn-lg btn-success float-end">
-          <i class="fa-solid fa-save"></i>
-          Save
-        </button>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+        Cancel
+      </button>
+      <button
+        type="submit"
+        class="btn btn-success"
+        hx-indicator="#spinnerNew"
+        hx-disabled-elt="this"
+      >
+        <i class="fa fa-save"></i> Save <img id="spinnerNew" src="{% static "images/bouncing-circles.svg" %}" alt="" style="height:25px;"
+        class="htmx-indicator" />
+      </button>
       </div>
     </div>
-  </form>
+  
 </div>
-  </div>
 </div>
 
-{% endblock content %}
 
-{% block scripts %}
+</form>
+
+{% endblock content %} {% block scripts %}
 <script>
-  
-  $("#id_countries").select2({theme: 'bootstrap-5', placeholder: 'Choose countries', allowClear: true});
-  
+  $("#id_countries").select2({
+    theme: "bootstrap-5",
+    placeholder: "Choose countries",
+    allowClear: true,
+  });
+
+  document.body.addEventListener("htmx:afterRequest", function (evt) {
+    // Check if the response was successful
+    if (evt.detail.target.id === "opportunityForm" && !evt.detail.xhr.response) {
+      // Close the Bootstrap modal
+      const modal = bootstrap.Modal.getInstance(document.querySelector(".modal"));
+      if (modal) modal.hide();
+    }
+  });
+
+
 </script>
-{% endblock  %}
+{% endblock %}
