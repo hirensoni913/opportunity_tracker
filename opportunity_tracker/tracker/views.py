@@ -330,7 +330,7 @@ class OpportunityListView(ListView):
             opp_type = form.cleaned_data.get('opp_type', None)
 
             if ref_no:
-                opportunities = opportunities.filter(ref_no__iexact=ref_no)
+                opportunities = opportunities.filter(ref_no__icontains=ref_no)
             if title:
                 opportunities = opportunities.filter(title__icontains=title)
             if funding_agency:
@@ -348,16 +348,15 @@ class OpportunityListView(ListView):
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         context['form'] = self.form_class(self.request.GET or None)
+        context['opportunity_count'] = context['page_obj'].paginator.count
+
         return context
 
-    def render_to_response(self, context: dict[str, Any], **response_kwargs: Any) -> HttpResponse:
-        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            html = render_to_string(
-                'opportunity/opportunity_cards.html', context, request=self.request)
-            return JsonResponse({'html': html, 'has_next': context['page_obj'].has_next()})
-
-        context['has_next'] = context['page_obj'].has_next()
-        return super().render_to_response(context, **response_kwargs)
+    def get_template_names(self):
+        if self.request.htmx:
+            return "opportunity/opportunity_cards.html"
+        else:
+            return self.template_name
 
 
 class FileDeleteView(DeleteView):
@@ -389,7 +388,14 @@ class OpportunityCreateView(CreateView):
         for f in files:
             OpportunityFile.objects.create(opportunity=self.object, file=f)
 
-        return response
+        headers = {"HX-Trigger": "new_opportunity_added"}
+        return HttpResponse(status=204, headers=headers)
+
+    def get_template_names(self):
+        if self.request.htmx:
+            return "opportunity/new.html"
+        else:
+            return self.template_name
 
 
 class OpportunityUpdateView(UpdateView):

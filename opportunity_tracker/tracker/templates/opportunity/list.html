@@ -1,15 +1,16 @@
 {% extends "base.html" %} {% block title %}Opportunities{% endblock title %}
 {%block content %} {% load form_tags %} {% load static %}
 
-<form method="GET">
+<form
+  hx-get="{% url 'opportunities' %}"
+  hx-target="#opportunity-container"
+  hx-include="this"
+  id="filterForm"
+  hx-trigger="new_opportunity_added from:body"
+>
   <div class="card">
     <div class="card-header">
-      <h3>
-        Opportunities
-        <button type="submit" class="btn text-light float-end h-100">
-          <i class="fa fa-search"></i> Search
-        </button>
-      </h3>
+      <h3>Opportunities</h3>
     </div>
     <div class="card-body">
       <div class="row g-3">
@@ -41,33 +42,41 @@
     </div>
   </div>
 </form>
-
 <div class="card mt-1">
-  <div class="card-header bg-secondary.bg-gradient">
-    <h4>
-      {{page_obj.paginator.count}} Opportunities Found
-      <a href="{% url 'new_opportunity' %}" class="btn btn-lg btn-primary fab"
-        ><i class="fa fa-plus"></i
-      ></a>
-    </h4>
+  <div class="card-header">
+    <h4 id="oppCount">{{page_obj.paginator.count}} Opportunities Found</h4>
+    <button
+      data-bs-toggle="modal"
+      data-bs-target="#modal"
+      data-modal-size="modal-xl"
+      class="btn btn-lg btn-primary fab"
+      hx-get="{% url 'new_opportunity' %}"
+      hx-target="#dialog"
+      hx-trigger="click"
+    >
+      <i class="fa fa-plus"></i>
+    </button>
   </div>
 
+  <!-- prettier-ignore -->
   <div class="card-body">
-    <div id="opportunity-container" class="row row-cols-sm-1 row-cols-lg-3 g-2">
-      {% include "opportunity/opportunity_cards.html" %}
-    </div>
+    <div
+      id="opportunity-container"
+      class="row row-cols-sm-1 row-cols-lg-3 g-2"
+    >
+    {% include "opportunity/opportunity_cards.html" %}
+    
   </div>
-
-  <div id="loading-spinner" class="text-center my-3" style="display: none">
-    <img
-      src="{% static 'images/loading.webp' %}"
-      alt="Loading..."
-      style="width: 10%"
-    />
+</div>
+  <div id="spinner" class="text-center text-primary htmx-indicator">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
   </div>
 </div>
 
 <!--Detail Modal-->
+{% comment %}
 <div
   class="modal fade"
   id="detailModal"
@@ -97,84 +106,39 @@
     </div>
   </div>
 </div>
+{% endcomment %}
 
-<script>
-  $(document).ready(function () {
-    // Infinite scroll
-    let nextPage = 2;
-    let hasNext = {{ has_next|lower }};
-    let isLoading = false; // Flag to prevent multiple requests
-    const container = $("#opportunity-container");
-    const spinner = $("#loading-spinner");
+<!--New Modal-->
 
-    $(window).scroll(function () {
-      if (
-        $(window).scrollTop() + $(window).height() >=
-          $(document).height() - 100 &&
-        hasNext &&
-        !isLoading // Ensures no ongoing requests
-      ) {
-        isLoading = true; // Set loading state
-        const queryParams = getQueryParams(); // Get current query parameters
-        const url =
-          "{% url 'opportunities' %}?page=" + nextPage + "&" + queryParams;
-        spinner.show();
+  <script>
+    $(document).ready(function () {
+      formatTimeStamp();
+    });
 
-        $.ajax({
-          url: url,
-          type: "get",
-          headers: {
-            "X-Requested-With": "XMLHttpRequest",
-          },
-          success: function (data) {
-            container.append(data.html); // Append new Opportunities
-            hasNext = data.has_next; // Update hasNext, if there is a next page
-            nextPage += 1; // Increment nextPage
-            isLoading = false; // Reset loading state
-            spinner.hide(); // Hide spinner
+    document.addEventListener("htmx:afterSwap", function (event) {
+      formatTimeStamp();
 
-            $(".created_at").each(function () {
-              const rawTimeStamp = $(this).data("timestamp"); // Get the data-timestamp value
-              if (rawTimeStamp) {
-                const formattedTime = moment(rawTimeStamp).fromNow();
-                $(this).text(formattedTime);
-              }
-            });
-          },
-          error: function (xhr, status, error) {
-            console.error("Failed to load opportunities", error);
-            isLoading = false;
-            spinner.hide(); // Hide spinner
-          },
-        });
+      const hiddenField = document.querySelector("#opportunity-count");
+      if (hiddenField) {
+        const oppCount = hiddenField.value;
+        if (oppCount) {
+          document.querySelector(
+            "#oppCount"
+          ).textContent = `${oppCount} Opportunities Found`;
+        }
       }
     });
 
-    // Setting date time to relative time
-    $(".created_at").each(function () {
-      const rawTimeStamp = $(this).data("timestamp"); // Get the data-timestamp value
-      if (rawTimeStamp) {
-        const formattedTime = moment(rawTimeStamp).fromNow();
-        $(this).text(formattedTime);
-      }
-    });
-  });
-
-  $('#detailModal').on('show.bs.modal', function (event) {
-    var button = $(event.relatedTarget); // Button that triggered the modal
-    var url = button.data('url'); // Get the URL for the detail view
-
-    // Make an AJAX request to fetch the content of the form
-    $.ajax({
-      url: url,
-      success: function(data) {
-        // Insert the fetched form data into the modal's body
-        $('#modalBodyContent').html(data.html);
-      },
-      error: function() {
-        alert("Failed to load data.");
-      }
-    });
-  });
-</script>
-{% endblock content %}
+    function formatTimeStamp() {
+      // Setting date time to relative time
+      $(".created_at").each(function () {
+        const rawTimeStamp = $(this).data("timestamp"); // Get the data-timestamp value
+        if (rawTimeStamp) {
+          const formattedTime = moment(rawTimeStamp).fromNow();
+          $(this).text(formattedTime);
+        }
+      });
+    }
+  </script>
+  {% endblock content %}
+</div>

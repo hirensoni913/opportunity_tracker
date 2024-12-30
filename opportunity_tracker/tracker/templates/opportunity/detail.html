@@ -4,6 +4,7 @@
 {% load l10n %}
 
 <!-- General Information -->
+<div class="modal-content">
 <div class="section">
   <div class="section-header">
     General Information
@@ -183,5 +184,11 @@
     <p class="text-muted">No attachments available.</p>
     {% endif %}
   </div>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+    Close
+  </button>
+</div>
 </div>
 {% endblock content %}
