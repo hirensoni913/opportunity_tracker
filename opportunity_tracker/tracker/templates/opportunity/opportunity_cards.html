@@ -36,7 +36,7 @@
                 <div class="card-footer text-muted small p-0 mt-auto">
                     <div class="d-flex justify-content-between w-100 pt-2">
                         <div>
-                            <button class="btn btn-sm btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#detailModal" hx-get="{% url "opportunity" pk=opportunity.id %}" hx-target="#modalBodyContent"><i class="fas fa-eye"></i> View</button>
+                            <button class="btn btn-sm btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#modal" data-modal-size="modal-lg" hx-get="{% url "opportunity" pk=opportunity.id %}" hx-target="#dialog"><i class="fas fa-eye"></i> View</button>
                             <a href="{% url "update_opportunity" pk=opportunity.id %}" class="btn btn-sm btn-outline-secondary me-2"><i class="fas fa-pencil-alt"></i> Update</a>
                         </div>
                         <div class="text-end">

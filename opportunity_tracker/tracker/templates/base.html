@@ -67,6 +67,21 @@
       {% endif %}
       
       <div style="margin-top:4rem;">{% block content %} {% endblock %}</div>
+
+      <div
+        id="modal"
+        class="modal fade"
+        tabindex="-1"
+        aria-labelledby="newModalLabel"
+        aria-hidden="true"
+        data-bs-backdrop="static"
+        data-bs-keyboard="false"
+      >
+        <div id="dialog" class="modal-dialog modal-dialog-centered">
+          <!-- Form content will be dynamically inserted here -->
+        </div>
+      </div>
+
     </div>
     
     <script src="{% static "libs/bootstrap/popper.min.js" %}" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
@@ -89,6 +104,13 @@
               $(this).addClass("active");
             }
           });
+        });
+
+        document.addEventListener("show.bs.modal", function (event) {
+          const button = event.relatedTarget;
+          const modalSize = button.getAttribute("data-modal-size") || "modal-lg";
+          const dialog = document.querySelector("#dialog");
+          dialog.className = `modal-dialog ${modalSize} modal-dialog-centered`;
         });
       </script>
 

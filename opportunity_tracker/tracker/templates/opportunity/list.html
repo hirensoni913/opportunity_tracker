@@ -48,6 +48,7 @@
     <button
       data-bs-toggle="modal"
       data-bs-target="#modal"
+      data-modal-size="modal-xl"
       class="btn btn-lg btn-primary fab"
       hx-get="{% url 'new_opportunity' %}"
       hx-target="#dialog"
@@ -108,19 +109,6 @@
 {% endcomment %}
 
 <!--New Modal-->
-<div
-  id="modal"
-  class="modal fade"
-  tabindex="-1"
-  aria-labelledby="newModalLabel"
-  aria-hidden="true"
-  data-bs-backdrop="static"
-  data-bs-keyboard="false"
->
-    <div id="dialog" class="modal-dialog modal-xl modal-dialog-centered">
-      <!-- Form content will be dynamically inserted here -->
-    </div>
-</div>
 
   <script>
     $(document).ready(function () {
