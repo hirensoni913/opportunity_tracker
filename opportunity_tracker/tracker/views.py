@@ -388,7 +388,7 @@ class OpportunityCreateView(CreateView):
         for f in files:
             OpportunityFile.objects.create(opportunity=self.object, file=f)
 
-        headers = {"HX-Trigger": "new_opportunity_added"}
+        headers = {"HX-Trigger": "refresh_opp_list"}
         return HttpResponse(status=204, headers=headers)
 
     def get_template_names(self):
@@ -418,11 +418,8 @@ class OpportunityUpdateView(UpdateView):
         for f in files:
             OpportunityFile.objects.create(opportunity=self.object, file=f)
 
-        return response
-
-    def form_invalid(self, form):
-        print("Form errors:", form.errors)
-        return super().form_invalid(form)
+        headers = {"HX-Redirect": str(self.success_url)}
+        return HttpResponse(status=204, headers=headers)
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
@@ -441,14 +438,13 @@ class OpportunityUpdateView(UpdateView):
                 instance=self.object)
         else:
             context['submit_proposal_form'] = self.submit_proposal_form
-        if self.object.status in [1, 3, 4]:
-            context['filtered_status'] = [
-                (2, "Go"), (3, "NO-Go"), (4, "Consider")]
-        elif self.object.status >= 5:
-            context['filtered_status'] = [
-                (5, "Submitted"), (6, "Lost"), (7, "Won"), (8, "Cancelled"), (9, "Assumed Lost"), (10, "N/A")]
 
         return context
+
+    def get_template_names(self):
+        if self.request.htmx:
+            return "opportunity/update.html"
+        return super().get_template_names()
 
     def dispatch(self, request, *args, **kwargs):
         # Extract additional kwargs if provided
@@ -460,30 +456,51 @@ class OpportunityUpdateView(UpdateView):
 class OpportunityStatusUpdateView(UpdateView):
     model = Opportunity
     form_class = UpdateStatusForm
-    template_name = "opportunity/new.html"
+    template_name = "opportunity/update_status_modal.html"
     success_url = reverse_lazy("opportunities")
 
     def form_valid(self, form):
-        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({'success': True})
+        self.object = form.save()
+        if self.request.htmx:
+            headers = {"HX-Trigger": "status_updated"}
+            return HttpResponse(status=204, headers=headers)
 
         return super().form_valid(form)
 
     def form_invalid(self, form):
-        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        if self.request.htmx:
             errors = form.errors.as_json()
-            return JsonResponse({'success': False, 'errors': errors})
+            print(errors)
+            context = self.get_context_data(
+                update_status_form=form)  # Pass the form with errors
+
+            headers = {"HX-Trigger": "form_invalid"}
+            return self.render_to_response(context, headers=headers)
 
         return super().form_invalid(form)
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context['form'] = OpportunityForm(instance=self.object)
-        context['go_no_go_form'] = UpdateStatusForm(instance=self.object)
-        context['submit_proposal_form'] = SubmitProposalForm(
-            instance=self.object)
+
+        if 'update_status_form' in kwargs:
+            context['update_status_form'] = kwargs["update_status_form"]
+        else:
+            context['update_status_form'] = UpdateStatusForm(
+                instance=self.object)
+
+        if self.object.status in [1, 2, 3, 4]:
+            context['filtered_status'] = [
+                (2, "Go"), (3, "NO-Go"), (4, "Consider")]
+        elif self.object.status >= 5:
+            context['filtered_status'] = [
+                (5, "Submitted"), (6, "Lost"), (7, "Won"), (8, "Cancelled"), (9, "Assumed Lost"), (10, "N/A")]
 
         return context
+
+    def get_template_names(self):
+        if self.request.htmx:
+            return "opportunity/update_status_modal.html"
+        return super().get_template_names()
 
 
 class OpportunitySubmitView(UpdateView):

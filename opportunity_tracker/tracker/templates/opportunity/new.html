@@ -143,14 +143,7 @@
     allowClear: true,
   });
 
-  document.body.addEventListener("htmx:afterRequest", function (evt) {
-    // Check if the response was successful
-    if (evt.detail.target.id === "opportunityForm" && !evt.detail.xhr.response) {
-      // Close the Bootstrap modal
-      const modal = bootstrap.Modal.getInstance(document.querySelector(".modal"));
-      if (modal) modal.hide();
-    }
-  });
+  
 
 
 </script>

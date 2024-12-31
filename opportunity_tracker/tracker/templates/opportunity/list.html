@@ -6,7 +6,7 @@
   hx-target="#opportunity-container"
   hx-include="this"
   id="filterForm"
-  hx-trigger="new_opportunity_added from:body"
+  hx-trigger="refresh_opp_list from:body"
 >
   <div class="card">
     <div class="card-header">
@@ -75,40 +75,6 @@
   </div>
 </div>
 
-<!--Detail Modal-->
-{% comment %}
-<div
-  class="modal fade"
-  id="detailModal"
-  tabindex="-1"
-  aria-labelledby="detailModalLabel"
-  aria-hidden="true"
->
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content" style="background-color: #f4f6f9">
-      <div class="modal-header">
-        <h5 class="modal-title" id="detailModalLabel">Opportunity Details</h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Close"
-        ></button>
-      </div>
-      <div class="modal-body" id="modalBodyContent">
-        <!-- Form content will be dynamically inserted here -->
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-          Close
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-{% endcomment %}
-
-<!--New Modal-->
 
   <script>
     $(document).ready(function () {

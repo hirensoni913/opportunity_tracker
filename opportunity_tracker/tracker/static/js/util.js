@@ -3,6 +3,27 @@ function getQueryParams() {
   return urlParams.toString();
 }
 
+// Close dialog
+document.body.addEventListener("htmx:afterRequest", function (evt) {
+  const trigger = evt.detail.xhr.getResponseHeader("HX-Trigger");
+  const status = evt.detail.xhr.status;
+  const responseText = evt.detail.xhr.responseText;
+
+  if (
+    trigger === "form_invalid" ||
+    status === 400 ||
+    responseText.includes("text-danger")
+  )
+    return;
+
+  const modalElement = evt.detail.target.closest(".modal");
+  // Close the Bootstrap modal
+  if (modalElement) {
+    const modal = bootstrap.Modal.getInstance(modalElement);
+    if (modal) modal.hide();
+  }
+});
+
 // Function to generate a random RGB color
 function getRandomColor() {
   var r = Math.floor(Math.random() * 256); // Random red value (0-255)

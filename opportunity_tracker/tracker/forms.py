@@ -103,6 +103,19 @@ class UpdateStatusForm(forms.ModelForm):
         self.fields['proposal_lead'].label_from_instance = lambda obj: f"{obj.first_name} {
             obj.last_name}" if obj.first_name and obj.last_name else obj.username
 
+    def clean(self):
+        cleaned_data = super().clean()
+        status = int(cleaned_data.get("status", 0))
+
+        # make proposal_lead and lead_unit mandatory if the status is Go
+        if status == 2:
+            if not cleaned_data.get("proposal_lead"):
+                self.add_error("proposal_lead", "Proposal Lead is required")
+            if not cleaned_data.get("lead_unit"):
+                self.add_error("lead_unit", "Lead Unit is required")
+
+        return cleaned_data
+
 
 class SubmitProposalForm(forms.ModelForm):
     submission_date = forms.DateField(required=True,
