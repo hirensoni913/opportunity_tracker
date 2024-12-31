@@ -369,7 +369,7 @@ class FileDeleteView(DeleteView):
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
         self.object.delete()
-        return self.get_success_url()
+        return HttpResponse("", status=200)
 
 
 class OpportunityCreateView(CreateView):
