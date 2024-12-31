@@ -56,16 +56,27 @@ class UpdateOpportunityForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        from django.urls import reverse
         is_subscribed = kwargs.pop("is_subscribed", False)
         super().__init__(*args, **kwargs)
         self.fields["is_subscribed"].initial = is_subscribed
+        if self.instance.pk:
+            toggle_url = reverse('notification:toggle_subscription', kwargs={
+                                 'opportunity_id': self.instance.pk})
+            self.fields["is_subscribed"].widget.attrs.update({
+                'hx-post': toggle_url,
+                'hx-trigger': 'change',
+                'hx-target': 'this',
+                'hx-swap': 'none',
+                'data-bs-toast-target': '#successToast',
+            })
 
     status = forms.IntegerField(initial=1, widget=forms.HiddenInput())
     is_subscribed = forms.BooleanField(
         required=False, label="Subscribe to this Opportunity",
         widget=forms.CheckboxInput(attrs={
             'class': 'form-check-input',
-            'role': 'switch'
+            'role': 'switch',
         }))
 
 

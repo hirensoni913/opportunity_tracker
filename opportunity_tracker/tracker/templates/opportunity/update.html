@@ -313,38 +313,18 @@
   }).change();
   })
 
-  // Toggle the subscription
-  $("#id_is_subscribed").on("change", function(){
-    const isChecked = $(this).prop("checked");
-    const opportunity_id = "{{ object.id }}";
-    const url = "{% url 'notification:toggle_subscription' opportunity_id=object.id %}";
+  document.body.addEventListener('htmx:afterRequest', function (event) {
+    const target = event.detail.target; // The element that triggered the request
+    const toastSelector = target.getAttribute('data-bs-toast-target');
     
-    $.ajax({
-      url: url,
-      method: 'POST',
-      headers : {
-        'X-CSRFToken' : "{{csrf_token}}", 
-      },
-      data:JSON.stringify({
-        subscribe: isChecked
-      }),
-      contentType: 'application/json',
-      success:function(response){
-        if(response.success){
-          var toast = new bootstrap.Toast($('#successToast')[0]);
-          toast.show();
-        }else{
-          console.error("Error updating subscription status")
+    if (toastSelector) {
+        const toastElement = document.querySelector(toastSelector);
+        if (toastElement) {
+            const toast = new bootstrap.Toast(toastElement);
+            toast.show();
         }
-      },
-      error:function(xhr, status, error){
-          console.error('AJAX Error:', error)
-        }
-    });
-    
-    
-
-  })
+    }
+  });
 
 </script>
 {% endblock  %}
