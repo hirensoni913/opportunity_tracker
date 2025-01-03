@@ -158,9 +158,9 @@ SWAGGER_SETTINGS = {
     },
 }
 
-LOGIN_URL = 'login'  # This is where users will go when not authenticated
+LOGIN_URL = 'accounts:login'  # This is where users will go when not authenticated
 LOGIN_REDIRECT_URL = 'home'
-LOGOUT_REDIRECT_URL = 'login'
+LOGOUT_REDIRECT_URL = 'accounts:login'
 
 
 # Celery settings

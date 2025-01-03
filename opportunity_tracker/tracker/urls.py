@@ -2,7 +2,6 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
 from .views import DownloadFolderView, FileDeleteView, OpportunityListView, OpportunityViewSet, OpportunityUpdateView, OpportunityCreateView, OpportunitySubmitView, OpportunityStatusUpdateView, OpportunityDetailView, IndexView
-from django.contrib.auth.views import LoginView, LogoutView
 
 router = DefaultRouter()
 router.register(r"Opportunity", OpportunityViewSet)
@@ -10,8 +9,6 @@ router.register(r"Opportunity", OpportunityViewSet)
 urlpatterns = [
     path("api/", include(router.urls)),
     path("", IndexView.as_view(), name="home"),
-    path("login/", LoginView.as_view(template_name="login.html"), name="login"),
-    path('logout/', LogoutView.as_view(next_page="login"), name="logout"),
     path("opportunities/", OpportunityListView.as_view(), name="opportunities"),
     path("opportunity/new/", OpportunityCreateView.as_view(), name="new_opportunity"),
     path("opportunity/<uuid:pk>/",

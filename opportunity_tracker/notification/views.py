@@ -1,6 +1,7 @@
 import json
+
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404
 from django.views import View
 
 from notification.models import OpportunitySubscription

@@ -1,41 +1,30 @@
 import os
 import re
-from django.conf import settings
-from django.utils.timezone import now
+import zipfile
 from typing import Any
-from django.forms import BaseModelForm
-from django.shortcuts import redirect, render
-from django.contrib.auth import authenticate
-from django.contrib import messages
-from django.http import HttpRequest, JsonResponse
-from django.urls import reverse, reverse_lazy
-from django.core. paginator import Paginator
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import AnonymousUser
-from django.contrib.auth.mixins import LoginRequiredMixin
+
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.shortcuts import render
+from django.template.loader import render_to_string
+from django.urls import reverse_lazy
 from django.views import View
-import requests
+from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
+                                  UpdateView)
+from django_htmx.http import HttpResponseClientRefresh
+from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework_simplejwt.exceptions import InvalidToken
-from django.http import HttpResponse
-from rest_framework import viewsets
-from rest_framework.exceptions import AuthenticationFailed
-from rest_framework_simplejwt.tokens import RefreshToken
-from django.views.generic import UpdateView, CreateView, DetailView, DeleteView, ListView, TemplateView
-from django.contrib.auth.decorators import login_not_required
-from django.template.loader import render_to_string
-from django.db.models import Count, Sum, Case, When, IntegerField
 
-# from opportunity_tracker.tracker.middleware import is_authenticated
-from .serializers import OpportunitySerializer
-from .models import Opportunity, OpportunityFile
-from .forms import UpdateOpportunityForm, UpdateStatusForm, OpportunityForm, LoginForm, OpportunitySearchForm, SubmitProposalForm, OpportunityDetailForm
 from notification.models import OpportunitySubscription
-from django.contrib.auth import get_user_model
-import zipfile
 
-from django_htmx.http import HttpResponseClientRefresh
+from .forms import (OpportunityDetailForm, OpportunityForm,
+                    OpportunitySearchForm, SubmitProposalForm,
+                    UpdateOpportunityForm, UpdateStatusForm)
+from .models import Opportunity, OpportunityFile
+
+from .serializers import OpportunitySerializer
 
 User = get_user_model()
 
@@ -106,7 +95,7 @@ class OpportunityListView(ListView):
 
 class FileDeleteView(DeleteView):
     model = OpportunityFile
-    login_url = "login"
+    login_url = "accounts:login"
 
     def get_success_url(self) -> str:
         return reverse_lazy("opportunity", kwargs={"pk": self.object.opportunity.id})
@@ -122,7 +111,7 @@ class OpportunityCreateView(CreateView):
     form_class = OpportunityForm
     template_name = "tracker/new.html"
     success_url = reverse_lazy("opportunities")
-    login_url = "login"
+    login_url = "accounts:login"
 
     def form_valid(self, form):
         form.instance.created_by = self.request.user
@@ -147,7 +136,7 @@ class OpportunityUpdateView(UpdateView):
     model = Opportunity
     template_name = "tracker/update.html"
     form_class = UpdateOpportunityForm
-    login_url = "login"
+    login_url = "accounts:login"
     success_url = reverse_lazy("opportunities")
 
     def form_valid(self, form):

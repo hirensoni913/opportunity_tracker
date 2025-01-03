@@ -31,6 +31,7 @@ urlpatterns = [
          cache_timeout=0), name='schema-redoc'),
     path('admin/', admin.site.urls),
     path("", include("tracker.urls")),
+    path("accounts/", include("accounts.urls")),
     path("notifications/", include("notification.urls")),
     path("dashboard/", include("dashboard.urls")),
 ]

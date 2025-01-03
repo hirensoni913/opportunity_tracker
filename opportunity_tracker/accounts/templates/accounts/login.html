@@ -1,5 +1,5 @@
 <!-- prettier-ignore -->
-{% extends "base.html" %} 
+{% extends "core/base.html" %} 
 {% block title %}Login{% endblock title %}
 {%block content %}
 {% load form_tags %}
@@ -30,7 +30,7 @@
     <div id="login-row" class="row justify-content-center align-items-center">
       <div id="login-column" class="col-md-6">
         <div id="login-box" class="col-md-12">
-          <form id="login-form" method="POST" action="{% url "login" %}">
+          <form id="login-form" method="POST" action="{% url "accounts:login" %}">
             {% csrf_token %}
             <input type="hidden" name="next" value="{{request.GET.next}}" />
             <div class="mb-3">

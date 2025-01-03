@@ -1,8 +1,10 @@
-from tracker.models import Opportunity
+from typing import Any
+
+from django.db.models import Case, Count, IntegerField, Sum, When
 from django.http import HttpRequest, JsonResponse
 from django.views.generic import TemplateView
-from typing import Any
-from django.db.models import Sum, Count, IntegerField, Case, When
+
+from tracker.models import Opportunity
 
 
 class DashboardDataView(TemplateView):
