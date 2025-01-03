@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'fontawesomefree',
     'crispy_forms',
     'crispy_bootstrap5',
+    'core',
     'accounts',
     'tracker',
     'notification',

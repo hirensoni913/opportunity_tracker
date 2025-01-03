@@ -1,4 +1,4 @@
-{% extends "base.html" %} {% block title %}Opportunities{% endblock title %}
+{% extends "core/base.html" %} {% block title %}Opportunities{% endblock title %}
 {%block content %} {% load form_tags %} {% load static %}
 
 <form
@@ -64,7 +64,7 @@
       id="opportunity-container"
       class="row row-cols-sm-1 row-cols-lg-3 g-2"
     >
-    {% include "opportunity/opportunity_cards.html" %}
+    {% include "tracker/partials/opportunity_cards.html" %}
     
   </div>
 </div>

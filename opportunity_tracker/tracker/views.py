@@ -49,7 +49,7 @@ class OpportunityViewSet(viewsets.ModelViewSet):
 
 
 class IndexView(View):
-    template_name = "opportunity/home.html"
+    template_name = "tracker/home.html"
 
     def get(self, request, *args, **kwargs):
         return render(request, self.template_name)
@@ -314,7 +314,7 @@ class DashboardDataView(TemplateView):
 
 class OpportunityListView(ListView):
     model = Opportunity
-    template_name = "opportunity/list.html"
+    template_name = "tracker/list.html"
     paginate_by = 15
     form_class = OpportunitySearchForm
 
@@ -356,7 +356,7 @@ class OpportunityListView(ListView):
 
     def get_template_names(self):
         if self.request.htmx:
-            return "opportunity/opportunity_cards.html"
+            return "tracker/partials/opportunity_cards.html"
         else:
             return self.template_name
 
@@ -377,7 +377,7 @@ class FileDeleteView(DeleteView):
 class OpportunityCreateView(CreateView):
     model = Opportunity
     form_class = OpportunityForm
-    template_name = "opportunity/new.html"
+    template_name = "tracker/new.html"
     success_url = reverse_lazy("opportunities")
     login_url = "login"
 
@@ -395,14 +395,14 @@ class OpportunityCreateView(CreateView):
 
     def get_template_names(self):
         if self.request.htmx:
-            return "opportunity/new.html"
+            return "tracker/new.html"
         else:
             return self.template_name
 
 
 class OpportunityUpdateView(UpdateView):
     model = Opportunity
-    template_name = "opportunity/update.html"
+    template_name = "tracker/update.html"
     form_class = UpdateOpportunityForm
     login_url = "login"
     success_url = reverse_lazy("opportunities")
@@ -445,7 +445,7 @@ class OpportunityUpdateView(UpdateView):
 
     def get_template_names(self):
         if self.request.htmx:
-            return "opportunity/update.html"
+            return "tracker/update.html"
         return super().get_template_names()
 
     def dispatch(self, request, *args, **kwargs):
@@ -458,7 +458,7 @@ class OpportunityUpdateView(UpdateView):
 class OpportunityStatusUpdateView(UpdateView):
     model = Opportunity
     form_class = UpdateStatusForm
-    template_name = "opportunity/update_status_modal.html"
+    template_name = "tracker/partials/update_status_modal.html"
     success_url = reverse_lazy("opportunities")
 
     def form_valid(self, form):
@@ -500,14 +500,14 @@ class OpportunityStatusUpdateView(UpdateView):
 
     def get_template_names(self):
         if self.request.htmx:
-            return "opportunity/update_status_modal.html"
+            return "tracker/partials/update_status_modal.html"
         return super().get_template_names()
 
 
 class OpportunitySubmitView(UpdateView):
     model = Opportunity
     form_class = SubmitProposalForm
-    template_name = "opportunity/submit_proposal_modal.html"
+    template_name = "tracker/partials/submit_proposal_modal.html"
     success_url = reverse_lazy("opportunities")
 
     def form_valid(self, form):
@@ -538,13 +538,13 @@ class OpportunitySubmitView(UpdateView):
 
     def get_template_names(self):
         if self.request.htmx:
-            return "opportunity/submit_proposal_modal.html"
+            return "tracker/partials/submit_proposal_modal.html"
         return super().get_template_names()
 
 
 class OpportunityDetailView(DetailView):
     model = Opportunity
-    template_name = "opportunity/detail.html"
+    template_name = "tracker/detail.html"
     context_object_name = "opportunity"
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
@@ -566,7 +566,7 @@ class OpportunityDetailView(DetailView):
             form = OpportunityDetailForm(instance=opportunity)
             files = opportunity.Files.all()
             html = render_to_string(
-                "opportunity/detail.html", {"form": form, "files": files, })
+                "tracker/detail.html", {"form": form, "files": files, })
             return JsonResponse({'html': html})
 
         return super().get(request, *args, **kwargs)
