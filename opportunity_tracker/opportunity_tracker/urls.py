@@ -31,6 +31,7 @@ urlpatterns = [
          cache_timeout=0), name='schema-redoc'),
     path('admin/', admin.site.urls),
     path("", include("tracker.urls")),
-    path("notifications/", include("notification.urls"))
+    path("notifications/", include("notification.urls")),
+    path("dashboard/", include("dashboard.urls")),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

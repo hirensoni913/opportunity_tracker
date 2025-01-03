@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
-from .views import DownloadFolderView, FileDeleteView, OpportunityListView, OpportunityViewSet, OpportunityUpdateView, OpportunityCreateView, OpportunitySubmitView, OpportunityStatusUpdateView, OpportunityDetailView, IndexView, DashboardDataView
+from .views import DownloadFolderView, FileDeleteView, OpportunityListView, OpportunityViewSet, OpportunityUpdateView, OpportunityCreateView, OpportunitySubmitView, OpportunityStatusUpdateView, OpportunityDetailView, IndexView
 from django.contrib.auth.views import LoginView, LogoutView
 
 router = DefaultRouter()
@@ -27,7 +27,4 @@ urlpatterns = [
     path("opportunity/download/<uuid:pk>/",
          DownloadFolderView.as_view(), name="download_folder"),
 
-    # Chart urls
-    path("opportunity/chart/data/",
-         DashboardDataView.as_view(), name="dashboard_data")
 ]
