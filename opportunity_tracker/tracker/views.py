@@ -35,6 +35,8 @@ from notification.models import OpportunitySubscription
 from django.contrib.auth import get_user_model
 import zipfile
 
+from django_htmx.http import HttpResponseClientRefresh
+
 User = get_user_model()
 
 
@@ -58,7 +60,7 @@ class DashboardDataView(TemplateView):
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> JsonResponse:
 
-        year_period = now().year
+        year_period = 2024  # now().year
 
         # Get total opportunities
         totals = self.get_card_numbers(year_period)
@@ -462,8 +464,7 @@ class OpportunityStatusUpdateView(UpdateView):
     def form_valid(self, form):
         self.object = form.save()
         if self.request.htmx:
-            headers = {"HX-Trigger": "status_updated"}
-            return HttpResponse(status=204, headers=headers)
+            return HttpResponseClientRefresh()
 
         return super().form_valid(form)
 
@@ -506,15 +507,23 @@ class OpportunityStatusUpdateView(UpdateView):
 class OpportunitySubmitView(UpdateView):
     model = Opportunity
     form_class = SubmitProposalForm
-    template_name = "opportunity/new.html"
+    template_name = "opportunity/submit_proposal_modal.html"
     success_url = reverse_lazy("opportunities")
+
+    def form_valid(self, form):
+        self.object = form.save()
+        if self.request.htmx:
+            return HttpResponseClientRefresh()
+
+        return super().form_valid(form)
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context['form'] = OpportunityForm(instance=self.object)
-        context['go_no_go_form'] = UpdateStatusForm(instance=self.object)
-        context['submit_proposal_form'] = SubmitProposalForm(
-            instance=self.object)
+        if 'submit_proposal_form' in kwargs:
+            context["submit_proposal_form"] = kwargs["submit_proposal_form"]
+        else:
+            context['submit_proposal_form'] = SubmitProposalForm(
+                instance=self.object)
 
         return context
 
@@ -526,6 +535,11 @@ class OpportunitySubmitView(UpdateView):
 
         view = OpportunityUpdateView.as_view()
         return view(self.request, pk=self.object.id, submit_proposal_form=form)
+
+    def get_template_names(self):
+        if self.request.htmx:
+            return "opportunity/submit_proposal_modal.html"
+        return super().get_template_names()
 
 
 class OpportunityDetailView(DetailView):

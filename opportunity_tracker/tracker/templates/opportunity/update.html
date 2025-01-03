@@ -154,13 +154,29 @@
           </button>
           {% endif %}
           {% if form.status.value == 2 %}
-          <button type="button" id="submitProposal" class="btn btn-lg btn-primary">
+          <button type="button" 
+            id="submitProposal" 
+            class="btn btn-lg btn-primary"
+            data-bs-toggle="modal"
+            data-bs-target="#modal"
+            data-modal-size="modal-md"
+            hx-get="{% url "submit_proposal" opportunity.id %}"
+            hx-target="#dialog"
+            hx-trigger="click"
+            >
             <i class="fas fa-paper-plane"></i>
             Submit Proposal
           </button>
           {% endif %}
           {%  if form.status.value >= 5 and form.status.value <= 7 %}
-          <button type="button" id="update_result" class="btn btn-lg btn-primary">
+          <button type="button" id="update_result" class="btn btn-lg btn-primary"
+          data-bs-toggle="modal"
+          data-bs-target="#modal"
+          data-modal-size="modal-md"
+          hx-get="{% url "udpate_status" opportunity.id %}"
+          hx-target="#dialog"
+          hx-trigger="click"
+          >
             <i class="fas fa-file-signature"></i>
             Update Result
           </button>
@@ -194,12 +210,6 @@
   </div>
 </div>
 
-{% comment %} Status update Modal {% endcomment %}
-{% comment %} {% include "opportunity/update_status_modal.html" %} {% endcomment %}
-
-{% comment %} Submit Proposal Dialog {% endcomment %}
-{% include "opportunity/submit_proposal_modal.html" %}
-
 {% endblock content %}
 
 {% block scripts %}
@@ -210,60 +220,6 @@
   $("#id_proposal_lead").select2({theme: 'bootstrap-5', placeholder: 'Choose a proposal lead', allowClear: true});
   $("#id_lead_institute").select2({theme: 'bootstrap-5', placeholder: 'Choose a lead organization', allowClear: true});
   $("#id_partners").select2({theme: 'bootstrap-5', placeholder: 'Choose partners', allowClear: true});
-
-  
-
-  $(document).ready(function(){
-    
-    $("#submitProposal").on("click", function(event){
-      event.preventDefault();
-      showModal('submitConfirmModal');
-    })
-
-    function showModal(modalId){
-      var modal = new bootstrap.Modal(document.getElementById(modalId));
-      modal.show();
-    }
-
-    $("#confirmDeleteButton").on("click", function(){
-      if (fileId){
-      var csrfToken = "{{csrf_token}}";
-        const url = '{% url "delete_attachment" 0 %}'.replace("0", fileId)
-        
-        $.ajax({
-          url: url,
-          type: "POST",
-          headers : {
-            'X-CSRFToken' : csrfToken, 
-          },
-          success: function(response){
-            // successfully deleted
-            location.reload();
-          },
-          error: function (xhr, status, error){
-            console.log("Error deleting file", error);
-          }
-        })
-      
-    }
-
-    })
-
-    // Status update submit
-    
-    // Submit proposal
-     $("#confirmSubmission").on("click", function(e){
-      const form = $("#submitProposalForm");
-      form.submit();
-    })
-
-    
-    {% if submit_proposal_form.errors %}
-      showModal('submitConfirmModal');
-    {% endif %}
-
-    
-  })
 
   document.body.addEventListener('htmx:afterRequest', function (event) {
     const target = event.detail.target; // The element that triggered the request

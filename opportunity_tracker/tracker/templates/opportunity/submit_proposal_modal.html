@@ -1,14 +1,13 @@
 {% load form_tags %}
-<div class="modal fade" id="submitConfirmModal" tabindex="-1" aria-labelledby="submitOpportunity" aria-hidden="true" data-bs-backdrop="static">
-    <div class="modal-dialog">
-      <div class="modal-content">
+{% load static %}
+<form id="submitProposalForm" class="modal-content" hx-post = {% url "submit_proposal" opportunity.id %} hx-target="#dialog">
+  {% csrf_token %}
+
         <div class="modal-header">
           <h5 class="modal-title" id="submitConfirmModalLabel">Submit Proposal</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <form id="submitProposalForm" method="POST" action = {% url "submit_proposal" opportunity.id %}>
-            {% csrf_token %}
           <div class="card">
             <div class="card-body">
               <input type="hidden" name="status" id="hiddenStatus" value="5">
@@ -75,13 +74,22 @@
             </div>
             
           </div>
-        </form>
+        
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-success" id="confirmSubmission">Submit</button>
+          <button type="submit" class="btn btn-success" id="confirmSubmission" hx-indicator="#spinnerUpdate">
+            Submit
+            <img id="spinnerUpdate" src="{% static "images/bouncing-circles.svg" %}" alt="" style="height:25px;" class="htmx-indicator" />
+          </button>
         </div>
       </div>
-    </div>
-  </div>
-  
+    </form>
+
+    <script>
+      $("#id_partners").select2({
+        theme: "bootstrap-5",
+        placeholder: "Choose Partners",
+        allowClear: true,
+      });
+    </script>

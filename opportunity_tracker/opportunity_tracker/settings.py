@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'drf_yasg',
     'django_cotton',
+    'django_htmx',
     'fontawesomefree',
     'crispy_forms',
     'crispy_bootstrap5',
