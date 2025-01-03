@@ -1,9 +1,13 @@
 from django.contrib import admin
-from .models import User
+from django.contrib.auth.admin import GroupAdmin as BaseGroupAdmin
 from django.contrib.auth.admin import UserAdmin as userAdmin
+from django.contrib.auth.models import Group
+from unfold.admin import ModelAdmin
+
+from .models import User
 
 
-class CustomUserAdmin(userAdmin):
+class CustomUserAdmin(ModelAdmin, userAdmin):
     # Add custom fields to the new user admin page
     add_fieldsets = (
         (None, {
@@ -25,3 +29,10 @@ class CustomUserAdmin(userAdmin):
 
 # admin.site.unregister(CustomUser)
 admin.site.register(User, CustomUserAdmin)
+
+admin.site.unregister(Group)
+
+
+@admin.register(Group)
+class GroupAdmin(BaseGroupAdmin, ModelAdmin):
+    pass
