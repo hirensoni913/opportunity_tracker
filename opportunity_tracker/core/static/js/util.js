@@ -48,14 +48,22 @@ function applyOpacityToPalette(palette, opacity) {
 
 // Animate numbers
 function animateNumbers(element, value) {
-  anime({
-    targets: element[0],
-    innerHTML: [0, value], // Animate from 0 to the fetched value
-    easing: "easeOutExpo", // Smooth easing
-    duration: 1000, // Duration of the animation in ms
-    round: 1, // Round numbers to integers
-    update: function (anim) {
-      element[0].innerHTML = Number(element[0].innerHTML).toLocaleString(); // Format with commas
-    },
-  });
+  // Ensure the element starts with a counter property initialized to 0
+  $(element)
+    .prop("counter", 0)
+    .animate(
+      { counter: value },
+      {
+        duration: 1000, // Duration for the animation
+        easing: "swing", // Easing effect
+        step: function (now) {
+          // Update the number displayed during the animation
+          $(element).text(Math.floor(now).toLocaleString());
+        },
+        complete: function () {
+          // Ensure the final value is set correctly after animation
+          $(element).text(value.toLocaleString());
+        },
+      }
+    );
 }

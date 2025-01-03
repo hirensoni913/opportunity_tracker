@@ -7,15 +7,16 @@
 <script src="{% static 'js/charts/pie.js' %}"></script>
 
 <div class="p-3">
-  <div class="row justify-content-center">
+  <div class="row justify-content-center" >
+
     <div class="col-md-4">
-      <c-number_card id="totalOpportunities" title="Total Opportunities Captured in {% now "Y" %}"></c-number_card>
+      <c-number_card id="totalOpportunities" title="Total Opportunities Captured in {% now "Y" %}" value="0" url="{% url 'dashboard:total_opportunity_count' %}"></c-number_card>
     </div>
     <div class="col-md-4">
-      <c-number_card id="totalWonProposalAmount" title="Total Won Amount in {% now "Y" %}"></c-number_card>
+      <c-number_card id="totalWonProposalAmount" title="Total Won Amount in {% now "Y" %}" value="0" url="{% url "dashboard:total_won_amount" %}"></c-number_card>
     </div>
     <div class="col-md-4">
-      <c-number_card id="totalSubmittedProposalAmount" title="Total Submitted Amount in {% now "Y" %}"></c-number_card>
+      <c-number_card id="totalSubmittedProposalAmount" title="Total Submitted Amount in {% now "Y" %}" value="0"  url="{% url "dashboard:total_submitted_amount" %}"></c-number_card>
     </div>
   </div>
 
@@ -100,11 +101,7 @@
        dataType: "json",
        success: (response) => {
         
-        // Total Opportunities
-        animateNumbers($("#totalOpportunities"), response.total_opportunities);
-        animateNumbers($("#totalSubmittedProposalAmount"), response.total_submitted_proposal_amount);
-        animateNumbers($("#totalWonProposalAmount"), response.total_won_proposal_amount);
-        
+      
         // Bar chart for status
         const status_datasets = response.status_data.map((item, index) => {
            return {
@@ -215,7 +212,7 @@
    
 
    $(document).ready(function () {
-     loadAllCharts();
+      loadAllCharts();
    });
 </script>
 {% endblock scripts %}

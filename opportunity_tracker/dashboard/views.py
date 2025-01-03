@@ -1,7 +1,7 @@
 from typing import Any
 
 from django.db.models import Case, Count, IntegerField, Sum, When
-from django.http import HttpRequest, JsonResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.views.generic import TemplateView
 
 from tracker.models import Opportunity
@@ -13,9 +13,6 @@ class DashboardDataView(TemplateView):
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> JsonResponse:
 
         year_period = 2024  # now().year
-
-        # Get total opportunities
-        totals = self.get_card_numbers(year_period)
 
         status_overview = self.get_status_overview(year_period)
         status_labels = status_overview["status_labels"]
@@ -66,9 +63,6 @@ class DashboardDataView(TemplateView):
         top5_duration_submitted_data = top5_duration_submitted["top5_duration_submitted_data"]
 
         return JsonResponse({
-            "total_opportunities": totals["total_opportunities"],
-            "total_submitted_proposal_amount": totals["total_submitted_proposal_amount"],
-            "total_won_proposal_amount": totals["total_won_proposal_amount"],
             "status_labels": list(status_labels),
             "status_data": status_data,
             "funding_agency_labels": list(funding_agency_labels),
@@ -238,27 +232,32 @@ class DashboardDataView(TemplateView):
             "top5_duration_submitted_data": [opp.duration_months for opp in opportunities]
         }
 
-    def get_card_numbers(self, period):
-        result = Opportunity.objects.filter(created_at__year=period).aggregate(
-            total_opportunities=Count("id"),
-            total_submitted_proposal_amount=Sum(
-                Case(
-                    When(status=5, then="proposal_amount"),
-                    default=0,
-                    output_field=IntegerField(),
-                )
-            ),
-            total_won_proposal_amount=Sum(
-                Case(
-                    When(status=7, then="proposal_amount"),
-                    default=0,
-                    output_field=IntegerField()
-                )
-            )
-        )
 
-        return {
-            "total_opportunities": result["total_opportunities"],
-            "total_submitted_proposal_amount": result["total_submitted_proposal_amount"],
-            "total_won_proposal_amount": result["total_won_proposal_amount"]
-        }
+def get_total_opportunity_count(request):
+    period = 2024
+    result = Opportunity.objects.filter(created_at__year=period).aggregate(
+        total_opportunities=Count("id"))
+
+    return HttpResponse(result["total_opportunities"])
+
+
+def get_total_submitted_amount(request):
+    period = 2024
+    result = Opportunity.objects.filter(created_at__year=period).aggregate(
+        total_submitted_amount=Sum(Case(When(status=5, then="proposal_amount"),
+                                   default=0,
+                                   output_field=IntegerField(),
+                                        )))
+
+    return HttpResponse(result["total_submitted_amount"])
+
+
+def get_total_won_amount(request):
+    period = 2024
+    result = Opportunity.objects.filter(created_at__year=period).aggregate(
+        total_submitted_amount=Sum(Case(When(status=7, then="proposal_amount"),
+                                   default=0,
+                                   output_field=IntegerField(),
+                                        )))
+
+    return HttpResponse(result["total_submitted_amount"])
