@@ -294,8 +294,6 @@
       $("#year").change(function(){
         const selectedYear= $(this).val();
 
-        // $("#totalSubmittedProposalAmount").load("{% url 'dashboard:total_submitted_amount' %}?period="+selectedYear + " #totalSubmittedProposalAmount");
-       
         const url = `{% url "dashboard:dashboard_data" %}?year=${selectedYear}`;
         loadAllCharts(url);
       });

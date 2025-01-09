@@ -13,6 +13,15 @@
 <script>
   document.addEventListener("htmx:beforeRequest", function (event) {
     const targetElement = event.target.querySelector("h1");
+    const yearValue = document.querySelector("#year").value;
+
+    const titleElement = event.target.querySelector("span.text-muted");
+    if (titleElement) {
+      const originalText = titleElement.textContent; // Get the current text of the title
+      const updatedText = originalText.replace(/\d{4}/, yearValue); // Replace the year (4-digit number)
+      titleElement.textContent = updatedText;
+    }
+
     if (targetElement) {
       targetElement.removeAttribute("data-animated");
     }
