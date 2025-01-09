@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'accounts',
     'tracker',
     'notification',
+    'reports',
 ]
 
 AUTH_USER_MODEL = 'accounts.User'

@@ -34,5 +34,6 @@ urlpatterns = [
     path("accounts/", include("accounts.urls")),
     path("notifications/", include("notification.urls")),
     path("dashboard/", include("dashboard.urls")),
+    path("report/", include('reports.urls')),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
