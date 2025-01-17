@@ -7,11 +7,18 @@
       <div class="card-header text-white">
         <h5 class="card-title mb-0">Reports</h5>
       </div>
+
       <div class="list-group list-group-flush">
-        <a href="#" class="list-group-item list-group-item-action"
+        <a
+          class="list-group-item list-group-item-action"
+          role="button"
+          hx-get="{% url 'reports:opportunities_report' %}"
+          hx-target="#filterContainer"
+          hx-swap="innerHTML"
+          hx-trigger="click, load"
           >Opportunities</a
         >
-        <a href="#" class="list-group-item list-group-item-action"
+        <a class="list-group-item list-group-item-action" href="#"
           >Funding agencies</a
         >
       </div>
@@ -24,53 +31,20 @@
       <div class="card-header text-white">
         <h5 class="card-title mb-0">Filters</h5>
       </div>
-      <div class="card-body">
-        <form>
-          <div class="mb-3">
-            <label for="criteria" class="form-label">Select Criteria</label>
-            <select id="criteria" name="criteria" class="form-select">
-              <option value="Option 1">Option 1</option>
-              <option value="Option 2">Option 2</option>
-              <option value="Option 3">Option 3</option>
-            </select>
-          </div>
-          <div class="mb-3">
-            <label for="date_range" class="form-label">Date Range</label>
-            <input
-              type="date"
-              id="start_date"
-              name="start_date"
-              class="form-control mb-2"
-            />
-            <input
-              type="date"
-              id="end_date"
-              name="end_date"
-              class="form-control"
-            />
-          </div>
-          <div class="mb-3">
-            <label for="status" class="form-label">Status</label>
-            <select id="status" name="status" class="form-select">
-              <option value="all">All</option>
-              <option value="completed">Completed</option>
-              <option value="pending">Pending</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
-          </div>
-          <hr />
-          <button type="submit" class="btn btn-primary float-end">
-            Preview
-          </button>
-        </form>
+      <div class="card-body" id="filterContainer">
+        <!--Filter container-->
       </div>
-    </div>
-
-    <!-- Report Preview -->
-    <div id="report-preview" class="mt-4">
-      <!-- The PDF preview or a loading indicator will be displayed here -->
     </div>
   </div>
 </div>
 
-{% endblock content %}
+{% block scripts %}
+<script>
+  $(document).ready(function () {
+    $(document).on("htmx:afterRequest", function (evt) {
+      $(".list-group-item").removeClass("active");
+      $(evt.detail.elt).closest(".list-group-item").addClass("active");
+    });
+  });
+</script>
+{% endblock scripts %} {% endblock content %}
