@@ -17,6 +17,7 @@ env/
 
 # Ignore environment variables file
 .env
+.env*
 
 # Ignore Visual Studio Code settings
 .vscode/

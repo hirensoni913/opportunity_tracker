@@ -4,7 +4,7 @@ services:
     image: postgres:17
     container_name: tracker-db
     env_file:
-      - .env
+      - .env.prod
     environment:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
@@ -21,7 +21,7 @@ services:
     depends_on:
       - db
     env_file:
-      - .env
+      - .env.prod
     environment:
       DEBUG: 0
       DATABASE_ENGINE: ${DB_ENGINE}
@@ -30,5 +30,8 @@ services:
       DATABASE_PASSWORD: ${DB_PWD}
       DATABASE_HOST: ${DB_HOST}
       DATABASE_PORT: ${DB_PORT}
+    volumes:
+      - media:/app/opportunity_tracker/media
 volumes:
   postgres_data:
+  media:
