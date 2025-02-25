@@ -3,8 +3,9 @@ services:
   db:
     image: postgres:17
     container_name: tracker-db
+    restart: always
     env_file:
-      - .env
+      - .env.prod
     environment:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
@@ -13,15 +14,23 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+  adminer:
+    image: adminer
+    container_name: adminer
+    restart: always
+    ports:
+      - "8080:8080"
+
   web:
     build: .
     container_name: web-app
+    restart: always
     ports:
       - "8000:8000"
     depends_on:
       - db
     env_file:
-      - .env
+      - .env.prod
     environment:
       DEBUG: 0
       DATABASE_ENGINE: ${DB_ENGINE}
@@ -30,5 +39,8 @@ services:
       DATABASE_PASSWORD: ${DB_PWD}
       DATABASE_HOST: ${DB_HOST}
       DATABASE_PORT: ${DB_PORT}
+    volumes:
+      - media:/app/opportunity_tracker/media
 volumes:
   postgres_data:
+  media:
