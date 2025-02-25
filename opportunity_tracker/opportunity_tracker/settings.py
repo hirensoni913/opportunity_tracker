@@ -4,23 +4,26 @@ import os
 from dotenv import load_dotenv
 from datetime import timedelta
 
-load_dotenv()
-
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+load_dotenv(BASE_DIR.parent / ".env.dev")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-k8!p%xdg@6+4@t*sjr&gz(iwj&@4%v7*g#d=@uy0pf2m@&407v'
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DEBUG", default=0)
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "127.0.0.1").split(",")
+CSRF_TRUSTED_ORIGINS = os.environ.get(
+    "DJANGO_CSRF_TRUSTED_ORIGIN", "https://127.0.0.1").split(",")
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
@@ -33,6 +36,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Application definition
 
 INSTALLED_APPS = [
+    'unfold',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -43,12 +47,17 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'drf_yasg',
     'django_cotton',
+    'django_htmx',
     'fontawesomefree',
     'crispy_forms',
     'crispy_bootstrap5',
+    'active_link',
+    'core',
+    'dashboard',
     'accounts',
     'tracker',
     'notification',
+    'reports',
 ]
 
 AUTH_USER_MODEL = 'accounts.User'
@@ -66,6 +75,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_htmx.middleware.HtmxMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'opportunity_tracker.urls'
@@ -94,7 +104,7 @@ WSGI_APPLICATION = 'opportunity_tracker.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': os.environ.get("DB_ENGINE"),
         'NAME': os.environ.get("DB_NAME"),
         'USER': os.environ.get("DB_USER"),
         'PASSWORD': os.environ.get("DB_PWD"),
@@ -155,9 +165,9 @@ SWAGGER_SETTINGS = {
     },
 }
 
-LOGIN_URL = 'login'  # This is where users will go when not authenticated
+LOGIN_URL = 'accounts:login'  # This is where users will go when not authenticated
 LOGIN_REDIRECT_URL = 'home'
-LOGOUT_REDIRECT_URL = 'login'
+LOGOUT_REDIRECT_URL = 'accounts:login'
 
 
 # Celery settings

@@ -1,0 +1,302 @@
+<!--prettier-ignore-->
+{% extends "core/base.html" %} {% block title %}Opportunity Tracker {%endblock title%} {% block content %}
+{% load tz %}
+{% load static %}
+
+<script src="{% static 'js/charts/bar.js' %}"></script>
+<script src="{% static 'js/charts/pie.js' %}"></script>
+
+<!--Filter Panel-->
+<a class="btn btn-primary" data-bs-toggle="offcanvas" href="#offcanvasExample" role="button" aria-controls="offcanvasExample">
+  Filters <i class="fas fa-sliders-h"></i>
+</a>
+
+<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="offcanvasExampleLabel">Filters</h5>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <form action="." id="filter-form">
+
+          <!-- Year Filter -->
+            <div class="mb-3">
+              <label for="year" class="form-label">Year</label>
+              <select id="year" name="year" class="form-select">
+                <option value="2025">2025</option>
+                <option value="2024">2024</option>
+                <option value="2023">2023</option>
+              </select>
+            </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+      <div class="p-3">
+        <div class="row justify-content-center" >
+
+          <div class="col-md-4">
+            <c-number_card id="totalOpportunities" title="Total Opportunities Captured in {% now "Y" %}" value="0" url="{% url 'dashboard:total_opportunity_count' %}"></c-number_card>
+          </div>
+          <div class="col-md-4">
+            <c-number_card id="totalWonProposalAmount" title="Total Won Amount in {% now "Y" %}" value="0" url="{% url "dashboard:total_won_amount" %}"></c-number_card>
+          </div>
+          <div class="col-md-4">
+            <c-number_card id="totalSubmittedProposalAmount" title="Total Submitted Amount in {% now "Y" %}" value="0"  url="{% url "dashboard:total_submitted_amount" %}"></c-number_card>
+          </div>
+        </div>
+
+
+        <div class="row justify-content-center">
+          <div class="col-md-6">
+            <!-- Card with shadow to display the chart -->
+            <div class="shadow-lg p-3 mb-4 bg-body rounded">
+              {% comment %}
+              <div class="chart-title mb-4">
+                <h4>Proposal Status Overview for {% now "Y" %}</h4>
+              </div>
+              {% endcomment %}
+              <canvas id="proposalStatusChart"></canvas>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="shadow-lg p-3 mb-4 bg-body rounded">
+              <canvas id="fundingAgencyChart"></canvas>
+            </div>
+          </div>
+          <div />
+          <div class="row justify-content-center">
+            <div class="col-md-4">
+              <div class="shadow-lg p-3 mb-4 bg-body rounded">
+                <canvas id="leadUnitChart"></canvas>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="shadow-lg p-3 mb-4 bg-body rounded">
+                <canvas id="leadInstituteChart"></canvas>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="shadow-lg p-3 mb-4 bg-body rounded">
+                <canvas id="proposalLeadChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row justify-content-center">
+          <div class="col-md-6">
+            <div class="shadow-lg p-3 mb-4 bg-body rounded">
+              <canvas id="top5ValuedWon"></canvas>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="shadow-lg p-3 mb-4 bg-body rounded">
+              <canvas id="top5ValuedSubmitted"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="row justify-content-center">
+          <div class="col-md-6">
+            <div class="shadow-lg p-3 mb-4 bg-body rounded">
+              <canvas id="top5DurationWon"></canvas>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="shadow-lg p-3 mb-4 bg-body rounded">
+              <canvas id="top5DurationSubmitted"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+    
+{% endblock content %} {% block scripts %}
+<script src="{% static "js/chroma.min.js" %}"></script>
+<script src="{% static "js/chartjs-plugin-datalabels.js" %}"></script>
+<script>
+  // Generate the random colors
+   var randomPalette = generateRandomPalette();
+
+   // Apply 0.25 opacity to the random palette
+   var opaqueRandomPalette = applyOpacityToPalette(randomPalette, 0.25);
+
+   function loadChart(endpoint) {
+     $.ajax({
+       url: endpoint,
+       type: "GET",
+       dataType: "json",
+       success: (response) => {
+        
+        // Get the period
+        period = response.period;
+      
+        // Bar chart for status
+        const status_datasets = response.status_data.map((item, index) => {
+           return {
+             label:item.label,
+             data:item.data,
+             backgroundColor: opaqueRandomPalette[index % opaqueRandomPalette.length],
+             borderColor: randomPalette[index % randomPalette.length],
+           }
+         });
+         
+          // Destroy the existing chart if it exists
+          destroyChart("proposalStatusChart");
+
+         var ctx = document
+         .getElementById("proposalStatusChart")
+         .getContext("2d");
+        
+         var titleText = "Opportunities by Type and Status ("+ period +")"
+         createBarChart(ctx, response.status_labels, status_datasets, titleText)
+
+         // Bar chart for funding agency
+         const fa_datasets = response.funding_agency_data.map((item, index) => {
+           return {
+             label:item.label,
+             data:item.data,
+             backgroundColor: opaqueRandomPalette[index % opaqueRandomPalette.length],
+             borderColor: randomPalette[index % randomPalette.length],
+           }
+         });
+
+         // Destroy the existing chart if it exists
+         destroyChart("fundingAgencyChart");
+          
+         var ctx = document
+           .getElementById("fundingAgencyChart")
+           .getContext("2d");
+
+         var titleText = "Opportunities by Funding Agency and Status ("+ period +")"
+         createBarChart(ctx, response.funding_agency_labels, fa_datasets, titleText)
+
+         // Doughnut Lead Unit
+         // Destroy the existing chart if it exists
+         destroyChart("leadUnitChart");
+
+         var ctx = document
+           .getElementById("leadUnitChart")
+           .getContext("2d");
+
+         var titleText = "Opportunities by Lead Unit ("+ period +")"
+         var datasetLabel = "Total Opportunities";
+         createPieChart(ctx, response.lead_unit_labels, response.lead_unit_data, 'doughnut', titleText, datasetLabel, opaqueRandomPalette);
+
+         // Doughnut Lead Unit
+
+         // Destroy the existing chart if it exists
+         destroyChart("leadInstituteChart");
+
+         var ctx = document
+         .getElementById("leadInstituteChart")
+         .getContext("2d");
+
+         var titleText = "Opportunities by Lead Institute ("+ period +")"
+         var datasetLabel = "Total Opportunities";
+         createPieChart(ctx, response.lead_institute_labels, response.lead_institute_data, 'doughnut', titleText, datasetLabel, opaqueRandomPalette);
+
+         // Doughnut Proposal Lead
+
+          // Destroy the existing chart if it exists
+          destroyChart("proposalLeadChart");
+
+         var ctx = document
+           .getElementById("proposalLeadChart")
+           .getContext("2d");
+
+         var titleText = "Opportunities by Proposal Lead ("+ period +")"
+         var datasetLabel = "Total Opportunities";
+         createPieChart(ctx, response.proposal_lead_labels, response.proposal_lead_data, 'doughnut', titleText, datasetLabel, opaqueRandomPalette);
+
+         // Bar chart for top 5 won valued funding agencies
+
+         // Destroy the existing chart if it exists
+         destroyChart("top5ValuedWon");
+
+         var ctx = document
+         .getElementById("top5ValuedWon")
+         .getContext("2d");
+
+         var titleText = "Top 5 Valued Won Opportunities by Funding Agency ("+ period +")";
+         var datasetLabel = "Top 5 Valued Won Opportunities";
+         createSimpleVerticalBarChart(ctx, response.top5_won_valued_labels, response.top5_won_valued_data, titleText, datasetLabel, "", "", opaqueRandomPalette, randomPalette);
+
+
+       // Bar chart for top 5 current valued funding agencies
+
+       // Destroy the existing chart if it exists
+       destroyChart("top5ValuedSubmitted");
+
+         var ctx = document
+         .getElementById("top5ValuedSubmitted")
+         .getContext("2d");
+
+         var titleText = "Top 5 Valued Awaiting Opportunities by Funding Agency ("+ period +")";
+         var datasetLabel = "Top 5 Valued Awaiting Opportunities";
+         createSimpleVerticalBarChart(ctx, response.top5_valued_submitted_labels, response.top5_valued_submitted_data, titleText, datasetLabel, "", "", opaqueRandomPalette, randomPalette);
+
+      // Bar chart for top 5 duration funding agencies
+
+      // Destroy the existing chart if it exists
+      destroyChart("top5DurationWon");
+
+      var ctx = document
+      .getElementById("top5DurationWon")
+      .getContext("2d");
+
+      var titleText = "Top 5 Long-term Won Opportunities by Funding Agency ("+ period +")";
+      var datasetLabel = "Top 5 Long-term Won Opportunities";
+      createSimpleVerticalBarChart(ctx, response.top5_duration_won_labels, response.top5_duration_won_data, titleText, datasetLabel, "In Months", "", opaqueRandomPalette, randomPalette);
+
+      // Bar chart for top 5 duration Submitted by funding agencies
+
+      // Destroy the existing chart if it exists
+      destroyChart("top5DurationSubmitted");
+
+      var ctx = document
+      .getElementById("top5DurationSubmitted")
+      .getContext("2d");
+
+      var titleText = "Top 5 Long-term Awaiting Opportunities by Funding Agency ("+ period +")";
+      var datasetLabel = "Top 5 Long-term Awaiting Opportunities";
+      createSimpleVerticalBarChart(ctx, response.top5_duration_submitted_labels, response.top5_duration_submitted_data, titleText, datasetLabel, "In Months", "", opaqueRandomPalette, randomPalette);
+
+
+       },
+       error: () =>
+         console.log("Failed to fetch chart data from " + endpoint + "!"),
+     });
+   }
+
+   function loadAllCharts(url) {
+     loadChart(url);
+   }
+
+   function destroyChart(id){
+    let chartStatus = Chart.getChart(id); 
+          if (chartStatus != undefined) {
+            chartStatus.destroy();
+          }
+
+   }
+
+   $(document).ready(function () {
+      loadAllCharts('{% url "dashboard:dashboard_data" %}');
+
+      $("#year").change(function(){
+        const selectedYear= $(this).val();
+
+        const url = `{% url "dashboard:dashboard_data" %}?year=${selectedYear}`;
+        loadAllCharts(url);
+      });
+   });
+</script>
+{% endblock scripts %}

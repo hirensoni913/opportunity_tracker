@@ -1,0 +1,179 @@
+{% load form_tags %}
+<form
+  hx-get="{% url 'reports:opportunities_report' %}"
+  class="animate__animated animate__fadeIn"
+  style="animation-duration: 0.5s"
+>
+  <div class="row g-3">
+    <div class="form-floating col-md-4">
+      {{form.opp_type|add_class:"form-select"}}
+      <label for="opp_type" class="form-label">Type</label>
+      {%if form.opp_type.errors%}
+      <div class="text-danger">{{form.opp_type.errors|striptags}}</div>
+      {%endif%}
+    </div>
+    <div class="form-floating col-md-4">
+      {{form.status|add_class:"form-select"}}
+      <label for="status" class="form-label">Status</label>
+      {%if form.status.errors%}
+      <div class="text-danger">{{form.status.errors|striptags}}</div>
+      {%endif%}
+    </div>
+    <div class="form-floating col-md-4">
+      {{form.currency|add_class:"form-select"}}
+      <label for="currency" class="form-label">Currency</label>
+      {%if form.currency.errors%}
+      <div class="text-danger">{{form.currency.errors|striptags}}</div>
+      {%endif%}
+    </div>
+    <div class="form-floating col-md-6">
+      {{form.client|add_class:"form-select"}}
+      <label for="client" class="form-label">Client</label>
+      {%if form.client.errors%}
+      <div class="text-danger">{{form.client.errors|striptags}}</div>
+      {%endif%}
+    </div>
+    <div class="form-floating col-md-6">
+      {{form.funding_agency|add_class:"form-select"}}
+      <label for="funding_agency" class="form-label">Funding Agency</label>
+      {%if form.funding_agency.errors%}
+      <div class="text-danger">{{form.funding_agency.errors|striptags}}</div>
+      {%endif%}
+    </div>
+    <div class="form-floating col-md-6">
+      {{form.lead_unit|add_class:"form-select"}}
+      <label for="lead_unit" class="form-label">Lead Unit</label>
+      {%if form.lead_unit.errors%}
+      <div class="text-danger">{{form.lead_unit.errors|striptags}}</div>
+      {%endif%}
+    </div>
+    <div class="form-floating col-md-6">
+      {{form.lead_institute|add_class:"form-select"}}
+      <label for="lead_institute" class="form-label">Lead Institute</label>
+      {%if form.lead_institute.errors%}
+      <div class="text-danger">{{form.lead_institute.errors|striptags}}</div>
+      {%endif%}
+    </div>
+    <div class="form-floating col-md-6">
+      {{form.proposal_lead|add_class:"form-select"}}
+      <label for="proposal_lead" class="form-label">Proposal Lead</label>
+      {%if form.proposal_lead.errors%}
+      <div class="text-danger">{{form.proposal_lead.errors|striptags}}</div>
+      {%endif%}
+    </div>
+    <div class="form-floating col-md-6">
+      {{form.created_by|add_class:"form-select"}}
+      <label for="created_by" class="form-label">Created by</label>
+      {%if form.created_by.errors%}
+      <div class="text-danger">{{form.created_by.errors|striptags}}</div>
+      {%endif%}
+    </div>
+
+    <div class="form-floating col-md-6">
+      {{form.due_date_from|add_class:"form-control"}}
+      <label for="due_date_from" class="form-label">Due Date From</label>
+      {%if form.due_date_from.errors%}
+      <div class="text-danger">{{form.due_date_from.errors|striptags}}</div>
+      {%endif%}
+    </div>
+    <div class="form-floating col-md-6">
+      {{form.due_date_to|add_class:"form-control"}}
+      <label for="due_date_to" class="form-label">Due Date To</label>
+      {%if form.due_date_to.errors%}
+      <div class="text-danger">{{form.due_date_to.errors|striptags}}</div>
+      {%endif%}
+    </div>
+
+    <div class="form-floating col-md-6">
+      {{form.clarification_date_from|add_class:"form-control"}}
+      <label for="clarification_date_from" class="form-label"
+        >Clarification Date From</label
+      >
+      {%if form.clarification_date_from.errors%}
+      <div class="text-danger">
+        {{form.clarification_date_from.errors|striptags}}
+      </div>
+      {%endif%}
+    </div>
+    <div class="form-floating col-md-6">
+      {{form.clarification_date_to|add_class:"form-control"}}
+      <label for="clarification_date_to" class="form-label"
+        >Clarification Date To</label
+      >
+      {%if form.clarification_date_to.errors%}
+      <div class="text-danger">
+        {{form.clarification_date_to.errors|striptags}}
+      </div>
+      {%endif%}
+    </div>
+
+    <div class="form-floating col-md-6">
+      {{form.intent_bid_date_from|add_class:"form-control"}}
+      <label for="intent_bid_date_from" class="form-label"
+        >Intent Bid Date From</label
+      >
+      {%if form.intent_bid_date_from.errors%}
+      <div class="text-danger">
+        {{form.intent_bid_date_from.errors|striptags}}
+      </div>
+      {%endif%}
+    </div>
+    <div class="form-floating col-md-6">
+      {{form.intent_bid_date_to|add_class:"form-control"}}
+      <label for="intent_bid_date_to" class="form-label"
+        >Intent Bid Date To</label
+      >
+      {%if form.intent_bid_date_to.errors%}
+      <div class="text-danger">
+        {{form.intent_bid_date_to.errors|striptags}}
+      </div>
+      {%endif%}
+    </div>
+
+    <div class="form-floating col-md-6">
+      {{form.submission_date_from|add_class:"form-control"}}
+      <label for="submission_date_from" class="form-label"
+        >Submission Date From</label
+      >
+      {%if form.submission_date_from.errors%}
+      <div class="text-danger">
+        {{form.submission_date_from.errors|striptags}}
+      </div>
+      {%endif%}
+    </div>
+    <div class="form-floating col-md-6">
+      {{form.submission_date_to|add_class:"form-control"}}
+      <label for="submission_date_to" class="form-label"
+        >Submission Date To</label
+      >
+      {%if form.submission_date_to.errors%}
+      <div class="text-danger">
+        {{form.submission_date_to.errors|striptags}}
+      </div>
+      {%endif%}
+    </div>
+
+    <div class="form-floating col-md-6">
+      {{form.created_at_from|add_class:"form-control"}}
+      <label for="created_at_from" class="form-label">Created From</label>
+      {%if form.created_at_from.errors%}
+      <div class="text-danger">{{form.created_at_from.errors|striptags}}</div>
+      {%endif%}
+    </div>
+    <div class="form-floating col-md-6">
+      {{form.created_at_to|add_class:"form-control"}}
+      <label for="created_at_to" class="form-label">Created To</label>
+      {%if form.created_at_to.errors%}
+      <div class="text-danger">{{form.created_at_to.errors|striptags}}</div>
+      {%endif%}
+    </div>
+  </div>
+  <hr />
+  <button type="submit" class="btn btn-primary float-end">
+    <span class="fa-stack">
+      <i class="fas fa-file-pdf fa-stack-2x"></i>
+      <i class="fas fa-magnifying-glass fa-stack-1x" style="top: 10%"></i>
+    </span>
+    Preview
+  </button>
+</form>

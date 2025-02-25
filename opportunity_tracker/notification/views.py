@@ -1,6 +1,7 @@
 import json
+
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404
 from django.views import View
 
 from notification.models import OpportunitySubscription
@@ -14,8 +15,9 @@ class ToggleSubscriptionView(View):
 
         try:
             # Parse the AJAX request body
-            data = json.loads(request.body)
-            is_subscribed = data.get('subscribe', False)
+            # data = json.loads(request.body)
+            # is_subscribed = data.get('subscribe', False)
+            is_subscribed = request.POST.get("is_subscribed") == "on"
 
             # Check if the user is subscribed
             subscription, created = OpportunitySubscription.objects.get_or_create(
@@ -28,6 +30,7 @@ class ToggleSubscriptionView(View):
             # Redirect back to the opportunity update page
             return JsonResponse({'success': True, 'is_subscribed': subscription.is_active})
         except json.JSONDecodeError:
+            print(request.body)
             return JsonResponse({'success': False, 'message': 'Invalid JSON Data'}, status=400)
         except Exception as e:
             return JsonResponse({'success': False, 'message': str(e)}, status=400)

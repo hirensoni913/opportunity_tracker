@@ -1,0 +1,95 @@
+{% load form_tags %}
+{% load static %}
+<form id="submitProposalForm" class="modal-content" hx-post = {% url "submit_proposal" opportunity.id %} hx-target="#dialog">
+  {% csrf_token %}
+
+        <div class="modal-header">
+          <h5 class="modal-title" id="submitConfirmModalLabel">Submit Proposal</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="card">
+            <div class="card-body">
+              <input type="hidden" name="status" id="hiddenStatus" value="5">
+                <div class="mb-3">
+                  <div class="input-group">
+                    <div class="input-group-text">Lead Organization</div>
+                    {{submit_proposal_form.lead_institute|add_class:"form-select"}}
+                  </div>
+                  {%if submit_proposal_form.lead_institute.errors%}
+                    <div class="text-danger">{{submit_proposal_form.lead_institute.errors|striptags}}</div>
+                  {%endif%}
+                </div>
+      
+                <div class="mb-3">
+                  <div class="input-group">
+                    <div class="input-group-text">Partners</div>
+                    {{submit_proposal_form.partners|add_class:"form-select"}}
+                  </div>
+                  {%if submit_proposal_form.partners.errors%}
+                    <div class="text-danger">{{submit_proposal_form.partners.errors|striptags}}</div>
+                  {%endif%}
+                </div>
+  
+                <div class="mb-3">
+                  <div class="form-floating">
+                    {{submit_proposal_form.submission_date|add_class:"form-control"}}
+                    <label for="submission_date" class="form-label">Submission Date</label>
+                  </div>
+                  {%if submit_proposal_form.submission_date.errors%}
+                  <div class="text-danger">{{submit_proposal_form.submission_date.errors|striptags}}</div>
+                  {%endif%}
+                </div>
+  
+                <div class="mb-3">
+                  <div class="input-group">
+                    <div class="input-group-text">Currency</div>
+                    {{submit_proposal_form.currency|add_class:"form-select"}}
+                  </div>
+                  {%if submit_proposal_form.currency.errors%}
+                    <div class="text-danger">{{submit_proposal_form.currency.errors|striptags}}</div>
+                  {%endif%}
+                </div>
+                
+                <div class="mb-3">
+                  <div class="form-floating">
+                    {{submit_proposal_form.proposal_amount|add_class:"form-control"}}
+                    <label for="propsal_amount" class="form-label">Proposal Amount</label>
+                  </div>
+                  {%if submit_proposal_form.proposal_amount.errors%}
+                  <div class="text-danger">{{submit_proposal_form.proposal_amount.errors|striptags}}</div>
+                  {%endif%}
+                </div>
+  
+                <div class="mb-3">
+                  <div class="form-floating">
+                    {{submit_proposal_form.net_amount|add_class:"form-control"}}
+                    <label for="net_amount" class="form-label">SwissTPH Share</label>
+                  </div>
+                  {%if submit_proposal_form.net_amount.errors%}
+                  <div class="text-danger">{{submit_proposal_form.net_amount.errors|striptags}}</div>
+                  {%endif%}
+                </div>
+                
+            </div>
+            
+          </div>
+        
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-success" id="confirmSubmission" hx-indicator="#spinnerUpdate">
+            Submit
+            <img id="spinnerUpdate" src="{% static "images/bouncing-circles.svg" %}" alt="" style="height:25px;" class="htmx-indicator" />
+          </button>
+        </div>
+      </div>
+    </form>
+
+    <script>
+      $("#id_partners").select2({
+        theme: "bootstrap-5",
+        placeholder: "Choose Partners",
+        allowClear: true,
+      });
+    </script>

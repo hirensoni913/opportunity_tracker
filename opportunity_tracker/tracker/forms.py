@@ -56,16 +56,27 @@ class UpdateOpportunityForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        from django.urls import reverse
         is_subscribed = kwargs.pop("is_subscribed", False)
         super().__init__(*args, **kwargs)
         self.fields["is_subscribed"].initial = is_subscribed
+        if self.instance.pk:
+            toggle_url = reverse('notification:toggle_subscription', kwargs={
+                                 'opportunity_id': self.instance.pk})
+            self.fields["is_subscribed"].widget.attrs.update({
+                'hx-post': toggle_url,
+                'hx-trigger': 'change',
+                'hx-target': 'this',
+                'hx-swap': 'none',
+                'data-bs-toast-target': '#successToast',
+            })
 
     status = forms.IntegerField(initial=1, widget=forms.HiddenInput())
     is_subscribed = forms.BooleanField(
         required=False, label="Subscribe to this Opportunity",
         widget=forms.CheckboxInput(attrs={
             'class': 'form-check-input',
-            'role': 'switch'
+            'role': 'switch',
         }))
 
 
@@ -91,6 +102,19 @@ class UpdateStatusForm(forms.ModelForm):
         self.fields['proposal_lead'].queryset = User.objects.all()
         self.fields['proposal_lead'].label_from_instance = lambda obj: f"{obj.first_name} {
             obj.last_name}" if obj.first_name and obj.last_name else obj.username
+
+    def clean(self):
+        cleaned_data = super().clean()
+        status = int(cleaned_data.get("status", 0))
+
+        # make proposal_lead and lead_unit mandatory if the status is Go
+        if status == 2:
+            if not cleaned_data.get("proposal_lead"):
+                self.add_error("proposal_lead", "Proposal Lead is required")
+            if not cleaned_data.get("lead_unit"):
+                self.add_error("lead_unit", "Lead Unit is required")
+
+        return cleaned_data
 
 
 class SubmitProposalForm(forms.ModelForm):
