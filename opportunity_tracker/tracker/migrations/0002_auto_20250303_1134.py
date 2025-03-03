@@ -592,7 +592,7 @@ def seed_country_data(apps, schema_editor):
             "name": "Myanmar"
         },
         {
-            "code": NaN,
+            "code": "NA",
             "name": "Namibia"
         },
         {
