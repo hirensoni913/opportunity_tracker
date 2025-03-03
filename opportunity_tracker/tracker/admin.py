@@ -55,9 +55,9 @@ class UnitAdmin(ModelAdmin):
     pass
 
 
-@admin.register(Staff)
-class StaffAdmin(ModelAdmin):
-    pass
+# @admin.register(Staff)
+# class StaffAdmin(ModelAdmin):
+#     pass
 
 
 @admin.register(Currency)
