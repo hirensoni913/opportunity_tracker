@@ -87,6 +87,7 @@ class Country(models.Model):
     class Meta:
         db_table = "country"
         verbose_name_plural = "Countries"
+        ordering = ["code"]
 
     def __str__(self) -> str:
         return self.name

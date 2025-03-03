@@ -23,26 +23,35 @@ class OpportunitySubscriptionAdmin(ModelAdmin):
 
 @admin.register(FundingAgency)
 class FundingAgencyAdmin(ModelAdmin):
-    list_display = ('code', 'name')
+    list_display = ['code', 'name']
+    search_fields = ['code', 'name']
 
 
 @admin.register(Client)
 class ClientAdmin(ModelAdmin):
+    list_display = ['code', 'name', 'client_type']
+    search_fields = ['code', 'name', 'client_type']
     pass
 
 
 @admin.register(Institute)
 class InstituteAdmin(ModelAdmin):
+    list_display = ['code', 'name']
+    search_fields = ['code', 'name']
     pass
 
 
 @admin.register(Country)
 class CountryAdmin(ModelAdmin):
+    list_display = ['code', 'name']
+    search_fields = ['code', 'name']
     pass
 
 
 @admin.register(Unit)
 class UnitAdmin(ModelAdmin):
+    list_display = ['code', 'name']
+    search_fields = ['code', 'name']
     pass
 
 
@@ -53,6 +62,8 @@ class StaffAdmin(ModelAdmin):
 
 @admin.register(Currency)
 class CurrencyAdmin(ModelAdmin):
+    list_display = ['code', 'currency', 'symbol']
+    search_fields = ['code', 'currency']
     pass
 
 
