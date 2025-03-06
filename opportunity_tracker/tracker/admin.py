@@ -9,6 +9,8 @@ from unfold.contrib.import_export.forms import (ExportForm, ImportForm,
 from .models import (Client, Country, Currency, FundingAgency, Institute,
                      Opportunity, Unit)
 
+from .resources import ClientResource, FundingAgencyResource, InstituteResource, UnitResource
+
 
 @admin.register(NotificationSubscription)
 class NotificationSubscriptionAdmin(ModelAdmin):
@@ -27,6 +29,7 @@ class OpportunitySubscriptionAdmin(ModelAdmin):
 class FundingAgencyAdmin(ModelAdmin, ImportExportModelAdmin):
     list_display = ['code', 'name']
     search_fields = ['code', 'name']
+    resource_class = FundingAgencyResource
     import_form_class = ImportForm
     export_form_class = ExportForm
 
@@ -35,6 +38,7 @@ class FundingAgencyAdmin(ModelAdmin, ImportExportModelAdmin):
 class ClientAdmin(ModelAdmin, ImportExportModelAdmin):
     list_display = ['code', 'name', 'client_type']
     search_fields = ['code', 'name', 'client_type']
+    resource_class = ClientResource
     import_form_class = ImportForm
     export_form_class = ExportForm
     pass
@@ -44,6 +48,7 @@ class ClientAdmin(ModelAdmin, ImportExportModelAdmin):
 class InstituteAdmin(ModelAdmin, ImportExportModelAdmin):
     list_display = ['code', 'name']
     search_fields = ['code', 'name']
+    resource_class = InstituteResource
     import_form_class = ImportForm
     export_form_class = ExportForm
     pass
@@ -62,6 +67,7 @@ class CountryAdmin(ModelAdmin, ImportExportModelAdmin):
 class UnitAdmin(ModelAdmin, ImportExportModelAdmin):
     list_display = ['code', 'name']
     search_fields = ['code', 'name']
+    resource_class = UnitResource
     import_form_class = ImportForm
     export_form_class = ExportForm
     pass

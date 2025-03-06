@@ -169,6 +169,7 @@ class Opportunity(models.Model):
 
     class Meta:
         db_table = "opportunity"
+        verbose_name_plural = "Opportunities"
 
     def __str__(self):
         return self.ref_no
