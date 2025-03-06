@@ -1,14 +1,13 @@
 from django.contrib import admin
-from unfold.admin import ModelAdmin
-
+from import_export.admin import ImportExportModelAdmin
 from notification.models import (NotificationChannel, NotificationSubscription,
                                  OpportunitySubscription)
+from unfold.admin import ModelAdmin
+from unfold.contrib.import_export.forms import (ExportForm, ImportForm,
+                                                SelectableFieldsExportForm)
 
 from .models import (Client, Country, Currency, FundingAgency, Institute,
-                     Staff, Unit)
-
-from import_export.admin import ImportExportModelAdmin
-from unfold.contrib.import_export.forms import ExportForm, ImportForm, SelectableFieldsExportForm
+                     Opportunity, Unit)
 
 
 @admin.register(NotificationSubscription)
@@ -85,3 +84,10 @@ class CurrencyAdmin(ModelAdmin, ImportExportModelAdmin):
 @admin.register(NotificationChannel)
 class NotificationChannelAdmin(ModelAdmin):
     pass
+
+
+@admin.register(Opportunity)
+class NotificationSubscriptionAdmin(ModelAdmin, ImportExportModelAdmin):
+    import_form_class = ImportForm
+    export_form_class = ExportForm
+    search_fields = ['code', 'title']

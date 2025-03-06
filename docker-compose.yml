@@ -22,7 +22,7 @@ services:
       - "8080:8080"
 
   web:
-    build: .
+    image: docker.io/hirensoni913/opp_tracker_main:latest
     container_name: web-app
     restart: always
     ports:
