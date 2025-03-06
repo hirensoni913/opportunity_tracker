@@ -2,9 +2,13 @@ name: Docker Image Main
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
+    types:
+      - closed
 
 jobs:
 
