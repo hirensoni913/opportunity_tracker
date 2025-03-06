@@ -7,6 +7,9 @@ from notification.models import (NotificationChannel, NotificationSubscription,
 from .models import (Client, Country, Currency, FundingAgency, Institute,
                      Staff, Unit)
 
+from import_export.admin import ImportExportModelAdmin
+from unfold.contrib.import_export.forms import ExportForm, ImportForm, SelectableFieldsExportForm
+
 
 @admin.register(NotificationSubscription)
 class NotificationSubscriptionAdmin(ModelAdmin):
@@ -22,37 +25,60 @@ class OpportunitySubscriptionAdmin(ModelAdmin):
 
 
 @admin.register(FundingAgency)
-class FundingAgencyAdmin(ModelAdmin):
-    list_display = ('code', 'name')
+class FundingAgencyAdmin(ModelAdmin, ImportExportModelAdmin):
+    list_display = ['code', 'name']
+    search_fields = ['code', 'name']
+    import_form_class = ImportForm
+    export_form_class = ExportForm
 
 
 @admin.register(Client)
-class ClientAdmin(ModelAdmin):
+class ClientAdmin(ModelAdmin, ImportExportModelAdmin):
+    list_display = ['code', 'name', 'client_type']
+    search_fields = ['code', 'name', 'client_type']
+    import_form_class = ImportForm
+    export_form_class = ExportForm
     pass
 
 
 @admin.register(Institute)
-class InstituteAdmin(ModelAdmin):
+class InstituteAdmin(ModelAdmin, ImportExportModelAdmin):
+    list_display = ['code', 'name']
+    search_fields = ['code', 'name']
+    import_form_class = ImportForm
+    export_form_class = ExportForm
     pass
 
 
 @admin.register(Country)
-class CountryAdmin(ModelAdmin):
+class CountryAdmin(ModelAdmin, ImportExportModelAdmin):
+    list_display = ['code', 'name']
+    search_fields = ['code', 'name']
+    import_form_class = ImportForm
+    export_form_class = ExportForm
     pass
 
 
 @admin.register(Unit)
-class UnitAdmin(ModelAdmin):
+class UnitAdmin(ModelAdmin, ImportExportModelAdmin):
+    list_display = ['code', 'name']
+    search_fields = ['code', 'name']
+    import_form_class = ImportForm
+    export_form_class = ExportForm
     pass
 
 
-@admin.register(Staff)
-class StaffAdmin(ModelAdmin):
-    pass
+# @admin.register(Staff)
+# class StaffAdmin(ModelAdmin):
+#     pass
 
 
 @admin.register(Currency)
-class CurrencyAdmin(ModelAdmin):
+class CurrencyAdmin(ModelAdmin, ImportExportModelAdmin):
+    list_display = ['code', 'currency', 'symbol']
+    search_fields = ['code', 'currency']
+    import_form_class = ImportForm
+    export_form_class = ExportForm
     pass
 
 
