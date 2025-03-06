@@ -15,4 +15,15 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag opp_tracker_main:latest
+
+    - name: Log in to Docker Hub
+      run: echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | docker login -u ${{ github.actor }} --password-stdin
+
+    - name: Build Docker image
+      run: |
+        docker build -t docker.io/${{ github.actor }}/opp_tracker_main:latest .
+   
+    - name: Push Docker image to Docker Hub
+      run: |
+        docker push docker.io/${{ github.actor }}/opp_tracker_main:latest
+      
