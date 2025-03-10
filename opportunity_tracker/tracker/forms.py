@@ -1,7 +1,5 @@
 from typing import Any, Mapping
 from django import forms
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import *
 from django.core.files.base import File
 from django.db.models.base import Model
 from django.forms.utils import ErrorList
@@ -35,6 +33,8 @@ class OpportunityForm(forms.ModelForm):
             'clarification_date': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
             'intent_bid_date': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
             'files': forms.ClearableFileInput(),
+            'funding_agency': forms.Select(attrs={'class': 'form-select', 'id': 'funding_agency_new'}),
+            'client': forms.Select(attrs={'class': 'form-select', 'id': 'client_new'})
         }
     status = forms.IntegerField(initial=1, widget=forms.HiddenInput())
     title = forms.CharField(required=True, error_messages={

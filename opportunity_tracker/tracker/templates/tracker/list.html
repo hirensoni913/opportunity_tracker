@@ -42,6 +42,8 @@
     </div>
   </div>
 </form>
+
+
 <div class="card mt-1">
   <div class="card-header">
     <h4 id="oppCount">{{page_obj.paginator.count}} Opportunities Found</h4>
@@ -76,6 +78,8 @@
 </div>
 
 
+  {% endblock content %}
+  {% block scripts %}
   <script>
     $(document).ready(function () {
       formatTimeStamp();
@@ -105,6 +109,7 @@
         }
       });
     }
-  </script>
-  {% endblock content %}
+
+  </script>  
+  {% endblock scripts %}
 </div>

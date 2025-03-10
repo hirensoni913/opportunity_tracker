@@ -1,6 +1,17 @@
 {%block content %} {% load form_tags %} {% load file_filters %} {% load static
 %}
+{% block head %}
+<style>
+  .backdrop-blur {
+    filter: blur(5px);
+    transition: filter 0.3s ease-in-out;
+}
 
+.second-backdrop {
+    z-index: 1045;  /* Below the second modal but above the first modal */
+}
+</style>
+{% endblock head %}
 <form
   class="modal-content"
   id="opportunityForm"
@@ -36,20 +47,26 @@
       {%endif%}
     </div>
 
-    <div class="form-floating col-md-4">
-      {{form.funding_agency|add_class:"form-select"}}
-      <label for="funding_agency" class="form-label">Funding Agency</label>
+    <div class="col-md-4">
+      <div class="input-group col-md-4">
+        <div class="input-group-text">Funding Agency</div>
+        {{form.funding_agency|add_class:"form-select"}}
+      </div>
       {%if form.funding_agency.errors%}
       <div class="text-danger">{{form.funding_agency.errors|striptags}}</div>
       {%endif%}
     </div>
-    <div class="form-floating col-md-4">
-      {{form.client|add_class:"form-select"}}
-      <label for="client" class="form-label">Client</label>
+    
+    <div class="col-md-4">
+      <div class="input-group col-md-4">
+        <div class="input-group-text">Client</div>
+        {{form.client|add_class:"form-select"}}
+      </div>
       {%if form.client.errors%}
       <div class="text-danger">{{form.client.errors|striptags}}</div>
       {%endif%}
     </div>
+
     <div class="form-floating col-md-4">
       {{form.opp_type|add_class:"form-select"}}
       <label for="opp_type" class="form-label">Type</label>
@@ -107,7 +124,7 @@
       <div class="text-danger">{{form.notes.errors|striptags}}</div>
       {%endif%}
     </div>
-    
+
   <div class="col-md-6">
       <input class="form-control" type="file" name="files" id="files" multiple>
     </div>
@@ -132,15 +149,72 @@
 </div>
 </div>
 
-
 </form>
 
-{% endblock content %} {% block scripts %}
+{% endblock content %} 
+
+
+{% block scripts %}
 <script>
-  $("#id_countries").select2({
-    theme: "bootstrap-5",
-    placeholder: "Choose countries",
-    allowClear: true,
-  });
+
+ // Disable the main modal when the second modal is opened
+ $('#secondModal').on('show.bs.modal', function () {
+  $('#modal').addClass('backdrop-blur');
+});
+
+// Enable the main modal when the second modal is closed
+$('#secondModal').on('hidden.bs.modal', function () {
+  $('#modal').removeClass('backdrop-blur');
+});
+
+  $(document).ready(function() {
+    $("#id_countries").select2({
+      theme: "bootstrap-5",
+      placeholder: "Choose countries",
+      allowClear: true,
+    });
+    
+   $("#funding_agency_new").select2({
+      theme: "bootstrap-5",
+      placeholder: "Choose a funding agency",
+      dropdownParent: $("#modal"),
+      tags: true,
+      createTag: function (params) {
+        term = $.trim(params.term);
+        if (term === '') {
+          return null;
+        }
+        return {
+          id: "new:" + term,
+          text: "Create new funding agency: " + term,
+          newTag: true
+        };
+      }
+    });
+
+
+    // Open modal when the user selects the "Create new" option
+    $("#funding_agency_new").on("select2:select", function(e){
+      var data = e.params.data;
+
+      if(data.id.startsWith("new:"))
+      {
+        var newAgencyName = data.text.replace("Create new funding agency:", "");
+
+        $("#newFundingAgencyName").val(newAgencyName);
+        $("#newFundingAgencyModal").modal("show");
+
+        // Reset select2 to avoid selection conflicts 
+        $(this).val(null).trigger("change");
+      }
+    });
+
+    $("#client_new").select2({
+      theme: "bootstrap-5",
+      placeholder: "Choose a client",
+      dropdownParent: $("#modal")
+    });
+
+});
 </script>
 {% endblock %}

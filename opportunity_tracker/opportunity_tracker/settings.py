@@ -8,9 +8,16 @@ from datetime import timedelta
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Determine the environment
+ENVIRONMENT = os.getenv("DJANGO_ENV", "production")
+
+
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-load_dotenv(BASE_DIR.parent / ".env.dev")
+if ENVIRONMENT == "development":
+    load_dotenv(BASE_DIR.parent / ".env.dev")
+else:
+    load_dotenv(BASE_DIR.parent / ".env.prod")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -50,8 +57,6 @@ INSTALLED_APPS = [
     'django_cotton',
     'django_htmx',
     'fontawesomefree',
-    'crispy_forms',
-    'crispy_bootstrap5',
     'active_link',
     'import_export',
     'core',
@@ -64,8 +69,6 @@ INSTALLED_APPS = [
 
 AUTH_USER_MODEL = 'accounts.User'
 
-CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
-CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
