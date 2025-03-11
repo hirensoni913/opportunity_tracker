@@ -3,7 +3,7 @@ from django import forms
 from django.core.files.base import File
 from django.db.models.base import Model
 from django.forms.utils import ErrorList
-from .models import Client, Country, FundingAgency, Institute, Opportunity
+from .models import Client, Country, FundingAgency, Institute, Opportunity, FundingAgency
 from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
 
@@ -33,8 +33,6 @@ class OpportunityForm(forms.ModelForm):
             'clarification_date': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
             'intent_bid_date': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
             'files': forms.ClearableFileInput(),
-            'funding_agency': forms.Select(attrs={'class': 'form-select', 'id': 'funding_agency_new'}),
-            'client': forms.Select(attrs={'class': 'form-select', 'id': 'client_new'})
         }
     status = forms.IntegerField(initial=1, widget=forms.HiddenInput())
     title = forms.CharField(required=True, error_messages={
@@ -178,3 +176,9 @@ class OpportunitySearchForm(forms.Form):
                 'hx-target': '#opportunity-container',
                 'hx-trigger': 'change' if isinstance(self.fields[field_name].widget, forms.Select) else 'keyup changed delay:500ms',
             })
+
+
+class FundingAgencyForm(forms.ModelForm):
+    class Meta:
+        model = FundingAgency
+        fields = ["code", "name"]

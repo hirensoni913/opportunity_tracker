@@ -1,0 +1,61 @@
+{% load form_tags %}
+<form id="newFundingAgencyForm" class="modal-content" 
+    hx-post={% url "new_funding_agency" %}
+    >
+<div class="modal-header">
+    <h5 class="modal-title">Create New Funding Agency</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+  </div>
+  <div class="modal-body row g-3">
+      {% csrf_token %}
+
+      <div class="form-floating">
+        {{form.code|add_class:"form-control"}}
+        <label for="code" class="form-label">Code</label>
+        {%if form.code.errors%}
+        <div class="text-danger">{{form.code.errors|striptags}}</div>
+        {%endif%}
+      </div>
+
+      <div class="form-floating">
+        {{form.name|add_class:"form-control"}}
+        <label for="name" class="form-label">Name</label>
+        {%if form.name.errors%}
+        <div class="text-danger">{{form.name.errors|striptags}}</div>
+        {%endif%}
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-dark float-end"
+          data-bs-dismiss="modal"
+        >
+          Cancel
+        </button>
+        <button type="submit" class="btn btn-primary float-end" 
+            hx-indicator="#spinnerNew"
+            hx-disabled-elt="this"
+        >Create</button>
+      </div>
+    </div>
+</form>
+
+{% block script %}
+<script>
+    document.addEventListener("htmx:afterRequest", function(event) {
+        if (event.detail.xhr.response) {
+            let responseData = JSON.parse(event.detail.xhr.response);
+            console.log(responseData);
+
+            if (responseData.id && responseData.name) {
+                let newOption = new Option(responseData.name, responseData.id, false, true);
+                console.log(newOption);
+                $("#id_funding_agency").append(newOption).trigger("change");
+            }
+
+            // Close the modal after successful submission
+            $("#modal").modal("hide");
+        }
+    });
+</script>
+{% endblock script %}

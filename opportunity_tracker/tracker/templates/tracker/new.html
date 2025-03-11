@@ -1,171 +1,148 @@
-{%block content %} {% load form_tags %} {% load file_filters %} {% load static
-%}
-{% block head %}
-<style>
-  .backdrop-blur {
-    filter: blur(5px);
-    transition: filter 0.3s ease-in-out;
-}
+{% extends "core/base.html" %} {% block title %}Opportunities{% endblock title %}
+{%block content %}
+{% load form_tags %}
+{% load file_filters %}
+{% load static %}
 
-.second-backdrop {
-    z-index: 1045;  /* Below the second modal but above the first modal */
-}
-</style>
-{% endblock head %}
-<form
-  class="modal-content"
-  id="opportunityForm"
-  enctype="multipart/form-data"
-  hx-post="{% url 'new_opportunity' %}"
->
-  <div class="modal-header">
-    <h5 class="modal-title">New Opportunity</h5>
-    <button
-      type="button"
-      class="btn-close"
-      data-bs-dismiss="modal"
-      aria-label="Close"
-    ></button>
-  </div>
+<div class="card" id="mainDiv">
+  <div class="card-header text-center"><h3>Create New Opportunity</h3></div>
+  <div class="card-body">
+  <div class="card-body">
+    <form
+    class="row g-3"
+    id="opportunityForm"
+    enctype="multipart/form-data"
+    method="POST"
+    action ="{% url 'new_opportunity' %}"
+    hx-get={% url "new_opportunity" %}
+    hx-trigger="new_entity_created from:body"
+    hx-target="#opportunityForm"
+    hx-swap="outerHTML"
+  >    
+      {% csrf_token %}
+      {{form.status}}
+      <div class="form-floating col-md-3">
+        {{form.ref_no|add_class:"form-control"}}
+        <label for="ref_no" class="form-label">Ref# *</label>
+        {% if form.ref_no.errors %}
+        <div class="text-danger">{{ form.ref_no.errors|striptags }}</div>
+        {% endif%}
+      </div>
+      <div class="form-floating col-md-9">
+        {{form.title|add_class:"form-control"}}
+        <label for="title" class="form-label">Title *</label>
+        {%if form.title.errors%}
+        <div class="text-danger">{{form.title.errors|striptags}}</div>
+        {%endif%}
+      </div>
 
-  <div class="row g-3 card-body modal-body">
-    
-    {% csrf_token %}
-    {{form.status}}
+      <div class="col-md-4">
+        <div class="input-group col-md-4">
+          <div class="input-group-text">Funding Agency</div>
+          {{form.funding_agency|add_class:"form-select"}}
+        </div>
+        {%if form.funding_agency.errors%}
+        <div class="text-danger">{{form.funding_agency.errors|striptags}}</div>
+        {%endif%}
+      </div>
+      
+      <div class="col-md-4">
+        <div class="input-group col-md-4">
+          <div class="input-group-text">Client</div>
+          {{form.client|add_class:"form-select"}}
+        </div>
+        {%if form.client.errors%}
+        <div class="text-danger">{{form.client.errors|striptags}}</div>
+        {%endif%}
+      </div>
+
+      <div class="form-floating col-md-4">
+        {{form.opp_type|add_class:"form-select"}}
+        <label for="opp_type" class="form-label">Type</label>
+        {%if form.opp_type.errors%}
+        <div class="text-danger">{{form.opp_type.errors|striptags}}</div>
+        {%endif%}
+      </div>
+
+      <div class="col-md-9">
+      <div class="input-group col-md-9">
+        <div class="input-group-text">Countries</div>
+        {{form.countries|add_class:"form-select"}}
+      </div>
+      {%if form.countries.errors%}
+      <div class="text-danger">{{form.countries.errors|striptags}}</div>
+      {%endif%}
+    </div>
+
     <div class="form-floating col-md-3">
-      {{form.ref_no|add_class:"form-control"}}
-      <label for="ref_no" class="form-label">Ref# *</label>
-      {% if form.ref_no.errors %}
-      <div class="text-danger">{{ form.ref_no.errors|striptags }}</div>
-      {% endif%}
-    </div>
-    <div class="form-floating col-md-9">
-      {{form.title|add_class:"form-control"}}
-      <label for="title" class="form-label">Title *</label>
-      {%if form.title.errors%}
-      <div class="text-danger">{{form.title.errors|striptags}}</div>
+      {{form.duration_months|add_class:"form-control"}}
+      <label for="duration_months" class="form-label">Duration (months)</label>
+      {%if form.duration_months.errors%}
+      <div class="text-danger">{{form.duration_months.errors|striptags}}</div>
       {%endif%}
     </div>
-
-    <div class="col-md-4">
-      <div class="input-group col-md-4">
-        <div class="input-group-text">Funding Agency</div>
-        {{form.funding_agency|add_class:"form-select"}}
+      
+      <div class="form-floating col-md-4">
+        {{form.due_date|add_class:"form-control"}}
+        <label for="due_date" class="form-label">Due Date</label>
+        {%if form.due_date.errors%}
+        <div class="text-danger">{{form.due_date.errors|striptags}}</div>
+        {%endif%}
       </div>
-      {%if form.funding_agency.errors%}
-      <div class="text-danger">{{form.funding_agency.errors|striptags}}</div>
-      {%endif%}
-    </div>
-    
-    <div class="col-md-4">
-      <div class="input-group col-md-4">
-        <div class="input-group-text">Client</div>
-        {{form.client|add_class:"form-select"}}
+      
+      <div class="form-floating col-md-4">
+        {{form.clarification_date|add_class:"form-control"}}
+        <label for="clarification_date" class="form-label">Clarification Date</label>
+        {%if form.clarification_date.errors%}
+        <div class="text-danger">{{form.clarification_date.errors|striptags}}</div>
+        {%endif%}
       </div>
-      {%if form.client.errors%}
-      <div class="text-danger">{{form.client.errors|striptags}}</div>
-      {%endif%}
-    </div>
 
-    <div class="form-floating col-md-4">
-      {{form.opp_type|add_class:"form-select"}}
-      <label for="opp_type" class="form-label">Type</label>
-      {%if form.opp_type.errors%}
-      <div class="text-danger">{{form.opp_type.errors|striptags}}</div>
-      {%endif%}
-    </div>
+      <div class="form-floating col-md-4">
+        {{form.intent_bid_date|add_class:"form-control"}}
+        <label for="intent_bid_date" class="form-label">Intent to Bid</label>
+        {%if form.intent_bid_date.errors%}
+        <div class="text-danger">{{form.intent_bid_date.errors|striptags}}</div>
+        {%endif%}
+      </div>
 
-    <div class="col-md-9">
-    <div class="input-group col-md-9">
-      <div class="input-group-text">Countries</div>
-      {{form.countries|add_class:"form-select"}}
+      <div class="form-floating col-12">
+        {{form.notes|add_class:"form-control"}}
+        <label for="notes" class="form-label">Notes</label>
+        {%if form.notes.errors%}
+        <div class="text-danger">{{form.notes.errors|striptags}}</div>
+        {%endif%}
+      </div>
+
+    <div class="col-md-6">
+        <input class="form-control" type="file" name="files" id="files" multiple>
+      </div>
+      
     </div>
-    {%if form.countries.errors%}
-    <div class="text-danger">{{form.countries.errors|striptags}}</div>
-    {%endif%}
   </div>
+      <div class="card-footer">
+        <button
+          type="submit"
+          class="btn btn-lg btn-success float-end"
+        ><i class="fa-solid fa-save"></i>
+        Save
+        </button>
 
-  <div class="form-floating col-md-3">
-    {{form.duration_months|add_class:"form-control"}}
-    <label for="duration_months" class="form-label">Duration (months)</label>
-    {%if form.duration_months.errors%}
-    <div class="text-danger">{{form.duration_months.errors|striptags}}</div>
-    {%endif%}
-  </div>
-    
-    <div class="form-floating col-md-4">
-      {{form.due_date|add_class:"form-control"}}
-      <label for="due_date" class="form-label">Due Date</label>
-      {%if form.due_date.errors%}
-      <div class="text-danger">{{form.due_date.errors|striptags}}</div>
-      {%endif%}
-    </div>
-    
-    <div class="form-floating col-md-4">
-      {{form.clarification_date|add_class:"form-control"}}
-      <label for="clarification_date" class="form-label">Clarification Date</label>
-      {%if form.clarification_date.errors%}
-      <div class="text-danger">{{form.clarification_date.errors|striptags}}</div>
-      {%endif%}
-    </div>
-
-    <div class="form-floating col-md-4">
-      {{form.intent_bid_date|add_class:"form-control"}}
-      <label for="intent_bid_date" class="form-label">Intent to Bid</label>
-      {%if form.intent_bid_date.errors%}
-      <div class="text-danger">{{form.intent_bid_date.errors|striptags}}</div>
-      {%endif%}
-    </div>
-
-    <div class="form-floating col-12">
-      {{form.notes|add_class:"form-control"}}
-      <label for="notes" class="form-label">Notes</label>
-      {%if form.notes.errors%}
-      <div class="text-danger">{{form.notes.errors|striptags}}</div>
-      {%endif%}
-    </div>
-
-  <div class="col-md-6">
-      <input class="form-control" type="file" name="files" id="files" multiple>
+        
+      </div>
     </div>
     
   </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-        Cancel
-      </button>
-      <button
-        type="submit"
-        class="btn btn-success"
-        hx-indicator="#spinnerNew"
-        hx-disabled-elt="this"
-      >
-        <i class="fa fa-save"></i> Save <img id="spinnerNew" src="{% static "images/bouncing-circles.svg" %}" alt="" style="height:25px;"
-        class="htmx-indicator" />
-      </button>
-      </div>
-    </div>
-  
+  </div>
+
+  </form>
 </div>
-</div>
-
-</form>
 
 {% endblock content %} 
 
 
 {% block scripts %}
 <script>
-
- // Disable the main modal when the second modal is opened
- $('#secondModal').on('show.bs.modal', function () {
-  $('#modal').addClass('backdrop-blur');
-});
-
-// Enable the main modal when the second modal is closed
-$('#secondModal').on('hidden.bs.modal', function () {
-  $('#modal').removeClass('backdrop-blur');
-});
 
   $(document).ready(function() {
     $("#id_countries").select2({
@@ -174,10 +151,9 @@ $('#secondModal').on('hidden.bs.modal', function () {
       allowClear: true,
     });
     
-   $("#funding_agency_new").select2({
+   $("#id_funding_agency").select2({
       theme: "bootstrap-5",
       placeholder: "Choose a funding agency",
-      dropdownParent: $("#modal"),
       tags: true,
       createTag: function (params) {
         term = $.trim(params.term);
@@ -194,25 +170,33 @@ $('#secondModal').on('hidden.bs.modal', function () {
 
 
     // Open modal when the user selects the "Create new" option
-    $("#funding_agency_new").on("select2:select", function(e){
+    $("#id_funding_agency").on("select2:select", function(e){
       var data = e.params.data;
 
       if(data.id.startsWith("new:"))
       {
-        var newAgencyName = data.text.replace("Create new funding agency:", "");
+        var newAgencyName = data.text.replace("Create new funding agency:", "").trim();
 
-        $("#newFundingAgencyName").val(newAgencyName);
-        $("#newFundingAgencyModal").modal("show");
+        // Trigger HTMX request to load the modal, similar to the button
+        htmx.ajax('GET', '{% url "new_funding_agency" %}', { target: '#dialog' });
 
-        // Reset select2 to avoid selection conflicts 
+        // Wait for modal to be injected, then open it
+        setTimeout(() => {
+            $("#modal").modal("show");  
+            $("#modal").on("shown.bs.modal", function () {
+              $("#id_code").focus();
+          });
+            $("#id_name").val(newAgencyName);  // Prefill input
+        }, 300);
+
+        // Reset Select2 to avoid selection conflicts
         $(this).val(null).trigger("change");
       }
     });
 
-    $("#client_new").select2({
+    $("#id_client").select2({
       theme: "bootstrap-5",
       placeholder: "Choose a client",
-      dropdownParent: $("#modal")
     });
 
 });
