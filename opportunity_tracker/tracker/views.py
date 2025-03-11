@@ -21,7 +21,7 @@ from notification.models import OpportunitySubscription
 
 from .forms import (OpportunityDetailForm, OpportunityForm,
                     OpportunitySearchForm, SubmitProposalForm,
-                    UpdateOpportunityForm, UpdateStatusForm, FundingAgencyForm)
+                    UpdateOpportunityForm, UpdateStatusForm, FundingAgencyForm, ClientForm)
 from .models import Opportunity, OpportunityFile
 
 from .serializers import OpportunitySerializer
@@ -369,6 +369,30 @@ class NewFundingAgencyView(View):
                     {
                         "id": agency.id,
                         "name": agency.name
+                    }
+                )
+
+        return render(request, self.template_name, {"form": form})
+
+
+class NewClientView(View):
+    template_name = "tracker/new_client.html"
+    form_class = ClientForm
+    success_url = reverse_lazy("new_opportunity")
+
+    def get(self, request, *args, **kwargs):
+        form = self.form_class()
+        return render(request, self.template_name, {"form": form})
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            client = form.save()
+            if request.htmx:
+                return JsonResponse(
+                    {
+                        "id": client.id,
+                        "name": client.name
                     }
                 )
 

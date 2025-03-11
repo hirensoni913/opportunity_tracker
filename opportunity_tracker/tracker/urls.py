@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
-from .views import DownloadFolderView, FileDeleteView, OpportunityListView, OpportunityViewSet, OpportunityUpdateView, OpportunityCreateView, OpportunitySubmitView, OpportunityStatusUpdateView, OpportunityDetailView, IndexView, NewFundingAgencyView
+from .views import DownloadFolderView, FileDeleteView, OpportunityListView, OpportunityViewSet, OpportunityUpdateView, OpportunityCreateView, OpportunitySubmitView, OpportunityStatusUpdateView, OpportunityDetailView, IndexView, NewFundingAgencyView, NewClientView
 
 router = DefaultRouter()
 router.register(r"Opportunity", OpportunityViewSet)
@@ -25,5 +25,7 @@ urlpatterns = [
          DownloadFolderView.as_view(), name="download_folder"),
     path("opportunity/new_funding_agency/",
          NewFundingAgencyView.as_view(), name="new_funding_agency"),
+    path("opportunity/new_client/",
+         NewClientView.as_view(), name="new_client"),
 
 ]

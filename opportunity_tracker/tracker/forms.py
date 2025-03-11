@@ -3,7 +3,8 @@ from django import forms
 from django.core.files.base import File
 from django.db.models.base import Model
 from django.forms.utils import ErrorList
-from .models import Client, Country, FundingAgency, Institute, Opportunity, FundingAgency
+from django.urls import reverse, reverse_lazy
+from .models import Client, Country, FundingAgency, Institute, Opportunity, FundingAgency, Client
 from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
 
@@ -33,7 +34,20 @@ class OpportunityForm(forms.ModelForm):
             'clarification_date': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
             'intent_bid_date': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
             'files': forms.ClearableFileInput(),
+            'funding_agency': forms.Select(attrs={'data-entity': 'funding_agency'}),
+            'client': forms.Select(attrs={'data-entity': 'client'})
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['funding_agency'].widget.attrs.update({
+            'data-url': reverse_lazy('new_funding_agency')
+        })
+
+        self.fields['client'].widget.attrs.update({
+            'data-url': reverse_lazy('new_client')
+        })
+
     status = forms.IntegerField(initial=1, widget=forms.HiddenInput())
     title = forms.CharField(required=True, error_messages={
                             "required": "Title is required"})
@@ -182,3 +196,9 @@ class FundingAgencyForm(forms.ModelForm):
     class Meta:
         model = FundingAgency
         fields = ["code", "name"]
+
+
+class ClientForm(forms.ModelForm):
+    class Meta:
+        model = Client
+        fields = ["code", "name", "client_type"]

@@ -120,12 +120,50 @@
           if (event.target.id == "modal")
           {
             const button = event.relatedTarget;
-            const modalSize = button.getAttribute("data-modal-size") || "modal-lg";
-            const dialog = document.querySelector("#dialog");
-            dialog.className = `modal-dialog ${modalSize} modal-dialog-centered`;
+            if (button)
+            {
+              const modalSize = button.getAttribute("data-modal-size") || "modal-lg";
+              const dialog = document.querySelector("#dialog");
+              dialog.className = `modal-dialog ${modalSize} modal-dialog-centered`;
+            }
           }
 
         });
+
+        document.addEventListener("hidden.bs.modal", function (event) {
+          if (event.target.id == "modal") {
+            console.log("Modal closed. Cleaning up...");
+
+        // 1. Clear modal body (`#dialog`) to prepare for fresh content
+        let modalDialog = document.querySelector("#dialog");
+        if (modalDialog) {
+            modalDialog.innerHTML = '<div class="modal-dialog modal-dialog-centered"><div class="modal-content">Loading...</div></div>';
+        }
+
+        // 2. Reset form fields inside the modal
+        let forms = event.target.querySelectorAll("form");
+        forms.forEach(form => form.reset()); // Resets all form fields
+
+        // 3. Remove any dynamically stored data attributes
+        let inputs = event.target.querySelectorAll("input, select, textarea");
+        inputs.forEach(input => {
+            input.value = "";
+            input.removeAttribute("data-new-entity-name"); // Remove stored entity name
+            input.removeAttribute("data-modal-size"); // Reset modal size
+        });
+
+        // 4. Reset Select2 dropdowns if they exist
+        let select2Fields = event.target.querySelectorAll(".select2");
+        select2Fields.forEach(select => {
+            $(select).val(null).trigger("change");
+        });
+
+        // 5. Remove event listeners to prevent duplication
+        $(event.target).off("shown.bs.modal");
+    }
+          
+        });
+
       </script>
 
     {% block scripts %}{% endblock  %}
