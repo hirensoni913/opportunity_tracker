@@ -10,8 +10,7 @@
     <script src="{% static "js/jquery.min.js" %}"></script>
 
 
-    <link href="{% static "libs/bootstrap/bootstrap.min.css" %}" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
-     
+    <link href="{% static "libs/bootstrap/bootstrap.min.css" %}" rel="stylesheet"  crossorigin="anonymous">
     <link href="{% static "css/cosmo.min.css" %}" rel="stylesheet" />
     <link rel="stylesheet" href="{% static "libs/select2/select2.min.css" %}" />
     <link rel="stylesheet" href="{% static "libs/select2/select2-bootstrap-5-theme.min.css" %}" />
@@ -95,8 +94,8 @@
 
     </div>
     
-    <script src="{% static "libs/bootstrap/popper.min.js" %}" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
-    <script src="{% static "libs/bootstrap/bootstrap.min.js" %}" integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V" crossorigin="anonymous"></script>
+    <script src="{% static "libs/bootstrap/popper.min.js" %}"  crossorigin="anonymous"></script>
+    <script src="{% static "libs/bootstrap/bootstrap.min.js" %}" crossorigin="anonymous"></script>
 
     <script src="{% static "libs/select2/select2.min.js" %}"></script>
     <script src="{% static "js/moment.js" %}"></script>
@@ -118,10 +117,14 @@
         });
 
         document.addEventListener("show.bs.modal", function (event) {
-          const button = event.relatedTarget;
-          const modalSize = button.getAttribute("data-modal-size") || "modal-lg";
-          const dialog = document.querySelector("#dialog");
-          dialog.className = `modal-dialog ${modalSize} modal-dialog-centered`;
+          if (event.target.id == "modal")
+          {
+            const button = event.relatedTarget;
+            const modalSize = button.getAttribute("data-modal-size") || "modal-lg";
+            const dialog = document.querySelector("#dialog");
+            dialog.className = `modal-dialog ${modalSize} modal-dialog-centered`;
+          }
+
         });
       </script>
 

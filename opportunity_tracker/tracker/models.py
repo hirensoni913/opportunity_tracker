@@ -41,6 +41,7 @@ class FundingAgency(Entity):
     class Meta:
         db_table = "funding_agency"
         verbose_name_plural = "Funding Agencies"
+        ordering = ["name"]
 
 
 class Client(Entity):

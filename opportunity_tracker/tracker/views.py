@@ -21,7 +21,7 @@ from notification.models import OpportunitySubscription
 
 from .forms import (OpportunityDetailForm, OpportunityForm,
                     OpportunitySearchForm, SubmitProposalForm,
-                    UpdateOpportunityForm, UpdateStatusForm)
+                    UpdateOpportunityForm, UpdateStatusForm, FundingAgencyForm)
 from .models import Opportunity, OpportunityFile
 
 from .serializers import OpportunitySerializer
@@ -123,11 +123,14 @@ class OpportunityCreateView(CreateView):
             OpportunityFile.objects.create(opportunity=self.object, file=f)
 
         headers = {"HX-Trigger": "refresh_opp_list"}
-        return HttpResponse(status=204, headers=headers)
+        if self.request.htmx:
+            return HttpResponse(status=204, headers=headers)
+        else:
+            return response
 
     def get_template_names(self):
         if self.request.htmx:
-            return "tracker/new.html"
+            return "tracker/new_modal.html"
         else:
             return self.template_name
 
@@ -346,3 +349,27 @@ class DownloadFolderView(View):
         os.remove(zip_path)
 
         return response
+
+
+class NewFundingAgencyView(View):
+    template_name = "tracker/new_funding_agency.html"
+    form_class = FundingAgencyForm
+    success_url = reverse_lazy("new_opportunity")
+
+    def get(self, request, *args, **kwargs):
+        form = self.form_class()
+        return render(request, self.template_name, {"form": form})
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            agency = form.save()
+            if request.htmx:
+                return JsonResponse(
+                    {
+                        "id": agency.id,
+                        "name": agency.name
+                    }
+                )
+
+        return render(request, self.template_name, {"form": form})

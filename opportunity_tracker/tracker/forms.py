@@ -1,11 +1,9 @@
 from typing import Any, Mapping
 from django import forms
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import *
 from django.core.files.base import File
 from django.db.models.base import Model
 from django.forms.utils import ErrorList
-from .models import Client, Country, FundingAgency, Institute, Opportunity
+from .models import Client, Country, FundingAgency, Institute, Opportunity, FundingAgency
 from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
 
@@ -178,3 +176,9 @@ class OpportunitySearchForm(forms.Form):
                 'hx-target': '#opportunity-container',
                 'hx-trigger': 'change' if isinstance(self.fields[field_name].widget, forms.Select) else 'keyup changed delay:500ms',
             })
+
+
+class FundingAgencyForm(forms.ModelForm):
+    class Meta:
+        model = FundingAgency
+        fields = ["code", "name"]

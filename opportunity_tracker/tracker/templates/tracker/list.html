@@ -42,10 +42,12 @@
     </div>
   </div>
 </form>
+
+
 <div class="card mt-1">
   <div class="card-header">
     <h4 id="oppCount">{{page_obj.paginator.count}} Opportunities Found</h4>
-    <button
+    {% comment %} <button
       data-bs-toggle="modal"
       data-bs-target="#modal"
       data-modal-size="modal-xl"
@@ -55,7 +57,13 @@
       hx-trigger="click"
     >
       <i class="fa fa-plus"></i>
-    </button>
+    </button> {% endcomment %}
+    <a
+      class="btn btn-lg btn-primary fab"
+      href="{% url 'new_opportunity' %}"
+    >
+      <i class="fa fa-plus"></i>
+  </a>
   </div>
 
   <!-- prettier-ignore -->
@@ -76,6 +84,8 @@
 </div>
 
 
+  {% endblock content %}
+  {% block scripts %}
   <script>
     $(document).ready(function () {
       formatTimeStamp();
@@ -105,6 +115,7 @@
         }
       });
     }
-  </script>
-  {% endblock content %}
+
+  </script>  
+  {% endblock scripts %}
 </div>
