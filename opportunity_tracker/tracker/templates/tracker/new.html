@@ -4,6 +4,7 @@
 {% load file_filters %}
 {% load static %}
 
+
 <div class="card" id="mainDiv">
   <div class="card-header text-center"><h3>Create New Opportunity</h3></div>
   <div class="card-body">
@@ -47,7 +48,7 @@
       </div>
       
       <div class="col-md-4">
-        <div class="input-group col-md-4">
+        <div class="input-group">
           <div class="input-group-text">Client</div>
           {{form.client|add_class:"form-select"}}
         </div>
@@ -56,16 +57,18 @@
         {%endif%}
       </div>
 
-      <div class="form-floating col-md-4">
-        {{form.opp_type|add_class:"form-select"}}
-        <label for="opp_type" class="form-label">Type</label>
+      <div class="col-md-4">
+        <div class="input-group">
+          <div class="input-group-text">Type</div>
+          {{form.opp_type|add_class:"form-select"}}
+        </div>
         {%if form.opp_type.errors%}
         <div class="text-danger">{{form.opp_type.errors|striptags}}</div>
         {%endif%}
       </div>
 
-      <div class="col-md-9">
-      <div class="input-group col-md-9">
+      <div class="col-md-4">
+      <div class="input-group">
         <div class="input-group-text">Countries</div>
         {{form.countries|add_class:"form-select"}}
       </div>
@@ -74,11 +77,31 @@
       {%endif%}
     </div>
 
-    <div class="form-floating col-md-3">
+    <div class="form-floating col-md-2">
       {{form.duration_months|add_class:"form-control"}}
       <label for="duration_months" class="form-label">Duration (months)</label>
       {%if form.duration_months.errors%}
       <div class="text-danger">{{form.duration_months.errors|striptags}}</div>
+      {%endif%}
+    </div>
+
+    <div class="col-md-2">
+      <div class="form-floating">
+        {{form.currency|add_class:"form-select"}}
+        <label for="duration_months" class="form-label">Currency</label>
+      </div>
+      {%if form.currency.errors%}
+        <div class="text-danger">{{form.currency.errors|striptags}}</div>
+      {%endif%}
+    </div>
+    
+    <div class="col-md-4">
+      <div class="form-floating">
+        {{form.proposal_amount|add_class:"form-control"}}
+        <label for="propsal_amount" class="form-label">Proposal Amount</label>
+      </div>
+      {%if form.proposal_amount.errors%}
+      <div class="text-danger">{{form.proposal_amount.errors|striptags}}</div>
       {%endif%}
     </div>
       
@@ -145,6 +168,7 @@
 <script>
 
   $(document).ready(function() {
+
     $("#id_countries").select2({
       theme: "bootstrap-5",
       placeholder: "Choose countries",
@@ -186,6 +210,7 @@
       }
     });
 
+
     $("#id_funding_agency, #id_client").on("select2:select", function(e) {
       var data = e.params.data;
       var entityType = $(this).data("entity");
@@ -194,8 +219,7 @@
       if (data.id.startsWith("new:")) {
           
           var newEntityName = data.text.replace(`Create new ${entityType.replace('_', ' ')}:`, "").trim();
-          console.log(newEntityName);
-  
+          
           // Trigger HTMX request to load the modal, similar to the button
           htmx.ajax('GET', url, { target: '#dialog' });
   
@@ -212,7 +236,9 @@
           $(this).val(null).trigger("change");
         }
     
-      
+  
+ 
+
   });
 
   if (!window.htmxListenerAttached) {

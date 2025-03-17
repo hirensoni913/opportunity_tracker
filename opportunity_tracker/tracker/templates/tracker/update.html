@@ -9,9 +9,8 @@
   <div class="card-body">
     <form class="row g-3" 
       id="opportunityForm" 
-      hx-post="{% url "update_opportunity" object.id %}"
-      hx-target="#mainDiv"
-      hx-swap="outerHTML"
+      method="POST"
+      action="{% url "update_opportunity" object.id %}"
       enctype="multipart/form-data">
       {% csrf_token %}
       {{form.status}}
@@ -52,8 +51,8 @@
           {%endif%}
         </div>
 
-        <div class="col-md-6">
-          <div class="input-group col-md-6">
+        <div class="col-md-4">
+          <div class="input-group">
             <div class="input-group-text">Countries</div>
             {{form.countries|add_class:"form-select"}}
             {%if form.countries.errors%}
@@ -62,11 +61,31 @@
           </div>
         </div>
 
-        <div class="form-floating col-md-6">
+        <div class="form-floating col-md-2">
           {{form.duration_months|add_class:"form-control"}}
           <label for="duration_months" class="form-label">Duration (months)</label>
           {%if form.duration_months.errors%}
           <div class="text-danger">{{form.duration_months.errors|striptags}}</div>
+          {%endif%}
+        </div>
+
+        <div class="col-md-2">
+          <div class="form-floating">
+            {{form.currency|add_class:"form-select"}}
+            <label for="currency" class="form-label">Currency</label>
+          </div>
+          {%if form.currency.errors%}
+            <div class="text-danger">{{form.currency.errors|striptags}}</div>
+          {%endif%}
+        </div>
+        
+        <div class="col-md-4">
+          <div class="form-floating">
+            {{form.proposal_amount|add_class:"form-control"}}
+            <label for="propsal_amount" class="form-label">Proposal Amount</label>
+          </div>
+          {%if form.proposal_amount.errors%}
+          <div class="text-danger">{{form.proposal_amount.errors|striptags}}</div>
           {%endif%}
         </div>
 
@@ -168,7 +187,7 @@
             Submit Proposal
           </button>
           {% endif %}
-          {%  if form.status.value >= 5 and form.status.value <= 7 %}
+          {%  if form.status.value >= 5 and form.status.value <= 10 %}
           <button type="button" id="update_result" class="btn btn-lg btn-primary"
           data-bs-toggle="modal"
           data-bs-target="#modal"
@@ -214,7 +233,7 @@
 
 {% block scripts %}
 <script>
-  
+
   $("#id_countries").select2({theme: 'bootstrap-5', placeholder: 'Choose countries', allowClear: true});
   $("#id_lead_unit").select2({theme: 'bootstrap-5', placeholder: 'Choose a lead unit', allowClear: true});
   $("#id_proposal_lead").select2({theme: 'bootstrap-5', placeholder: 'Choose a proposal lead', allowClear: true});

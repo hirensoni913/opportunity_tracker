@@ -41,36 +41,6 @@
                   {%endif%}
                 </div>
   
-                <div class="mb-3">
-                  <div class="input-group">
-                    <div class="input-group-text">Currency</div>
-                    {{submit_proposal_form.currency|add_class:"form-select"}}
-                  </div>
-                  {%if submit_proposal_form.currency.errors%}
-                    <div class="text-danger">{{submit_proposal_form.currency.errors|striptags}}</div>
-                  {%endif%}
-                </div>
-                
-                <div class="mb-3">
-                  <div class="form-floating">
-                    {{submit_proposal_form.proposal_amount|add_class:"form-control"}}
-                    <label for="propsal_amount" class="form-label">Proposal Amount</label>
-                  </div>
-                  {%if submit_proposal_form.proposal_amount.errors%}
-                  <div class="text-danger">{{submit_proposal_form.proposal_amount.errors|striptags}}</div>
-                  {%endif%}
-                </div>
-  
-                <div class="mb-3">
-                  <div class="form-floating">
-                    {{submit_proposal_form.net_amount|add_class:"form-control"}}
-                    <label for="net_amount" class="form-label">SwissTPH Share</label>
-                  </div>
-                  {%if submit_proposal_form.net_amount.errors%}
-                  <div class="text-danger">{{submit_proposal_form.net_amount.errors|striptags}}</div>
-                  {%endif%}
-                </div>
-                
             </div>
             
           </div>

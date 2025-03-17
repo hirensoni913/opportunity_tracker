@@ -132,8 +132,7 @@
 
         document.addEventListener("hidden.bs.modal", function (event) {
           if (event.target.id == "modal") {
-            console.log("Modal closed. Cleaning up...");
-
+            
         // 1. Clear modal body (`#dialog`) to prepare for fresh content
         let modalDialog = document.querySelector("#dialog");
         if (modalDialog) {

@@ -38,6 +38,10 @@
     <span class="detail-value">{{form.instance.client}}</span>
   </div>
   <div class="detail-item">
+    <span class="detail-label">Duration:</span>
+    <span class="detail-value">{{form.instance.duration_months}} Months</span>
+  </div>
+  <div class="detail-item">
     <span class="detail-label">Countries:</span>
     <span class="detail-value">
       <!--prettier-ignore-->
@@ -88,15 +92,7 @@
         >
       </div>
     </div>
-    <div class="col-md-6">
-      <div class="detail-item">
-        <span class="detail-label">SwissTPH Share:</span>
-        <span class="detail-value"
-          >{% if form.currency.value %}{{form.currency.value}}{% endif %}
-          {{form.net_amount.value}}</span
-        >
-      </div>
-    </div>
+    
   </div>
 </div>
 

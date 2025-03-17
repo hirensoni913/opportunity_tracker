@@ -155,8 +155,11 @@ class OpportunityUpdateView(UpdateView):
         for f in files:
             OpportunityFile.objects.create(opportunity=self.object, file=f)
 
-        headers = {"HX-Redirect": str(self.success_url)}
-        return HttpResponse(status=204, headers=headers)
+        if self.request.htmx:
+            headers = {"HX-Redirect": str(self.success_url)}
+            return HttpResponse(status=204, headers=headers)
+
+        return response
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
@@ -167,8 +170,12 @@ class OpportunityUpdateView(UpdateView):
             is_active=True
         ).first()
 
-        context['form'] = UpdateOpportunityForm(
-            instance=self.object, is_subscribed=subscription is not None)
+        if 'form' not in kwargs:
+            context['form'] = UpdateOpportunityForm(
+                instance=self.object, is_subscribed=subscription is not None)
+        else:
+            context['form'] = kwargs['form']  # Preserve form with errors
+
         context['update_status_form'] = UpdateStatusForm(instance=self.object)
         if not self.submit_proposal_form:
             context['submit_proposal_form'] = SubmitProposalForm(
@@ -177,6 +184,10 @@ class OpportunityUpdateView(UpdateView):
             context['submit_proposal_form'] = self.submit_proposal_form
 
         return context
+
+    def form_invalid(self, form):
+        context = self.get_context_data(form=form)
+        return self.render_to_response(context, status=400)
 
     def get_template_names(self):
         if self.request.htmx:
@@ -263,11 +274,6 @@ class OpportunitySubmitView(UpdateView):
         return context
 
     def form_invalid(self, form):
-        # request_copy = HttpRequest()
-        # request_copy.__dict__ = self.request.__dict__.copy()
-        # request_copy.path = reverse(
-        #     "update_opportunity", kwargs={"pk": self.object.id})
-
         view = OpportunityUpdateView.as_view()
         return view(self.request, pk=self.object.id, submit_proposal_form=form)
 
