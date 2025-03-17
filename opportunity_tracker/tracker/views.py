@@ -5,6 +5,8 @@ from typing import Any
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_not_required
+from django.utils.decorators import method_decorator
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
@@ -19,12 +21,13 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from notification.models import OpportunitySubscription
 
-from .forms import (OpportunityDetailForm, OpportunityForm,
+from .forms import (OpportunityDetailForm, OpportunityDetailAnonymousForm, OpportunityForm,
                     OpportunitySearchForm, SubmitProposalForm,
                     UpdateOpportunityForm, UpdateStatusForm, FundingAgencyForm, ClientForm)
 from .models import Opportunity, OpportunityFile
 
 from .serializers import OpportunitySerializer
+
 
 User = get_user_model()
 
@@ -285,7 +288,7 @@ class OpportunitySubmitView(UpdateView):
 
 class OpportunityDetailView(DetailView):
     model = Opportunity
-    template_name = "tracker/detail.html"
+    template_name = "tracker/detail_modal.html"
     context_object_name = "opportunity"
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
@@ -307,7 +310,39 @@ class OpportunityDetailView(DetailView):
             form = OpportunityDetailForm(instance=opportunity)
             files = opportunity.Files.all()
             html = render_to_string(
-                "tracker/detail.html", {"form": form, "files": files, })
+                "tracker/detail_modal.html", {"form": form, "files": files, })
+            return JsonResponse({'html': html})
+
+        return super().get(request, *args, **kwargs)
+
+
+@method_decorator(login_not_required, name='dispatch')
+class OpportunityDetailAnonymousView(DeleteView):
+    model = Opportunity
+    form_class = OpportunityDetailAnonymousForm
+    template_name = "tracker/detail_anonymous.html"
+    context_object_name = "opportunity"
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        opportunity = self.get_object()
+        form = OpportunityDetailAnonymousForm(instance=opportunity)
+        context['form'] = form
+        context['partner_names'] = [
+            partner.name for partner in opportunity.partners.all()]
+
+        context['files'] = opportunity.Files.all()
+
+        return context
+
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        # Handle the AJAX call
+        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            opportunity = self.get_object()
+            form = OpportunityDetailAnonymousForm(instance=opportunity)
+            files = opportunity.Files.all()
+            html = render_to_string(
+                "tracker/detail_modal.html", {"form": form, "files": files, })
             return JsonResponse({'html': html})
 
         return super().get(request, *args, **kwargs)

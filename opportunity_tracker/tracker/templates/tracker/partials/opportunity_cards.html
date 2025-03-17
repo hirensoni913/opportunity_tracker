@@ -23,14 +23,27 @@
                 <div class="card-text">
                 <div class="icon-text"><i class="fas fa-building"></i> {{ opportunity.funding_agency }}</div>
                 <div class="icon-text"><i class="fas fa-file-alt"></i> {{ opportunity.get_opp_type_display }}</div>
+                
+            <div class="row d-flex align-items-center">
+                {% if opportunity.duration_months %}
+                    <div class="icon-text col-6"><i class="fas fa-stopwatch"></i> {{ opportunity.duration_months }} Month(s)</div>
+                {% endif %}
+
+                {% if opportunity.proposal_amount %}
+                    <div class="icon-text col-6 text-end d-flex {% if opportunity.duration_months %}justify-content-end{% endif %} "><i class="fas fa-money-bill-wave"></i> {{ opportunity.currency.symbol }} {{ opportunity.proposal_amount }}</div>
+                {% endif %}
+            </div>
+                
                 {% if opportunity.status < 5 %}
                     <div class="icon-text"><i class="fas fa-calendar-alt"></i>Due: {{ opportunity.due_date }}</div>
                     {% if opportunity.clarification_date %}
                         <div class="icon-text"><i class="fas fa-info-circle"></i>Clarification: {{ opportunity.clarification_date }}</div>    
                     {% endif %}
                 {% else %}
-                    <div class="icon-text"><i class="fas fa-calendar-check"></i>Submitted On: {{ opportunity.submission_date }}</div>
-                    <div class="icon-text"><i class="fas fa-user-tie"></i>{{ opportunity.proposal_lead.first_name }} {{opportunity.proposal_lead.last_name}}</div>
+                <div class="row  d-flex align-items-center">
+                    <div class="icon-text col-6"><i class="fas fa-calendar-check"></i>Submitted On: {{ opportunity.submission_date }}</div>
+                    <div class="icon-text col-6 text-end d-flex justify-content-end"><i class="fas fa-user-tie"></i>{{ opportunity.proposal_lead.first_name }} {{opportunity.proposal_lead.last_name}}</div>
+                </div>
                 {% endif %}
             </div>
                 <div class="card-footer text-muted small p-0 mt-auto">

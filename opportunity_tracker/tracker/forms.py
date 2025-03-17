@@ -184,6 +184,12 @@ class OpportunityDetailForm(forms.ModelForm):
         exclude = ['updated_at', 'updated_by']
 
 
+class OpportunityDetailAnonymousForm(forms.ModelForm):
+    class Meta:
+        model = Opportunity
+        exclude = ['status', 'updated_at', 'updated_by']
+
+
 class OpportunitySearchForm(forms.Form):
     ref_no = forms.CharField(required=False, label='Ref#')
     title = forms.CharField(required=False, label='Title')
