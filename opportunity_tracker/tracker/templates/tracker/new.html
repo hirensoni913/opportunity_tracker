@@ -169,36 +169,110 @@
     });
 
 
-    // Open modal when the user selects the "Create new" option
-    $("#id_funding_agency").on("select2:select", function(e){
-      var data = e.params.data;
-
-      if(data.id.startsWith("new:"))
-      {
-        var newAgencyName = data.text.replace("Create new funding agency:", "").trim();
-
-        // Trigger HTMX request to load the modal, similar to the button
-        htmx.ajax('GET', '{% url "new_funding_agency" %}', { target: '#dialog' });
-
-        // Wait for modal to be injected, then open it
-        setTimeout(() => {
-            $("#modal").modal("show");  
-            $("#modal").on("shown.bs.modal", function () {
-              $("#id_code").focus();
-          });
-            $("#id_name").val(newAgencyName);  // Prefill input
-        }, 300);
-
-        // Reset Select2 to avoid selection conflicts
-        $(this).val(null).trigger("change");
-      }
-    });
-
     $("#id_client").select2({
       theme: "bootstrap-5",
       placeholder: "Choose a client",
+      tags: true,
+      createTag: function (params) {
+        term = $.trim(params.term);
+        if (term === '') {
+          return null;
+        }
+        return {
+          id: "new:" + term,
+          text: "Create new client: " + term,
+          newTag: true
+        };
+      }
     });
 
+    $("#id_funding_agency, #id_client").on("select2:select", function(e) {
+      var data = e.params.data;
+      var entityType = $(this).data("entity");
+      var url = $(this).data("url");
+  
+      if (data.id.startsWith("new:")) {
+          
+          var newEntityName = data.text.replace(`Create new ${entityType.replace('_', ' ')}:`, "").trim();
+          console.log(newEntityName);
+  
+          // Trigger HTMX request to load the modal, similar to the button
+          htmx.ajax('GET', url, { target: '#dialog' });
+  
+          // Wait for modal to be injected, then open it
+          setTimeout(() => {
+              $("#modal").modal("show");  
+              $("#modal").on("shown.bs.modal", function () {
+                $("#id_code").focus();
+            });
+              $("#id_name").val(newEntityName);  // Prefill input
+          }, 300);
+  
+          // Reset Select2 to avoid selection conflicts
+          $(this).val(null).trigger("change");
+        }
+    
+      
+  });
+
+  if (!window.htmxListenerAttached) {
+    document.addEventListener("htmx:afterSwap", function(event) {
+      let modal = document.querySelector("#modal");
+
+      if (modal && event.target.id === "dialog") {
+          $("#modal").modal("show"); // Open the modal
+
+          $("#modal").on("shown.bs.modal", function () {
+              let inputField = document.querySelector("#id_code") || document.querySelector("#id_client_code");
+              if (inputField) {
+                  inputField.focus(); // Focus on the correct input field
+              }
+          });
+
+          // Determine the entity type and prefill the name field
+          let newEntityName = $("#id_funding_agency").data("new-entity-name") || $("#id_client").data("new-entity-name");
+          if (newEntityName) {
+            let nameField = document.querySelector("#id_name");
+            if (nameField) {
+                nameField.value = newEntityName;
+                $("#modal").data("new-entity-name", nameField.value);
+            }
+            
+        }
+      }
+    });
+    window.htmxListenerAttached = true; // Prevent duplicate event listeners
+  }
 });
+
+// Remove existing event listener before adding a new one (to prevent duplication)
+document.removeEventListener("htmx:afterRequest", handleHTMXAfterRequest);
+
+// Define a function to handle HTMX responses for all modals
+function handleHTMXAfterRequest(event) {
+    // Ensure we have a valid HTMX request
+    if (event.detail.xhr.status === 201) {
+      let responseData = JSON.parse(event.detail.xhr.response);
+      if (responseData.id && responseData.name) {
+        let newOption = new Option(responseData.name, responseData.id, false, true);
+        
+        requestPath = event.detail.pathInfo.requestPath;
+        funding_agency_url = $("#id_funding_agency").data("url");
+        client_url = $("#id_client").data("url");
+
+        if (requestPath == funding_agency_url)
+          $("#id_funding_agency").append(newOption).trigger("change");
+        else if (requestPath == client_url)
+        $("#id_client").append(newOption).trigger("change");
+      }
+
+        $("#modal").modal("hide");
+
+    }
+}
+
+// Attach the event listener globally, ensuring it's only added once
+document.addEventListener("htmx:afterRequest", handleHTMXAfterRequest);
+
 </script>
 {% endblock %}

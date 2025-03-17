@@ -1,9 +1,9 @@
 {% load form_tags %}
-<form id="newFundingAgencyForm" class="modal-content" 
-    hx-post={% url "new_funding_agency" %}
+<form id="newClientForm" class="modal-content" 
+    hx-post={% url "new_client" %}
     >
 <div class="modal-header">
-    <h5 class="modal-title">Create New Funding Agency</h5>
+    <h5 class="modal-title">Create New Client</h5>
     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
   </div>
   <div class="modal-body row g-3">
@@ -24,6 +24,17 @@
         <div class="text-danger">{{form.name.errors|striptags}}</div>
         {%endif%}
       </div>
+
+      <div>
+        <div class="input-group">
+          <div class="input-group-text">Client Type</div>
+          {{form.client_type|add_class:"form-select"}}
+        </div>
+        {%if form.client_type.errors%}
+        <div class="text-danger">{{form.client_type.errors|striptags}}</div>
+        {%endif%}
+      </div>
+
       <div class="modal-footer">
         <button
           type="button"
@@ -39,4 +50,3 @@
       </div>
     </div>
 </form>
-

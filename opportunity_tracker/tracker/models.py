@@ -57,6 +57,7 @@ class Client(Entity):
 
     class Meta:
         db_table = "client"
+        ordering = ["name"]
 
 
 class Institute(Entity):
