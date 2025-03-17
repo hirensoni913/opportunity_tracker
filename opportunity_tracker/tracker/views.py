@@ -369,7 +369,8 @@ class NewFundingAgencyView(View):
                     {
                         "id": agency.id,
                         "name": agency.name
-                    }
+                    },
+                    status=201
                 )
 
         return render(request, self.template_name, {"form": form})
@@ -393,7 +394,8 @@ class NewClientView(View):
                     {
                         "id": client.id,
                         "name": client.name
-                    }
+                    },
+                    status=201
                 )
 
         return render(request, self.template_name, {"form": form})

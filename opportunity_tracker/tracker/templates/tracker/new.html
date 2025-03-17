@@ -192,26 +192,27 @@
       var url = $(this).data("url");
   
       if (data.id.startsWith("new:")) {
+          
           var newEntityName = data.text.replace(`Create new ${entityType.replace('_', ' ')}:`, "").trim();
-          
-          $("#modal").data("triggering-dropdown", `#${$(this).attr("id")}`);
-
-          
-            // Reset Select2 to avoid selection conflicts
-            $(this).val(null).trigger("change");
-
-          let modalDialog = document.querySelector("#dialog");
-          if (modalDialog) {
-              modalDialog.innerHTML = '<div class="modal-dialog modal-dialog-centered"><div class="modal-content">Loading...</div></div>';
-          }
-
-        // Trigger HTMX request to load the modal dynamically
-        htmx.ajax('GET', url, { target: '#dialog' });
-
-            // Store the new entity name temporarily
-            $(this).data("new-entity-name", newEntityName);
+          console.log(newEntityName);
+  
+          // Trigger HTMX request to load the modal, similar to the button
+          htmx.ajax('GET', url, { target: '#dialog' });
+  
+          // Wait for modal to be injected, then open it
+          setTimeout(() => {
+              $("#modal").modal("show");  
+              $("#modal").on("shown.bs.modal", function () {
+                $("#id_code").focus();
+            });
+              $("#id_name").val(newEntityName);  // Prefill input
+          }, 300);
+  
+          // Reset Select2 to avoid selection conflicts
+          $(this).val(null).trigger("change");
+        }
     
-      }
+      
   });
 
   if (!window.htmxListenerAttached) {
@@ -250,25 +251,23 @@ document.removeEventListener("htmx:afterRequest", handleHTMXAfterRequest);
 // Define a function to handle HTMX responses for all modals
 function handleHTMXAfterRequest(event) {
     // Ensure we have a valid HTMX request
-    if (event.detail.xhr.status === 200) {
+    if (event.detail.xhr.status === 201) {
+      let responseData = JSON.parse(event.detail.xhr.response);
+      if (responseData.id && responseData.name) {
+        let newOption = new Option(responseData.name, responseData.id, false, true);
         
-        // Extract newly created entity name from modal before it closes
-        let newEntityName = $("#modal").data("new-entity-name");
+        requestPath = event.detail.pathInfo.requestPath;
+        funding_agency_url = $("#id_funding_agency").data("url");
+        client_url = $("#id_client").data("url");
 
-        let triggeringDropdownSelector = $("#modal").data("triggering-dropdown");
-        let triggeringDropdown = $(triggeringDropdownSelector); // Get jQuery reference
-        
-        // Close the modal after successful form submission
+        if (requestPath == funding_agency_url)
+          $("#id_funding_agency").append(newOption).trigger("change");
+        else if (requestPath == client_url)
+        $("#id_client").append(newOption).trigger("change");
+      }
+
         $("#modal").modal("hide");
 
-        // Use the globally stored dropdown instead of relying on data attributes
-        if (newEntityName && triggeringDropdown) {
-          let newOption = new Option(newEntityName, "new_value", false, true);
-          triggeringDropdown.append(newOption).trigger("change");
-
-      }
-      // Remove the stored references after updating
-      $("#modal").removeData("triggering-dropdown new-entity-name");
     }
 }
 
