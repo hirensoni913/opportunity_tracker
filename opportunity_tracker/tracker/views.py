@@ -5,6 +5,8 @@ from typing import Any
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_not_required
+from django.utils.decorators import method_decorator
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
@@ -19,12 +21,13 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from notification.models import OpportunitySubscription
 
-from .forms import (OpportunityDetailForm, OpportunityForm,
+from .forms import (OpportunityDetailForm, OpportunityDetailAnonymousForm, OpportunityForm,
                     OpportunitySearchForm, SubmitProposalForm,
-                    UpdateOpportunityForm, UpdateStatusForm)
+                    UpdateOpportunityForm, UpdateStatusForm, FundingAgencyForm, ClientForm)
 from .models import Opportunity, OpportunityFile
 
 from .serializers import OpportunitySerializer
+
 
 User = get_user_model()
 
@@ -123,11 +126,14 @@ class OpportunityCreateView(CreateView):
             OpportunityFile.objects.create(opportunity=self.object, file=f)
 
         headers = {"HX-Trigger": "refresh_opp_list"}
-        return HttpResponse(status=204, headers=headers)
+        if self.request.htmx:
+            return HttpResponse(status=204, headers=headers)
+        else:
+            return response
 
     def get_template_names(self):
         if self.request.htmx:
-            return "tracker/new.html"
+            return "tracker/new_modal.html"
         else:
             return self.template_name
 
@@ -152,8 +158,11 @@ class OpportunityUpdateView(UpdateView):
         for f in files:
             OpportunityFile.objects.create(opportunity=self.object, file=f)
 
-        headers = {"HX-Redirect": str(self.success_url)}
-        return HttpResponse(status=204, headers=headers)
+        if self.request.htmx:
+            headers = {"HX-Redirect": str(self.success_url)}
+            return HttpResponse(status=204, headers=headers)
+
+        return response
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
@@ -164,8 +173,12 @@ class OpportunityUpdateView(UpdateView):
             is_active=True
         ).first()
 
-        context['form'] = UpdateOpportunityForm(
-            instance=self.object, is_subscribed=subscription is not None)
+        if 'form' not in kwargs:
+            context['form'] = UpdateOpportunityForm(
+                instance=self.object, is_subscribed=subscription is not None)
+        else:
+            context['form'] = kwargs['form']  # Preserve form with errors
+
         context['update_status_form'] = UpdateStatusForm(instance=self.object)
         if not self.submit_proposal_form:
             context['submit_proposal_form'] = SubmitProposalForm(
@@ -174,6 +187,10 @@ class OpportunityUpdateView(UpdateView):
             context['submit_proposal_form'] = self.submit_proposal_form
 
         return context
+
+    def form_invalid(self, form):
+        context = self.get_context_data(form=form)
+        return self.render_to_response(context, status=400)
 
     def get_template_names(self):
         if self.request.htmx:
@@ -260,11 +277,6 @@ class OpportunitySubmitView(UpdateView):
         return context
 
     def form_invalid(self, form):
-        # request_copy = HttpRequest()
-        # request_copy.__dict__ = self.request.__dict__.copy()
-        # request_copy.path = reverse(
-        #     "update_opportunity", kwargs={"pk": self.object.id})
-
         view = OpportunityUpdateView.as_view()
         return view(self.request, pk=self.object.id, submit_proposal_form=form)
 
@@ -276,7 +288,7 @@ class OpportunitySubmitView(UpdateView):
 
 class OpportunityDetailView(DetailView):
     model = Opportunity
-    template_name = "tracker/detail.html"
+    template_name = "tracker/detail_modal.html"
     context_object_name = "opportunity"
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
@@ -298,7 +310,39 @@ class OpportunityDetailView(DetailView):
             form = OpportunityDetailForm(instance=opportunity)
             files = opportunity.Files.all()
             html = render_to_string(
-                "tracker/detail.html", {"form": form, "files": files, })
+                "tracker/detail_modal.html", {"form": form, "files": files, })
+            return JsonResponse({'html': html})
+
+        return super().get(request, *args, **kwargs)
+
+
+@method_decorator(login_not_required, name='dispatch')
+class OpportunityDetailAnonymousView(DeleteView):
+    model = Opportunity
+    form_class = OpportunityDetailAnonymousForm
+    template_name = "tracker/detail_anonymous.html"
+    context_object_name = "opportunity"
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        opportunity = self.get_object()
+        form = OpportunityDetailAnonymousForm(instance=opportunity)
+        context['form'] = form
+        context['partner_names'] = [
+            partner.name for partner in opportunity.partners.all()]
+
+        context['files'] = opportunity.Files.all()
+
+        return context
+
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        # Handle the AJAX call
+        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            opportunity = self.get_object()
+            form = OpportunityDetailAnonymousForm(instance=opportunity)
+            files = opportunity.Files.all()
+            html = render_to_string(
+                "tracker/detail_modal.html", {"form": form, "files": files, })
             return JsonResponse({'html': html})
 
         return super().get(request, *args, **kwargs)
@@ -346,3 +390,53 @@ class DownloadFolderView(View):
         os.remove(zip_path)
 
         return response
+
+
+class NewFundingAgencyView(View):
+    template_name = "tracker/new_funding_agency.html"
+    form_class = FundingAgencyForm
+    success_url = reverse_lazy("new_opportunity")
+
+    def get(self, request, *args, **kwargs):
+        form = self.form_class()
+        return render(request, self.template_name, {"form": form})
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            agency = form.save()
+            if request.htmx:
+                return JsonResponse(
+                    {
+                        "id": agency.id,
+                        "name": agency.name
+                    },
+                    status=201
+                )
+
+        return render(request, self.template_name, {"form": form})
+
+
+class NewClientView(View):
+    template_name = "tracker/new_client.html"
+    form_class = ClientForm
+    success_url = reverse_lazy("new_opportunity")
+
+    def get(self, request, *args, **kwargs):
+        form = self.form_class()
+        return render(request, self.template_name, {"form": form})
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            client = form.save()
+            if request.htmx:
+                return JsonResponse(
+                    {
+                        "id": client.id,
+                        "name": client.name
+                    },
+                    status=201
+                )
+
+        return render(request, self.template_name, {"form": form})

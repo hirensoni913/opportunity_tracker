@@ -1,11 +1,10 @@
 from typing import Any, Mapping
 from django import forms
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import *
 from django.core.files.base import File
 from django.db.models.base import Model
 from django.forms.utils import ErrorList
-from .models import Client, Country, FundingAgency, Institute, Opportunity
+from django.urls import reverse, reverse_lazy
+from .models import Client, Country, FundingAgency, Institute, Opportunity, FundingAgency, Client
 from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
 
@@ -28,14 +27,39 @@ class OpportunityForm(forms.ModelForm):
     class Meta:
         model = Opportunity
         fields = ['ref_no', 'title', 'funding_agency', 'client', 'opp_type', 'countries',
-                  'due_date', 'clarification_date', 'intent_bid_date',  'duration_months', 'notes', 'status']
+                  'due_date', 'clarification_date', 'intent_bid_date',  'duration_months', 'notes', 'status', 'currency', 'proposal_amount']
 
         widgets = {
             'due_date': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
             'clarification_date': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
             'intent_bid_date': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
             'files': forms.ClearableFileInput(),
+            'funding_agency': forms.Select(attrs={'data-entity': 'funding_agency'}),
+            'client': forms.Select(attrs={'data-entity': 'client'})
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['funding_agency'].widget.attrs.update({
+            'data-url': reverse_lazy('new_funding_agency')
+        })
+
+        self.fields['client'].widget.attrs.update({
+            'data-url': reverse_lazy('new_client')
+        })
+
+    def clean(self) -> dict[str, Any]:
+        cleaned_data = super().clean()
+
+        currency = cleaned_data.get("currency")
+        proposal_amount = cleaned_data.get("proposal_amount")
+        if (proposal_amount) and not currency:
+            raise forms.ValidationError({
+                'currency': 'Please select a currency.'
+            })
+
+        return cleaned_data
+
     status = forms.IntegerField(initial=1, widget=forms.HiddenInput())
     title = forms.CharField(required=True, error_messages={
                             "required": "Title is required"})
@@ -45,7 +69,7 @@ class UpdateOpportunityForm(forms.ModelForm):
     class Meta:
         model = Opportunity
         fields = ['ref_no', 'title', 'funding_agency', 'client', 'opp_type', 'countries',
-                  'due_date', 'clarification_date', 'intent_bid_date', 'duration_months', 'notes', 'status']
+                  'due_date', 'clarification_date', 'intent_bid_date', 'duration_months', 'notes', 'status', 'currency', 'proposal_amount']
 
         widgets = {
             'ref_no': forms.TextInput(attrs={'readonly': 'readonly'}),
@@ -54,6 +78,21 @@ class UpdateOpportunityForm(forms.ModelForm):
             'intent_bid_date': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
             'files': forms.ClearableFileInput(),
         }
+
+    def clean(self) -> dict[str, Any]:
+        cleaned_data = super().clean()
+
+        currency = cleaned_data.get("currency")
+        proposal_amount = cleaned_data.get("proposal_amount")
+        if (proposal_amount) and not currency:
+            raise forms.ValidationError({
+                'currency': 'Please select a currency.'
+            })
+
+        return cleaned_data
+
+    title = forms.CharField(required=True, error_messages={
+                            "required": "Title is required"})
 
     def __init__(self, *args, **kwargs):
         from django.urls import reverse
@@ -88,6 +127,9 @@ class UpdateStatusForm(forms.ModelForm):
         (5, "Submitted"),
         (6, "Lost"),
         (7, "Won"),
+        (8, "Cancelled"),
+        (9, "Assumed Lost"),
+        (10, "N/A"),
     ]
 
     class Meta:
@@ -133,26 +175,19 @@ class SubmitProposalForm(forms.ModelForm):
     class Meta:
         model = Opportunity
         fields = ['status', 'lead_institute', 'partners',
-                  'submission_date', 'currency', 'proposal_amount', 'net_amount']
-
-    def clean(self) -> dict[str, Any]:
-        cleaned_data = super().clean()
-        currency = cleaned_data.get("currency")
-        proposal_amount = cleaned_data.get("proposal_amount")
-        net_amount = cleaned_data.get("net_amount")
-
-        if (proposal_amount or net_amount) and not currency:
-            raise forms.ValidationError({
-                'currency': 'Please select a currency.'
-            })
-
-        return cleaned_data
+                  'submission_date']
 
 
 class OpportunityDetailForm(forms.ModelForm):
     class Meta:
         model = Opportunity
         exclude = ['updated_at', 'updated_by']
+
+
+class OpportunityDetailAnonymousForm(forms.ModelForm):
+    class Meta:
+        model = Opportunity
+        exclude = ['status', 'updated_at', 'updated_by']
 
 
 class OpportunitySearchForm(forms.Form):
@@ -178,3 +213,15 @@ class OpportunitySearchForm(forms.Form):
                 'hx-target': '#opportunity-container',
                 'hx-trigger': 'change' if isinstance(self.fields[field_name].widget, forms.Select) else 'keyup changed delay:500ms',
             })
+
+
+class FundingAgencyForm(forms.ModelForm):
+    class Meta:
+        model = FundingAgency
+        fields = ["code", "name"]
+
+
+class ClientForm(forms.ModelForm):
+    class Meta:
+        model = Client
+        fields = ["code", "name", "client_type"]

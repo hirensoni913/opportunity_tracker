@@ -1,25 +1,16 @@
 <!-- prettier-ignore -->
+{% extends "core/base.html" %}
 {% block content%} {% load form_tags %}
 {% load file_filters %}
+{% load static %}
 {% load l10n %}
 
 <!-- General Information -->
-<div class="modal-content">
-  <div class="modal-header">
-    <h5 class="modal-title">Opportunity Detail</h5>
-    <button
-      type="button"
-      class="btn-close"
-      data-bs-dismiss="modal"
-      aria-label="Close"
-    ></button>
-  </div>
+<div class="card container" id="mainDiv">
+  <div class="card-header text-center mt-2"><h3>Opportunity Detail</h3></div>
 <div class="section">
   <div class="section-header">
     General Information
-    <span class="badge bg-secondary float-end fs-6"
-      >{{form.instance.get_status_display}}</span
-    >
   </div>
   <div class="detail-item">
     <span class="detail-label">Reference No:</span>
@@ -36,6 +27,10 @@
   <div class="detail-item">
     <span class="detail-label">Client:</span>
     <span class="detail-value">{{form.instance.client}}</span>
+  </div>
+  <div class="detail-item">
+    <span class="detail-label">Duration:</span>
+    <span class="detail-value">{{form.instance.duration_months}} Months</span>
   </div>
   <div class="detail-item">
     <span class="detail-label">Countries:</span>
@@ -83,20 +78,12 @@
       <div class="detail-item">
         <span class="detail-label">Proposal Amount:</span>
         <span class="detail-value">
-          {% if form.currency.value %}{{form.currency.value}}{% endif %}
+          {% if form.currency.value %}{{form.instance.currency.symbol}}{% endif %}
           {{form.proposal_amount.value}}</span
         >
       </div>
     </div>
-    <div class="col-md-6">
-      <div class="detail-item">
-        <span class="detail-label">SwissTPH Share:</span>
-        <span class="detail-value"
-          >{% if form.currency.value %}{{form.currency.value}}{% endif %}
-          {{form.net_amount.value}}</span
-        >
-      </div>
-    </div>
+    
   </div>
 </div>
 
@@ -160,6 +147,7 @@
   </div>
 </div>
 
+{% if request.user.is_authenticated %}
 <!-- Attachments -->
 <div class="section">
   <div class="section-header">
@@ -194,10 +182,6 @@
     {% endif %}
   </div>
 </div>
-<div class="modal-footer">
-  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-    Close
-  </button>
 </div>
-</div>
+{% endif %}
 {% endblock content %}

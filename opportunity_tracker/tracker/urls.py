@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
-from .views import DownloadFolderView, FileDeleteView, OpportunityListView, OpportunityViewSet, OpportunityUpdateView, OpportunityCreateView, OpportunitySubmitView, OpportunityStatusUpdateView, OpportunityDetailView, IndexView
+from .views import DownloadFolderView, FileDeleteView, OpportunityListView, OpportunityViewSet, OpportunityUpdateView, OpportunityCreateView, OpportunitySubmitView, OpportunityStatusUpdateView, OpportunityDetailView, OpportunityDetailAnonymousView, IndexView, NewFundingAgencyView, NewClientView
 
 router = DefaultRouter()
 router.register(r"Opportunity", OpportunityViewSet)
@@ -13,6 +13,8 @@ urlpatterns = [
     path("opportunity/new/", OpportunityCreateView.as_view(), name="new_opportunity"),
     path("opportunity/<uuid:pk>/",
          OpportunityDetailView.as_view(), name="opportunity"),
+    path("opportunity/<uuid:pk>/anon/",
+         OpportunityDetailAnonymousView.as_view(), name="opportunity_anonymous"),
     path("opportunity/<uuid:pk>/update",
          OpportunityUpdateView.as_view(), name="update_opportunity"),
     path("opportunity/<uuid:pk>/submit",
@@ -23,5 +25,8 @@ urlpatterns = [
          FileDeleteView.as_view(), name="delete_attachment"),
     path("opportunity/download/<uuid:pk>/",
          DownloadFolderView.as_view(), name="download_folder"),
-
+    path("opportunity/new_funding_agency/",
+         NewFundingAgencyView.as_view(), name="new_funding_agency"),
+    path("opportunity/new_client/",
+         NewClientView.as_view(), name="new_client"),
 ]

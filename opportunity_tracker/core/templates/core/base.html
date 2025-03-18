@@ -10,8 +10,7 @@
     <script src="{% static "js/jquery.min.js" %}"></script>
 
 
-    <link href="{% static "libs/bootstrap/bootstrap.min.css" %}" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
-     
+    <link href="{% static "libs/bootstrap/bootstrap.min.css" %}" rel="stylesheet"  crossorigin="anonymous">
     <link href="{% static "css/cosmo.min.css" %}" rel="stylesheet" />
     <link rel="stylesheet" href="{% static "libs/select2/select2.min.css" %}" />
     <link rel="stylesheet" href="{% static "libs/select2/select2-bootstrap-5-theme.min.css" %}" />
@@ -95,8 +94,8 @@
 
     </div>
     
-    <script src="{% static "libs/bootstrap/popper.min.js" %}" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
-    <script src="{% static "libs/bootstrap/bootstrap.min.js" %}" integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V" crossorigin="anonymous"></script>
+    <script src="{% static "libs/bootstrap/popper.min.js" %}"  crossorigin="anonymous"></script>
+    <script src="{% static "libs/bootstrap/bootstrap.min.js" %}" crossorigin="anonymous"></script>
 
     <script src="{% static "libs/select2/select2.min.js" %}"></script>
     <script src="{% static "js/moment.js" %}"></script>
@@ -118,11 +117,52 @@
         });
 
         document.addEventListener("show.bs.modal", function (event) {
-          const button = event.relatedTarget;
-          const modalSize = button.getAttribute("data-modal-size") || "modal-lg";
-          const dialog = document.querySelector("#dialog");
-          dialog.className = `modal-dialog ${modalSize} modal-dialog-centered`;
+          if (event.target.id == "modal")
+          {
+            const button = event.relatedTarget;
+            if (button)
+            {
+              const modalSize = button.getAttribute("data-modal-size") || "modal-lg";
+              const dialog = document.querySelector("#dialog");
+              dialog.className = `modal-dialog ${modalSize} modal-dialog-centered`;
+            }
+          }
+
         });
+
+        document.addEventListener("hidden.bs.modal", function (event) {
+          if (event.target.id == "modal") {
+            
+        // 1. Clear modal body (`#dialog`) to prepare for fresh content
+        let modalDialog = document.querySelector("#dialog");
+        if (modalDialog) {
+            modalDialog.innerHTML = '<div class="modal-dialog modal-dialog-centered"><div class="modal-content">Loading...</div></div>';
+        }
+
+        // 2. Reset form fields inside the modal
+        let forms = event.target.querySelectorAll("form");
+        forms.forEach(form => form.reset()); // Resets all form fields
+
+        // 3. Remove any dynamically stored data attributes
+        let inputs = event.target.querySelectorAll("input, select, textarea");
+        inputs.forEach(input => {
+            input.value = "";
+            input.removeAttribute("data-new-entity-name"); // Remove stored entity name
+            input.removeAttribute("data-modal-size"); // Reset modal size
+        });
+
+        // 4. Reset Select2 dropdowns if they exist
+        let select2Fields = event.target.querySelectorAll(".select2");
+        select2Fields.forEach(select => {
+            $(select).val(null).trigger("change");
+        });
+
+        // 5. Remove event listeners to prevent duplication
+        $(event.target).off("shown.bs.modal");
+    }
+          
+        });
+
       </script>
 
     {% block scripts %}{% endblock  %}
