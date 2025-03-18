@@ -149,10 +149,18 @@
           </div>
 
           <div class="col-md-3">
-            <div class="form-check form-switch">
+            <div class="form-check form-switch d-inline">
               {{form.is_subscribed}}
-              <label class="form-check-label" for="is_subscribed">Subscribe to this Opportunity</label>
+              <label class="form-check-label float-start" for="is_subscribed">Subscribe to this Opportunity</label>
             </div>
+            <button type="button" class="btn btn-secondary btn-sm float-end"
+              data-bs-toggle="modal"
+              data-bs-target="#modal"
+              data-modal-size="modal-md"
+              hx-get="{% url "notification:get_opportunity_subscribers" opportunity.id %}"
+              hx-target="#dialog"
+              hx-trigger="click"
+            ><i class="fas fa-user-check"></i></button>
           </div>
     
 

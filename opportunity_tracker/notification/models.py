@@ -44,3 +44,5 @@ class OpportunitySubscription(models.Model):
 
     class Meta:
         db_table = 'opportunity_subscriptions'
+        ordering = ['user__first_name',
+                    'user__last_name', 'opportunity__ref_no']
