@@ -29,5 +29,4 @@ urlpatterns = [
          NewFundingAgencyView.as_view(), name="new_funding_agency"),
     path("opportunity/new_client/",
          NewClientView.as_view(), name="new_client"),
-
 ]

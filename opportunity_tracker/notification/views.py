@@ -1,9 +1,9 @@
 import json
 
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views import View
-
+from django.template.loader import render_to_string
 from notification.models import OpportunitySubscription
 from tracker.models import Opportunity
 
@@ -34,3 +34,12 @@ class ToggleSubscriptionView(View):
             return JsonResponse({'success': False, 'message': 'Invalid JSON Data'}, status=400)
         except Exception as e:
             return JsonResponse({'success': False, 'message': str(e)}, status=400)
+
+
+def get_subscribers(request, opp_id):
+    opportunity = get_object_or_404(Opportunity, id=opp_id)
+    subscribers = OpportunitySubscription.objects.filter(
+        opportunity=opportunity, is_active=True).select_related("user")
+    html = render_to_string(
+        "notification/subscribers_modal.html", {"subscribers": subscribers})
+    return HttpResponse(html, {"subscribers": subscribers})

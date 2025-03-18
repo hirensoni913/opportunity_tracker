@@ -1,0 +1,25 @@
+{% load static %} {% load form_tags %}
+<div class="modal-content">
+  <div class="modal-header">
+    <h5 class="modal-title">Subscribers to this Opportunity</h5>
+    <button
+      type="button"
+      class="btn-close"
+      data-bs-dismiss="modal"
+      aria-label="Close"
+    ></button>
+  </div>
+  <div class="modal-body">
+    <ul class="list-group list-group-numbered">
+      {% if subscribers %} {% for subscriber in subscribers %}
+      <li class="list-group-item">
+        {{ subscriber.user.first_name }} {{ subscriber.user.last_name }}
+      </li>
+      {% endfor %} {% else %}
+      <li class="text-muted">
+        Be the first one to subscribe to this opportunity.
+      </li>
+      {% endif %}
+    </ul>
+  </div>
+</div>
