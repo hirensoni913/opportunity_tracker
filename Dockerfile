@@ -5,6 +5,15 @@ FROM python:3.13-slim AS builder
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
+
+# RUN apt-get update && apt-get install -y \
+#     libpango-1.0-0 \
+#     libcairo2 \
+#     libgdk-pixbuf2.0-0 \
+#     libffi-dev \
+#     shared-mime-info \
+#     && apt-get clean && rm -rf /var/lib/apt/lists/*
+
 # Set work directory
 WORKDIR /app
 
@@ -19,6 +28,18 @@ FROM python:3.13-slim
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
+
+RUN apt-get update && apt-get install -y \
+    libpango-1.0-0 \
+    libpangoft2-1.0-0 \
+    libcairo2 \
+    libgdk-pixbuf2.0-0 \
+    libffi-dev \
+    libglib2.0-0 \                
+    fonts-liberation \
+    fonts-dejavu-core \
+    shared-mime-info \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Add a user to run the application
 RUN useradd -m -r django_user && \
