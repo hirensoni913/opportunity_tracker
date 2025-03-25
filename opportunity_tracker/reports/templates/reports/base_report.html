@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}{% endblock title %}</title>
+    <style>
+        {% block page_style %}
+        {% include "reports/page_portrait.css" %}
+        {% endblock page_style %}
+
+      body {
+        font-family: "Arial", sans-serif;
+        margin: 0; /* Reset default margin */
+        padding: 0; /* Reset default padding */
+      }
+
+      h1 {
+        text-align: center;
+        color: #2c3e50;
+        margin-bottom: 40px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 11px;
+      }
+
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 8px 5px;
+        text-align: left;
+      }
+
+      th {
+        background-color: #f4f6f8;
+        font-weight: bold;
+      }
+
+      tr:nth-child(even) {
+        background-color: #fafafa;
+      }
+      {% block style %}{% endblock style %}
+    </style>
+  </head>
+  <body>
+    {% block content %}{% endblock content %}
+  </body>
+</html>

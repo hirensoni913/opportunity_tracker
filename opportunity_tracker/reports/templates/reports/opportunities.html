@@ -1,8 +1,9 @@
 {% load form_tags %}
 <form
-  hx-get="{% url 'reports:opportunities_report' %}"
+  action="{% url 'reports:opportunities_report' %}"
   class="animate__animated animate__fadeIn"
   style="animation-duration: 0.5s"
+  target="_blank"
 >
   <div class="row g-3">
     <div class="form-floating col-md-4">
@@ -169,7 +170,7 @@
     </div>
   </div>
   <hr />
-  <button type="submit" class="btn btn-primary float-end">
+  <button class="btn btn-primary float-end">
     <span class="fa-stack">
       <i class="fas fa-file-pdf fa-stack-2x"></i>
       <i class="fas fa-magnifying-glass fa-stack-1x" style="top: 10%"></i>

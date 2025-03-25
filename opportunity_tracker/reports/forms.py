@@ -8,7 +8,7 @@ class OpportunityFilterForm(forms.Form):
     OPP_TYPE = [("", "All"), ("EOI", "EOI"),
                 ("RFP", "RFP"), ("FC", "Fore-cast")]
     OPP_STATUS = [
-        (0, "All"),
+        (None, "All"),
         (1, "Entered"),
         (2, "Go"),
         (3, "NO-Go"),

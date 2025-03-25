@@ -1,0 +1,50 @@
+<!-- prettier-ignore -->
+{% extends "reports/base_report.html" %}
+<!-- prettier-ignore -->
+{% block title %}Opportunities Report{%endblock title %}
+<!-- prettier-ignore -->
+{% block page_style %}
+  {% include "reports/page_landscape.css" %}
+{% endblock page_style %}
+
+{% block content %}
+
+<h1>Opportunities Report</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Ref#</th>
+      <th>Title</th>
+      <th>Donor</th>
+      <th>Client</th>
+      <th>Type</th>
+      <th>Submitted</th>
+      <th>Lead Unit</th>
+      <th>Lead Organization</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for opportunity in data %}
+    <tr>
+      <td>{{ forloop.counter }}</td>
+      <td>{{ opportunity.ref_no }}</td>
+      <td>{{ opportunity.title }}</td>
+      <td>{{ opportunity.funding_agency }}</td>
+      <td>{{ opportunity.client }}</td>
+      <td>{{ opportunity.opp_type}}</td>
+      <td>{{ opportunity.submission_date|date:"d.m.y" }}</td>
+      <td>{{ opportunity.lead_unit.code}}</td>
+      <td>{{ opportunity.lead_institute.code}}</td>
+      <td>{{ opportunity.get_status_display }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="10" style="text-align: center">No opportunities found.</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock content %}

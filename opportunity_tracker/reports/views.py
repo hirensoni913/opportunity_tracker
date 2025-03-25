@@ -1,6 +1,6 @@
-from django.http import HttpResponse
 from django.shortcuts import render
-
+from django.utils import timezone
+from .pdf_processor import PDFProcessor
 from tracker.models import Opportunity
 from .forms import OpportunityFilterForm
 
@@ -15,7 +15,7 @@ def get_opportunities(request):
 
     if form.is_valid():
         opp_type = form.cleaned_data.get("opp_type", None)
-        opp_status = form.cleaned_data.get("opp_status", None)
+        status = form.cleaned_data.get("status", None)
         currency = form.cleaned_data.get("currency", None)
         client = form.cleaned_data.get("client", None)
         funding_agency = form.cleaned_data.get("funding_agency", None)
@@ -42,8 +42,8 @@ def get_opportunities(request):
 
         if opp_type:
             opportunities = opportunities.filter(opp_type=opp_type)
-        if opp_status:
-            opportunities = opportunities.filter(opp_status=opp_status)
+        if status:
+            opportunities = opportunities.filter(status=status)
         if currency:
             opportunities = opportunities.filter(currency=currency)
         if client:
@@ -85,6 +85,13 @@ def get_opportunities(request):
         if created_to:
             opportunities = opportunities.filter(created_at__lte=created_to)
 
-        # TODO: Create pdf from the filtered opportunities
+        # return render(request, "reports/report_templates/opportunities.html", {
+        #     "data": opportunities
+        # })
+
+        template = "reports/report_templates/opportunities.html"
+        response = PDFProcessor.process(
+            request, template, opportunities, filename="Opportunities.pdf")
+        return response
 
     return render(request, "reports/opportunities.html", context)
