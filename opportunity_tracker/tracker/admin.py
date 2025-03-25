@@ -41,7 +41,6 @@ class ClientAdmin(ModelAdmin, ImportExportModelAdmin):
     resource_class = ClientResource
     import_form_class = ImportForm
     export_form_class = ExportForm
-    pass
 
 
 @admin.register(Institute)
@@ -51,7 +50,6 @@ class InstituteAdmin(ModelAdmin, ImportExportModelAdmin):
     resource_class = InstituteResource
     import_form_class = ImportForm
     export_form_class = ExportForm
-    pass
 
 
 @admin.register(Country)
@@ -60,7 +58,6 @@ class CountryAdmin(ModelAdmin, ImportExportModelAdmin):
     search_fields = ['code', 'name']
     import_form_class = ImportForm
     export_form_class = ExportForm
-    pass
 
 
 @admin.register(Unit)
@@ -70,12 +67,6 @@ class UnitAdmin(ModelAdmin, ImportExportModelAdmin):
     resource_class = UnitResource
     import_form_class = ImportForm
     export_form_class = ExportForm
-    pass
-
-
-# @admin.register(Staff)
-# class StaffAdmin(ModelAdmin):
-#     pass
 
 
 @admin.register(Currency)
@@ -84,7 +75,6 @@ class CurrencyAdmin(ModelAdmin, ImportExportModelAdmin):
     search_fields = ['code', 'currency']
     import_form_class = ImportForm
     export_form_class = ExportForm
-    pass
 
 
 @admin.register(NotificationChannel)
@@ -93,7 +83,8 @@ class NotificationChannelAdmin(ModelAdmin):
 
 
 @admin.register(Opportunity)
-class NotificationSubscriptionAdmin(ModelAdmin, ImportExportModelAdmin):
+class OpportunityAdmin(ModelAdmin, ImportExportModelAdmin):
     import_form_class = ImportForm
     export_form_class = ExportForm
-    search_fields = ['code', 'title']
+    list_display = ['ref_no', 'title']
+    search_fields = ['ref_no', 'title']
