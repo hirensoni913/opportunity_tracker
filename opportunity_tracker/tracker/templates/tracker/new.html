@@ -189,6 +189,9 @@
           text: "Create new funding agency: " + term,
           newTag: true
         };
+      },
+      insertTag: function (data, tag) {
+        data.push(tag); // Ensure the "Create new" option is always the last in the list
       }
     });
 
@@ -207,6 +210,9 @@
           text: "Create new client: " + term,
           newTag: true
         };
+      },
+      insertTag: function (data, tag) {
+        data.push(tag); // Ensure the "Create new" option is always the last in the list
       }
     });
 
