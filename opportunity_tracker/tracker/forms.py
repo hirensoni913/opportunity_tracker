@@ -1,3 +1,4 @@
+from django.forms.widgets import Select
 from typing import Any, Mapping
 from django import forms
 from django.core.files.base import File
@@ -40,6 +41,7 @@ class OpportunityForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
         self.fields['funding_agency'].widget.attrs.update({
             'data-url': reverse_lazy('new_funding_agency')
         })

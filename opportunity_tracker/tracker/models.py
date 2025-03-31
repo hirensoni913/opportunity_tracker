@@ -43,6 +43,9 @@ class FundingAgency(Entity):
         verbose_name_plural = "Funding Agencies"
         ordering = ["name"]
 
+    def __str__(self):
+        return f"{self.code} | {self.name}"
+
 
 class Client(Entity):
     CLIENT_TYPE = [
@@ -58,6 +61,9 @@ class Client(Entity):
     class Meta:
         db_table = "client"
         ordering = ["name"]
+
+    def __str__(self):
+        return f"{self.code} | {self.name}"
 
 
 class Institute(Entity):
