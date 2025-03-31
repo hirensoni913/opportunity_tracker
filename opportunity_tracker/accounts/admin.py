@@ -2,12 +2,20 @@ from django.contrib import admin
 from django.contrib.auth.admin import GroupAdmin as BaseGroupAdmin
 from django.contrib.auth.admin import UserAdmin as userAdmin
 from django.contrib.auth.models import Group
+from import_export.admin import ExportMixin, ImportExportModelAdmin
 from unfold.admin import ModelAdmin
+from unfold.contrib.import_export.forms import (ExportForm, ImportForm)
+
+from accounts.resources import UserResource
 
 from .models import User
 
 
-class CustomUserAdmin(ModelAdmin, userAdmin):
+class CustomUserAdmin(ModelAdmin, userAdmin, ImportExportModelAdmin):
+    resource_class = UserResource
+    import_form_class = ImportForm
+    export_form_class = ExportForm
+
     # Add custom fields to the new user admin page
     add_fieldsets = (
         (None, {
