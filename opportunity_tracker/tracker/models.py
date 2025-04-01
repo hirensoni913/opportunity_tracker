@@ -44,6 +44,10 @@ class FundingAgency(Entity):
         ordering = ["name"]
 
     def __str__(self):
+        return self.name
+
+    @property
+    def display_label(self) -> str:
         return f"{self.code} | {self.name}"
 
 
@@ -63,6 +67,10 @@ class Client(Entity):
         ordering = ["name"]
 
     def __str__(self):
+        return self.name
+
+    @property
+    def display_label(self) -> str:
         return f"{self.code} | {self.name}"
 
 

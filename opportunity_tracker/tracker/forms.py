@@ -12,6 +12,16 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
+class FundingAgencyChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.display_label
+
+
+class ClientChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.display_label
+
+
 class LoginForm(forms.Form):
     username = forms.CharField(max_length=150)
     password = forms.CharField(widget=forms.PasswordInput())
@@ -24,6 +34,10 @@ class OpportunityForm(forms.ModelForm):
         (3, "NO-Go"),
         (4, "Consider"),
     ]
+    funding_agency = FundingAgencyChoiceField(
+        queryset=FundingAgency.objects.all())
+    client = ClientChoiceField(
+        queryset=Client.objects.all())
 
     class Meta:
         model = Opportunity
