@@ -1,0 +1,13 @@
+Hello,
+
+A new opportunity has been created by {{opportunity.created_by.first_name}}.
+
+Here are the details:
+Title: {{ opportunity.title }}
+Donor: {{ opportunity.funding_agency.name }}
+
+You can view it here:
+{{ opportunity_url }}
+
+Best regards,
+opportunity Tracker

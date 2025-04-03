@@ -1,0 +1,9 @@
+Hello,
+
+The opportunity you subscribed to — "{{ opportunity.title }}" — has been updated.
+
+View it here:
+{{ opportunity_url }}
+
+Best regards,
+Opportunity Tracker
