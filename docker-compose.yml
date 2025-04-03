@@ -24,7 +24,7 @@ services:
       - "6379:6379"
 
   celery:
-    build: . #docker.io/hirensoni913/opp_tracker_main:latest
+    image: docker.io/hirensoni913/opp_tracker_main:latest
     container_name: celery-worker
     restart: always
     depends_on:
@@ -34,7 +34,7 @@ services:
       - .env.prod
     command: celery -A opportunity_tracker worker --loglevel=info
   web:
-    build: . #docker.io/hirensoni913/opp_tracker_main:latest
+    image: docker.io/hirensoni913/opp_tracker_main:latest
     container_name: web-app
     restart: always
     ports:
