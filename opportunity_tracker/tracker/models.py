@@ -153,9 +153,9 @@ class Opportunity(models.Model):
     opp_type = models.CharField(max_length=3, choices=OPP_TYPE)
     countries = models.ManyToManyField(
         Country, related_name="Opportunities")
-    due_date = models.DateTimeField(blank=True, null=True)
-    clarification_date = models.DateTimeField(blank=True, null=True)
-    intent_bid_date = models.DateTimeField(blank=True, null=True)
+    due_date = models.DateField(blank=True, null=True)
+    clarification_date = models.DateField(blank=True, null=True)
+    intent_bid_date = models.DateField(blank=True, null=True)
     duration_months = models.IntegerField(blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
     created_by = models.ForeignKey(

@@ -178,6 +178,7 @@
    $("#id_funding_agency").select2({
       theme: "bootstrap-5",
       placeholder: "Choose a funding agency",
+      allowClear: true,
       tags: true,
       createTag: function (params) {
         term = $.trim(params.term);
@@ -199,6 +200,7 @@
     $("#id_client").select2({
       theme: "bootstrap-5",
       placeholder: "Choose a client",
+      allowClear: true,
       tags: true,
       createTag: function (params) {
         term = $.trim(params.term);

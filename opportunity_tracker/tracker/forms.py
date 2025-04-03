@@ -35,9 +35,9 @@ class OpportunityForm(forms.ModelForm):
         (4, "Consider"),
     ]
     funding_agency = FundingAgencyChoiceField(
-        queryset=FundingAgency.objects.all())
+        queryset=FundingAgency.objects.all(), required=False)
     client = ClientChoiceField(
-        queryset=Client.objects.all())
+        queryset=Client.objects.all(), required=False)
 
     class Meta:
         model = Opportunity
@@ -45,23 +45,23 @@ class OpportunityForm(forms.ModelForm):
                   'due_date', 'clarification_date', 'intent_bid_date',  'duration_months', 'notes', 'status', 'currency', 'proposal_amount']
 
         widgets = {
-            'due_date': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
-            'clarification_date': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
-            'intent_bid_date': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
+            'due_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'clarification_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'intent_bid_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'files': forms.ClearableFileInput(),
-            'funding_agency': forms.Select(attrs={'data-entity': 'funding_agency'}),
-            'client': forms.Select(attrs={'data-entity': 'client'})
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.fields['funding_agency'].widget.attrs.update({
-            'data-url': reverse_lazy('new_funding_agency')
+            'data-url': reverse_lazy('new_funding_agency'),
+            'data-entity': 'funding_agency',
         })
 
         self.fields['client'].widget.attrs.update({
-            'data-url': reverse_lazy('new_client')
+            'data-url': reverse_lazy('new_client'),
+            'data-entity': 'client',
         })
 
     def clean(self) -> dict[str, Any]:
@@ -82,6 +82,11 @@ class OpportunityForm(forms.ModelForm):
 
 
 class UpdateOpportunityForm(forms.ModelForm):
+    funding_agency = FundingAgencyChoiceField(
+        queryset=FundingAgency.objects.all(), required=False)
+    client = ClientChoiceField(
+        queryset=Client.objects.all(), required=False)
+
     class Meta:
         model = Opportunity
         fields = ['ref_no', 'title', 'funding_agency', 'client', 'opp_type', 'countries',
@@ -89,9 +94,9 @@ class UpdateOpportunityForm(forms.ModelForm):
 
         widgets = {
             'ref_no': forms.TextInput(attrs={'readonly': 'readonly'}),
-            'due_date': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
-            'clarification_date': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
-            'intent_bid_date': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
+            'due_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'clarification_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'intent_bid_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'files': forms.ClearableFileInput(),
         }
 
