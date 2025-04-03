@@ -14,13 +14,25 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-  adminer:
-    image: adminer
-    container_name: adminer
+  redis:
+    image: redis:7
+    container_name: tracker-redis
     restart: always
+    env_file:
+      - .env.prod
     ports:
-      - "8080:8080"
+      - "6379:6379"
 
+  celery:
+    image: docker.io/hirensoni913/opp_tracker_main:latest
+    container_name: celery-worker
+    restart: always
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - .env.prod
+    command: celery -A opportunity_tracker worker --loglevel=info
   web:
     image: docker.io/hirensoni913/opp_tracker_main:latest
     container_name: web-app
