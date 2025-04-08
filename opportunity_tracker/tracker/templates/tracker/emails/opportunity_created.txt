@@ -1,10 +1,11 @@
 Hello,
 
-A new opportunity has been created by {{opportunity.created_by.first_name}}.
+{{opportunity.created_by.first_name}} {{opportunity.created_by.last_name}} just found an opportunity.
 
 Here are the details:
 Title: {{ opportunity.title }}
 Donor: {{ opportunity.funding_agency.name }}
+Type:  {{opportunity.get_opp_type_display}}
 
 You can view it here:
 {{ opportunity_url }}

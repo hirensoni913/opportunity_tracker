@@ -52,7 +52,7 @@ def _send_new_opportunity_notification(opportunity):
     short_message = f"An opportunity [{
         opportunity.title}] has been created."
 
-    execute_channel_send.delay(subscription_ids, NotificationSubscription.__name__, subject="New Opportunity Created",
+    execute_channel_send.delay(subscription_ids, NotificationSubscription.__name__, subject="New Opportunity Found",
                                email_message=email_message, short_message=short_message)
 
 
