@@ -4,6 +4,7 @@
 {% load file_filters %}
 {% load static %}
 {% load l10n %}
+{% load custom_filters %}
 
 <!-- General Information -->
 <div class="card container" id="mainDiv">
@@ -153,7 +154,7 @@
   </div>
   <div class="detail-item">
     <span class="detail-label">Notes:</span>
-    <span class="detail-value">{{form.notes.value}}</span>
+    <span class="detail-value">{{form.notes.value|linebreaks|urlize_target_blank }}</span>
   </div>
 </div>
 
