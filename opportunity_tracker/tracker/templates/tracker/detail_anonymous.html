@@ -21,6 +21,10 @@
     <span class="detail-value">{{form.title.value}}</span>
   </div>
   <div class="detail-item">
+    <span class="detail-label">Type:</span>
+    <span class="detail-value">{{form.instance.get_opp_type_display}}</span>
+  </div>
+  <div class="detail-item">
     <span class="detail-label">Funding Agency:</span>
     <span class="detail-value">{{form.instance.funding_agency}}</span>
   </div>
@@ -30,7 +34,13 @@
   </div>
   <div class="detail-item">
     <span class="detail-label">Duration:</span>
-    <span class="detail-value">{{form.instance.duration_months}} Months</span>
+    <span class="detail-value">
+      {% if form.instance.duration_months %}
+      {{form.instance.duration_months}} Months
+      {% else %}
+      None
+      {% endif %}
+    </span>
   </div>
   <div class="detail-item">
     <span class="detail-label">Countries:</span>
@@ -74,7 +84,7 @@
 <div class="section">
   <div class="section-header">Financial Details</div>
   <div class="row g-4">
-    <div class="col-md-6">
+    <div class="col-md-12">
       <div class="detail-item">
         <span class="detail-label">Proposal Amount:</span>
         <span class="detail-value">
