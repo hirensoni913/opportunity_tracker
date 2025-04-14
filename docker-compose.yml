@@ -5,10 +5,6 @@ services:
     container_name: tracker-db
     restart: always
     env_file: .env.prod
-    # environment:
-    #   POSTGRES_DB: ${DB_NAME}
-    #   POSTGRES_USER: ${DB_USER}
-    #   POSTGRES_PASSWORD: ${DB_PWD}
     ports:
       - "5432:5432"
     volumes:
@@ -50,15 +46,6 @@ services:
     depends_on:
       - db
     env_file: .env.prod
-    # environment:
-    #   DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
-    #   DEBUG: ${DEBUG}
-    #   DATABASE_ENGINE: ${DB_ENGINE}
-    #   DATABASE_NAME: ${DB_NAME}
-    #   DATABASE_USERNAME: ${DB_USER}
-    #   DATABASE_PASSWORD: ${DB_PWD}
-    #   DATABASE_HOST: ${DB_HOST}
-    #   DATABASE_PORT: ${DB_PORT}
     volumes:
       - media:/app/opportunity_tracker/media
 volumes:

@@ -1,14 +1,10 @@
-name: opportunity-tracker
+name: opportunity-tracker-dev
 services:
   db:
     image: postgres:17
     container_name: tracker-db
     restart: always
     env_file: .env.dev
-    # environment:
-    #   POSTGRES_DB: ${DB_NAME}
-    #   POSTGRES_USER: ${DB_USER}
-    #   POSTGRES_PASSWORD: ${DB_PWD}
     ports:
       - "5432:5432"
     volumes:
@@ -22,7 +18,7 @@ services:
       - "6379:6379"
 
   celery:
-    image: docker.io/hirensoni913/opp_tracker_main:latest
+    build: .
     container_name: celery-worker
     restart: always
     env_file: .env.dev
@@ -31,7 +27,7 @@ services:
       - redis
     command: celery -A opportunity_tracker worker --loglevel=info
   celery-beat:
-    image: docker.io/hirensoni913/opp_tracker_main:latest
+    build: .
     container_name: celery-beat
     restart: always
     env_file: .env.dev
@@ -42,7 +38,7 @@ services:
       - redis
     command: celery -A opportunity_tracker beat --loglevel=info
   web:
-    image: docker.io/hirensoni913/opp_tracker_main:latest
+    build: .
     container_name: web-app
     restart: always
     ports:
@@ -50,15 +46,6 @@ services:
     depends_on:
       - db
     env_file: .env.dev
-    # environment:
-    #   DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
-    #   DEBUG: ${DEBUG}
-    #   DATABASE_ENGINE: ${DB_ENGINE}
-    #   DATABASE_NAME: ${DB_NAME}
-    #   DATABASE_USERNAME: ${DB_USER}
-    #   DATABASE_PASSWORD: ${DB_PWD}
-    #   DATABASE_HOST: ${DB_HOST}
-    #   DATABASE_PORT: ${DB_PORT}
     volumes:
       - media:/app/opportunity_tracker/media
 volumes:
