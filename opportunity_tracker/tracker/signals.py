@@ -1,3 +1,4 @@
+import logging
 import os
 from urllib.parse import urljoin
 from django.conf import settings
@@ -47,13 +48,13 @@ def _send_new_opportunity_notification(opportunity):
         'opportunity_url': opportunity_url,
     }
     email_message = render_to_string(
-        'tracker/emails/opportunity_created.txt', context)
+        'tracker/emails/opportunity_created.html', context)
 
-    short_message = f"An opportunity [{
-        opportunity.title}] has been created."
+    short_message = f"An opportunity [{opportunity.title}] has been created."
 
-    execute_channel_send.delay(subscription_ids, NotificationSubscription.__name__, subject="New Opportunity Found",
-                               email_message=email_message, short_message=short_message)
+    result = execute_channel_send.delay(subscription_ids, NotificationSubscription.__name__, subject="New Opportunity Found",
+                                        email_message=email_message, short_message=short_message)
+    return result
 
 
 def _send_opportunity_update_notification(opportunity):
@@ -71,10 +72,10 @@ def _send_opportunity_update_notification(opportunity):
         'opportunity_url': opportunity_url,
     }
     email_message = render_to_string(
-        'tracker/emails/opportunity_update.txt', context)
+        'tracker/emails/opportunity_update.html', context)
 
-    short_message = f"An opportunity you are subscribed [{
-        opportunity.title}] to has been updated."
+    short_message = f"An opportunity you are subscribed [{opportunity.title}] to has been updated."
 
-    execute_channel_send.delay(subscription_ids, OpportunitySubscription.__name__, subject="Opportunity Update",
-                               email_message=email_message, short_message=short_message)
+    result = execute_channel_send.delay(subscription_ids, OpportunitySubscription.__name__, subject="Opportunity Update",
+                                        email_message=email_message, short_message=short_message)
+    return result

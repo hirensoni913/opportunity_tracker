@@ -1,10 +1,10 @@
-name: opportunity-tracker
+name: opportunity-tracker-dev
 services:
   db:
     image: postgres:17
     container_name: tracker-db
     restart: always
-    env_file: .env.prod
+    env_file: .env.dev
     ports:
       - "5432:5432"
     volumes:
@@ -13,24 +13,24 @@ services:
     image: redis:7
     container_name: tracker-redis
     restart: always
-    env_file: .env.prod
+    env_file: .env.dev
     ports:
       - "6379:6379"
 
   celery:
-    image: docker.io/hirensoni913/opp_tracker_main:latest
+    build: .
     container_name: celery-worker
     restart: always
-    env_file: .env.prod
+    env_file: .env.dev
     depends_on:
       - db
       - redis
     command: celery -A opportunity_tracker worker --loglevel=info
   celery-beat:
-    image: docker.io/hirensoni913/opp_tracker_main:latest
+    build: .
     container_name: celery-beat
     restart: always
-    env_file: .env.prod
+    env_file: .env.dev
     volumes:
       - ./celery-data:/app/celery-data
     depends_on:
@@ -38,14 +38,14 @@ services:
       - redis
     command: celery -A opportunity_tracker beat --loglevel=info
   web:
-    image: docker.io/hirensoni913/opp_tracker_main:latest
+    build: .
     container_name: web-app
     restart: always
     ports:
       - "8000:8000"
     depends_on:
       - db
-    env_file: .env.prod
+    env_file: .env.dev
     volumes:
       - media:/app/opportunity_tracker/media
 volumes:

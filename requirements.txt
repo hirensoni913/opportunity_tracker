@@ -19,6 +19,7 @@ click-plugins==1.1.1
 click-repl==0.3.0
 colorama==0.4.6
 comm==0.2.2
+cron-descriptor==1.4.5
 cssselect2==0.8.0
 debugpy==1.8.9
 decorator==5.1.1
@@ -27,15 +28,18 @@ diff-match-patch==20241021
 Django==5.1.2
 django-active-link==0.2.2
 django-appconf==1.0.6
+django-celery-beat==2.7.0
 django-cotton==1.5.1
 django-htmx==1.21.0
 django-import-export==4.3.6
+django-timezone-field==7.1
 django-unfold==0.43.0
 djangorestframework==3.15.2
 djangorestframework-simplejwt==5.3.1
 drf-yasg==1.21.8
 et_xmlfile==2.0.0
 executing==2.1.0
+feedparser==6.0.11
 fontawesomefree==6.6.0
 fonttools==4.56.0
 frozenlist==1.5.0
@@ -72,6 +76,7 @@ pydyf==0.11.0
 Pygments==2.18.0
 PyJWT==2.9.0
 pyphen==0.17.2
+python-crontab==3.2.0
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
 pytz==2024.2
@@ -80,6 +85,7 @@ PyYAML==6.0.2
 pyzmq==26.2.0
 redis==5.2.0
 requests==2.32.3
+sgmllib3k==1.0.0
 six==1.16.0
 soupsieve==2.6
 sqlparse==0.5.1
