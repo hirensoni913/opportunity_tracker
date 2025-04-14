@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 from datetime import timedelta
 
 
-SITE_URL = os.getenv("SITE_URL", "http://localhost:8000")
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -20,6 +19,7 @@ if ENVIRONMENT == "development":
 else:
     load_dotenv(BASE_DIR.parent / ".env.prod")
 
+SITE_URL = os.environ.get("SITE_URL", "http://127.0.0.1:8000")
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'fontawesomefree',
     'active_link',
     'import_export',
+    'django_celery_beat',
     'core',
     'dashboard',
     'accounts',

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+  <body
+    style="
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      padding: 20px;
+    "
+  >
+    <div
+      style="
+        max-width: 650px;
+        margin: auto;
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      "
+    >
+      <p style="color: #2c3e50">Hello,</p>
+
+      <p style="font-size: 16px">
+        {{opportunities|length}} new opportunities have been created from
+        {{date_from|date:"F j, Y"}} to {{date_to|date:"F j, Y"}}.
+      </p>
+
+      {% if opportunities %}
+      <div style="margin-top: 20px">
+        {% for opportunity in opportunities %}
+        <div style="border-bottom: 1px solid #e0e0e0; padding: 15px 0">
+          <p style="margin: 0">
+            <a
+              href="{{ site_url }}{% url 'opportunity_anonymous' pk=opportunity.pk %}"
+              style="
+                color: #1a73e8;
+                font-size: 18px;
+                text-decoration: none;
+                font-weight: bold;
+              "
+            >
+              {{ opportunity.title }}
+            </a>
+          </p>
+          <p style="margin: 4px 0; font-size: 14px">
+            Donor: <strong>{{ opportunity.funding_agency.name }}</strong><br />
+            Type: {{ opportunity.get_opp_type_display }}<br />
+            Posted on: {{ opportunity.created_at|date:"F j, Y" }}<br />
+            Countries: {{ opportunity.countries.all|join:", " }}
+          </p>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p style="font-style: italic; color: #777">
+        No new opportunities this week.
+      </p>
+      {% endif %}
+
+      <p style="margin-top: 30px; font-size: 15px">
+        Best regards,<br />Opportunity Tracker
+      </p>
+    </div>
+  </body>
+</html>

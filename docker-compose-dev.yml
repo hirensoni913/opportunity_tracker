@@ -4,7 +4,7 @@ services:
     image: postgres:17
     container_name: tracker-db
     restart: always
-    env_file: .env.prod
+    env_file: .env.dev
     # environment:
     #   POSTGRES_DB: ${DB_NAME}
     #   POSTGRES_USER: ${DB_USER}
@@ -17,7 +17,7 @@ services:
     image: redis:7
     container_name: tracker-redis
     restart: always
-    env_file: .env.prod
+    env_file: .env.dev
     ports:
       - "6379:6379"
 
@@ -25,7 +25,7 @@ services:
     image: docker.io/hirensoni913/opp_tracker_main:latest
     container_name: celery-worker
     restart: always
-    env_file: .env.prod
+    env_file: .env.dev
     depends_on:
       - db
       - redis
@@ -34,7 +34,7 @@ services:
     image: docker.io/hirensoni913/opp_tracker_main:latest
     container_name: celery-beat
     restart: always
-    env_file: .env.prod
+    env_file: .env.dev
     volumes:
       - ./celery-data:/app/celery-data
     depends_on:
@@ -49,7 +49,7 @@ services:
       - "8000:8000"
     depends_on:
       - db
-    env_file: .env.prod
+    env_file: .env.dev
     # environment:
     #   DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
     #   DEBUG: ${DEBUG}
