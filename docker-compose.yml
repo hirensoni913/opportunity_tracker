@@ -36,7 +36,7 @@ services:
     depends_on:
       - db
       - redis
-    command: celery -A opportunity_tracker beat --loglevel=info
+    command: celery -A opportunity_tracker beat --scheduler django_celery_beat.schedulers:DatabaseScheduler --loglevel=debug
   web:
     image: docker.io/hirensoni913/opp_tracker_main:latest
     container_name: web-app
