@@ -4,13 +4,15 @@ from django.contrib.auth.views import (
     LoginView, LogoutView, PasswordResetDoneView,
     PasswordResetConfirmView, PasswordResetCompleteView
 )
-from .views import CustomPasswordResetView
+from .views import CustomPasswordResetView, CustomPasswordChangeView
 
 app_name = "accounts"
 
 urlpatterns = [
     path("login/", LoginView.as_view(template_name="accounts/login.html"), name="login"),
     path('logout/', LogoutView.as_view(next_page="accounts:login"), name="logout"),
+    path('change_password/', CustomPasswordChangeView.as_view(),
+         name='change_password'),
     # Password reset URLs
     path('password_reset/', CustomPasswordResetView.as_view(
         template_name='accounts/password_reset_form.html',

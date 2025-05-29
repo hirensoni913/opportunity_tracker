@@ -14,31 +14,51 @@
   }
 </style>
 {% endblock head %}
-<!-- Prettier-ignore -->
-{% if messages %}
-  <div class="alert alert-danger" role="alert">
-    <ul class="mb-0">
-      {% for message in messages %}
-        <li>{{ message }}</li>
-      {% endfor %}
-    </ul>
-  </div>
-{% endif %}
+
+
 <div id="login">
   <h3 class="text-center text-white pt-5">Login</h3>
   <div class="container">
+    {% if messages %}
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
     <div id="login-row" class="row justify-content-center align-items-center">
       <div id="login-column" class="col-md-6">
-        <div id="login-box" class="col-md-12">
-          <form id="login-form" method="POST" action="{% url "accounts:login" %}">
+        <div id="login-box" class="col-md-12"><form id="login-form" method="POST" action="{% url "accounts:login" %}">
             {% csrf_token %}
             <input type="hidden" name="next" value="{{request.GET.next}}" />
+            
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger mb-3">
+              {% for error in form.non_field_errors %}
+                {{ error }}
+              {% endfor %}
+            </div>
+            {% endif %}
+            
             <div class="mb-3">
               <label for="username" class="text-info">Username:</label><br />
               {{form.username|add_class:"form-control"}}
-            </div>            <div class="mb-3">
+              {% if form.username.errors %}
+                <div class="text-danger">{{ form.username.errors|striptags }}</div>
+              {% endif %}
+            </div>            
+            
+            <div class="mb-3">
               <label for="password" class="text-info">Password:</label><br />
               {{form.password|add_class:"form-control"}}
+              {% if form.password.errors %}
+                <div class="text-danger">{{ form.password.errors|striptags }}</div>
+              {% endif %}
+            
             </div>
             <div class="row mb-3">
               <div class="col-6">

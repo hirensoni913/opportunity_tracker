@@ -56,12 +56,13 @@
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                   Welcome {{ user.first_name }}!
-                </a>
-                <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                </a>                <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                   <li class="dropdown-item">
+                    <li><a class="nav-link" href="{% url 'accounts:change_password' %}"><i class="fas fa-key"></i> Change Password</a></li>
+                    <hr>
                     <form method="post" action="{% url 'accounts:logout' %}" style="display: inline;">
                       {% csrf_token %}
-                      <button type="submit" class="nav-link btn btn-link" style="padding: 0; border: none; background: none;">
+                      <button type="submit" class="nav-link btn btn-link">
                         <i class="fas fa-sign-out-alt"></i> Logout
                       </button>
                     </form>
