@@ -1,8 +1,21 @@
-from django.contrib.auth.forms import PasswordResetForm
+from django.contrib.auth.forms import PasswordResetForm, PasswordChangeForm
 from django.template import loader
 from django.utils.html import strip_tags
 from django.conf import settings
 from notification.helpers.email_helper import EmailNotificationChannel
+
+
+class CustomPasswordChangeForm(PasswordChangeForm):
+    """
+    Custom form for changing user password.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Add Bootstrap classes to form fields
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'
+            field.widget.attrs['placeholder'] = field.label
 
 
 class CustomPasswordResetForm(PasswordResetForm):
