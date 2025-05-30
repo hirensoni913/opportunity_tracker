@@ -1,6 +1,12 @@
 {% load form_tags %}
 {% load static %}
-<form id="submitProposalForm" class="modal-content" hx-post = {% url "submit_proposal" opportunity.id %} hx-target="#dialog">
+<form 
+  id="submitProposalForm" 
+  class="modal-content" 
+  hx-post = "{% url "submit_proposal" opportunity.id %}?{{ request.GET.urlencode }}" 
+  hx-target="#dialog"
+  >
+  
   {% csrf_token %}
 
         <div class="modal-header">
