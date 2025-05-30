@@ -102,7 +102,15 @@
         }
       });
     }
-
+    
+    document.addEventListener("DOMContentLoaded", function () {
+    const scrollPos = sessionStorage.getItem('scrollPos');
+    if (scrollPos !== null) {
+      window.scrollTo(0, parseInt(scrollPos));
+      sessionStorage.removeItem('scrollPos'); // Optional: only restore once
+    }
+    
+  });
   </script>  
   {% endblock scripts %}
 </div>

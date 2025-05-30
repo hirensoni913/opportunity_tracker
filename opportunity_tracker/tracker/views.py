@@ -10,7 +10,7 @@ from django.utils.decorators import method_decorator
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
                                   UpdateView)
@@ -143,7 +143,16 @@ class OpportunityUpdateView(UpdateView):
     template_name = "tracker/update.html"
     form_class = UpdateOpportunityForm
     login_url = "accounts:login"
-    success_url = reverse_lazy("opportunities")
+    # success_url = reverse_lazy("opportunities")
+
+    def get_success_url(self):
+        # Use reverse, not reverse_lazy here
+        base_url = reverse("opportunities")
+        query_params = self.request.GET.copy()
+        query_params.pop("page", None)  # Optional: remove page param
+        if query_params:
+            return f"{base_url}?{query_params.urlencode()}"
+        return base_url
 
     def form_valid(self, form):
         form.instance.updated_by = self.request.user
@@ -159,7 +168,7 @@ class OpportunityUpdateView(UpdateView):
             OpportunityFile.objects.create(opportunity=self.object, file=f)
 
         if self.request.htmx:
-            headers = {"HX-Redirect": str(self.success_url)}
+            headers = {"HX-Redirect": str(self.get_success_url())}
             return HttpResponse(status=204, headers=headers)
 
         return response
@@ -186,6 +195,10 @@ class OpportunityUpdateView(UpdateView):
         else:
             context['submit_proposal_form'] = self.submit_proposal_form
 
+        filters = self.request.GET.copy()
+        filters.pop('page', None)  # Remove 'page' if present
+        context['back_query'] = filters.urlencode()
+
         return context
 
     def form_invalid(self, form):
@@ -208,12 +221,23 @@ class OpportunityStatusUpdateView(UpdateView):
     model = Opportunity
     form_class = UpdateStatusForm
     template_name = "tracker/partials/update_status_modal.html"
-    success_url = reverse_lazy("opportunities")
+    # success_url = reverse_lazy("opportunities")
+
+    def get_success_url(self):
+        # Use reverse, not reverse_lazy here
+        base_url = reverse("opportunities")
+        query_params = self.request.GET.copy()
+        query_params.pop("page", None)  # Optional: remove page param
+        if query_params:
+            return f"{base_url}?{query_params.urlencode()}"
+        return base_url
 
     def form_valid(self, form):
         self.object = form.save()
         if self.request.htmx:
-            return HttpResponseClientRefresh()
+            # return HttpResponseClientRefresh()
+            headers = {"HX-Redirect": str(self.get_success_url())}
+            return HttpResponse(status=204, headers=headers)
 
         return super().form_valid(form)
 
@@ -257,12 +281,22 @@ class OpportunitySubmitView(UpdateView):
     model = Opportunity
     form_class = SubmitProposalForm
     template_name = "tracker/partials/submit_proposal_modal.html"
-    success_url = reverse_lazy("opportunities")
+    # success_url = reverse_lazy("opportunities")
+
+    def get_success_url(self):
+        # Use reverse, not reverse_lazy here
+        base_url = reverse("opportunities")
+        query_params = self.request.GET.copy()
+        query_params.pop("page", None)  # Optional: remove page param
+        if query_params:
+            return f"{base_url}?{query_params.urlencode()}"
+        return base_url
 
     def form_valid(self, form):
         self.object = form.save()
         if self.request.htmx:
-            return HttpResponseClientRefresh()
+            headers = {"HX-Redirect": str(self.get_success_url())}
+            return HttpResponse(status=204, headers=headers)
 
         return super().form_valid(form)
 
