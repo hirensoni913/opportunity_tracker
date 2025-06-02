@@ -5,7 +5,14 @@
 {% load static %}
 
 <div class="card" id="mainDiv">
-  <div class="card-header text-center"><h3>Update Opportunity  <div class="float-end"><span class="badge bg-secondary">{{ opportunity.get_status_display }}</span></div></h3></div>
+  <div class="card-header text-center">
+    <a
+          href="javascript:void(0)" onclick="history.back()"
+          class="btn btn-secondary float-start"
+          ><i class="fas fa-arrow-left"></i>
+          Back to List
+        </a>
+    <h3>Update Opportunity  <div class="float-end"><span class="badge bg-secondary">{{ opportunity.get_status_display }}</span></div></h3></div>
   <div class="card-body">
     <form class="row g-3" 
       id="opportunityForm" 
@@ -220,19 +227,10 @@
           <img id="spinnerUpdate" src="{% static "images/bouncing-circles.svg" %}" alt="" style="height:25px;" class="htmx-indicator" />
         </button>
 
-        <a
-          href="javascript:void(0)" onclick="history.back()"
-          class="btn btn-lg btn-secondary  float-end me-2"
-          ><i class="fas fa-arrow-left"></i>
-          Back to List
-        </a>
-
       </div>
     </div>
   </form>
 </div>
-
-
 
 {% comment %} Alert {% endcomment %}
 <div class="toast-container position-fixed bottom-0 end-0 p-3">
