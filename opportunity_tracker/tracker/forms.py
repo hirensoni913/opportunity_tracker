@@ -222,6 +222,8 @@ class OpportunitySearchForm(forms.Form):
         choices=[('', '')] + Opportunity.OPP_STATUS, required=False, label="Status")
     opp_type = forms.ChoiceField(
         choices=[('', '')] + Opportunity.OPP_TYPE, required=False, label="Type")
+    country = forms.ModelChoiceField(
+        queryset=Country.objects.all(), required=False, label="Country")
 
     def __init__(self, *args, **kwargs):
         from django.urls import reverse

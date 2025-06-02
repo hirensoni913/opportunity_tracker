@@ -38,6 +38,12 @@
           {{form.opp_type|add_class:"form-select"}}
           <label for="opp_type" class="form-label">Type</label>
         </div>
+        <div class="form-floating col-md-4">
+          <div class="input-group">
+            <div class="input-group-text">Country</div>
+            {{form.country|add_class:"form-select"}}
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -76,6 +82,15 @@
   <script>
     $(document).ready(function () {
       formatTimeStamp();
+
+      $("#id_country").select2({
+        theme: "bootstrap-5",
+        placeholder: "Choose country",
+        allowClear: true,
+      }).on("change", function (e) {
+        htmx.trigger(this, "change");
+      });
+
     });
 
     document.addEventListener("htmx:afterSwap", function (event) {
