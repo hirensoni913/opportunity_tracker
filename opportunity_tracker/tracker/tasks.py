@@ -18,7 +18,7 @@ def send_weekly_summary(channel: str, days: int = 7):
         f"📬 Sending a weekly summary for the channel {channel} at {datetime.datetime.now()}")
     date_from = datetime.datetime.now() - datetime.timedelta(days=days)
     opportunities = Opportunity.objects.filter(
-        created_at__gte=date_from).order_by('-created_at')
+        created_at__gte=date_from, status=1).order_by('-created_at')
 
     if not opportunities.exists():
         return "No new opportunities to send."
