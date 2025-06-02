@@ -222,6 +222,14 @@ class OpportunitySearchForm(forms.Form):
         choices=[('', '')] + Opportunity.OPP_STATUS, required=False, label="Status")
     opp_type = forms.ChoiceField(
         choices=[('', '')] + Opportunity.OPP_TYPE, required=False, label="Type")
+    country = forms.ModelChoiceField(
+        queryset=Country.objects.all(), required=False, label="Country")
+    is_subscribed = forms.BooleanField(
+        required=False, label="My Subscribed Opportunities",
+        widget=forms.CheckboxInput(attrs={
+            'class': 'form-check-input',
+            'role': 'switch',
+        }))
 
     def __init__(self, *args, **kwargs):
         from django.urls import reverse
@@ -232,7 +240,7 @@ class OpportunitySearchForm(forms.Form):
             self.fields[field_name].widget.attrs.update({
                 'hx-get':  reverse('opportunities'),
                 'hx-target': '#opportunity-container',
-                'hx-trigger': 'change' if isinstance(self.fields[field_name].widget, forms.Select) else 'keyup changed delay:500ms',
+                'hx-trigger': 'change' if isinstance(self.fields[field_name].widget, forms.Select) or isinstance(self.fields[field_name].widget, forms.CheckboxInput) else 'keyup changed delay:500ms',
             })
 
 

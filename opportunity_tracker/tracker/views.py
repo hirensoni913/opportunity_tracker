@@ -65,6 +65,8 @@ class OpportunityListView(ListView):
             client = form.cleaned_data.get('client', None)
             status = form.cleaned_data.get('status', None)
             opp_type = form.cleaned_data.get('opp_type', None)
+            country = form.cleaned_data.get('country', None)
+            is_subscribed = form.cleaned_data.get('is_subscribed', None)
 
             if ref_no:
                 opportunities = opportunities.filter(ref_no__icontains=ref_no)
@@ -79,6 +81,19 @@ class OpportunityListView(ListView):
                 opportunities = opportunities.filter(status=status)
             if opp_type:
                 opportunities = opportunities.filter(opp_type=opp_type)
+            if country:
+                opportunities = opportunities.filter(countries=country)
+            if is_subscribed:
+                subscriptions = OpportunitySubscription.objects.filter(
+                    user=self.request.user,
+                    is_active=True
+                )
+
+                opportunity_ids = subscriptions.values_list(
+                    'opportunity', flat=True)
+
+                opportunities = opportunities.filter(
+                    id__in=opportunity_ids)
 
         return opportunities or Opportunity.objects.none()
 
