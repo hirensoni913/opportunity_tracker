@@ -4,7 +4,8 @@
   id="updateStatusForm" 
   class="modal-content" 
   hx-post="{% url "udpate_status" opportunity.id %}?{{ request.GET.urlencode }}" 
-  hx-target="#dialog">
+  hx-target="#dialog"
+  hx-include="#opportunityForm">
   
   {% csrf_token %}
   <div class="modal-header">
