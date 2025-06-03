@@ -5,6 +5,7 @@
   class="modal-content" 
   hx-post = "{% url "submit_proposal" opportunity.id %}?{{ request.GET.urlencode }}" 
   hx-target="#dialog"
+  hx-include="#opportunityForm"
   >
   
   {% csrf_token %}

@@ -247,6 +247,43 @@ class OpportunityStatusUpdateView(UpdateView):
             return f"{base_url}?{query_params.urlencode()}"
         return base_url
 
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        # Process both the status form and the main opportunity form
+        status_form = self.get_form()
+        main_form = UpdateOpportunityForm(
+            request.POST, request.FILES, instance=self.object)
+
+        if status_form.is_valid() and main_form.is_valid():
+            # Update the main form fields first
+            main_form.instance.updated_by = self.request.user
+            main_obj = main_form.save()
+
+            # Then update the status form fields (which are a subset of the opportunity model)
+            # Only keep status and status-specific fields from the status form
+            status_obj = status_form.save(commit=False)
+
+            # Set the fields that are specific to status updates
+            main_obj.status = status_obj.status
+            main_obj.lead_unit = status_obj.lead_unit
+            main_obj.proposal_lead = status_obj.proposal_lead
+            main_obj.result_note = status_obj.result_note
+            main_obj.save()
+
+            # Handle file uploads from the main form
+            files = self.request.FILES.getlist("files")
+            for f in files:
+                OpportunityFile.objects.create(opportunity=main_obj, file=f)
+
+            if self.request.htmx:
+                headers = {"HX-Redirect": str(self.get_success_url())}
+                return HttpResponse(status=204, headers=headers)
+
+            return super().form_valid(status_form)
+        else:
+            return self.form_invalid(status_form)
+
     def form_valid(self, form):
         self.object = form.save()
         if self.request.htmx:
@@ -260,8 +297,15 @@ class OpportunityStatusUpdateView(UpdateView):
         if self.request.htmx:
             errors = form.errors.as_json()
             print(errors)
+
+            # If there are errors in the main form, we need to render those too
+            main_form_data = {k: v for k, v in self.request.POST.items()}
+            main_form = UpdateOpportunityForm(
+                main_form_data, instance=self.object)
+
             context = self.get_context_data(
-                update_status_form=form)  # Pass the form with errors
+                update_status_form=form,
+                form=main_form)  # Pass both forms with errors
 
             headers = {"HX-Trigger": "form_invalid"}
             return self.render_to_response(context, headers=headers)
@@ -306,6 +350,41 @@ class OpportunitySubmitView(UpdateView):
         if query_params:
             return f"{base_url}?{query_params.urlencode()}"
         return base_url
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        # Process both the proposal submit form and the main opportunity form
+        proposal_form = self.get_form()
+        main_form = UpdateOpportunityForm(
+            request.POST, request.FILES, instance=self.object)
+
+        if proposal_form.is_valid() and main_form.is_valid():
+            # Update the main form fields first
+            main_form.instance.updated_by = self.request.user
+            main_obj = main_form.save()
+
+            # Then update the proposal form fields
+            proposal_obj = proposal_form.save(commit=False)
+            # Set the fields that are specific to proposal submission
+            main_obj.status = 5  # Set status to submitted (5)
+            main_obj.lead_institute = proposal_obj.lead_institute
+            main_obj.partners.set(proposal_obj.partners.all())
+            main_obj.submission_date = proposal_obj.submission_date
+            main_obj.save()
+
+            # Handle file uploads from the main form
+            files = self.request.FILES.getlist("files")
+            for f in files:
+                OpportunityFile.objects.create(opportunity=main_obj, file=f)
+
+            if self.request.htmx:
+                headers = {"HX-Redirect": str(self.get_success_url())}
+                return HttpResponse(status=204, headers=headers)
+
+            return self.form_valid(proposal_form)
+        else:
+            return self.form_invalid(proposal_form)
 
     def form_valid(self, form):
         self.object = form.save()
