@@ -141,6 +141,7 @@ class Opportunity(models.Model):
         (8, "Cancelled"),
         (9, "Assumed Lost"),
         (10, "N/A"),
+        (11, "Transfer to RFP")
     ]
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     ref_no = models.CharField(
@@ -182,6 +183,13 @@ class Opportunity(models.Model):
     net_amount = models.DecimalField(
         max_digits=10, decimal_places=2, blank=True, null=True)
     result_note = models.CharField(max_length=300, null=True, blank=True)
+    parent = models.ForeignKey(
+        'self',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='transferred'
+    )
 
     class Meta:
         db_table = "opportunity"

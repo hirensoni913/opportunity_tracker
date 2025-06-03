@@ -151,6 +151,7 @@ class UpdateStatusForm(forms.ModelForm):
         (8, "Cancelled"),
         (9, "Assumed Lost"),
         (10, "N/A"),
+        (11, "Transfer to RFP")
     ]
 
     class Meta:
