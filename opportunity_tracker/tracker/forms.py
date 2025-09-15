@@ -215,9 +215,10 @@ class OpportunityDetailAnonymousForm(forms.ModelForm):
 class OpportunitySearchForm(forms.Form):
     ref_no = forms.CharField(required=False, label='Ref#')
     title = forms.CharField(required=False, label='Title')
-    funding_agency = forms.ModelChoiceField(
+
+    funding_agency = FundingAgencyChoiceField(
         queryset=FundingAgency.objects.all(), required=False, label="Funding Agency", widget=forms.Select(attrs={'hx-get': '/opportunities/', 'hx-trigger': 'change delay:500ms'}))
-    client = forms.ModelChoiceField(
+    client = ClientChoiceField(
         queryset=Client.objects.all(), required=False, label='Client')
     status = forms.ChoiceField(
         choices=[('', '')] + Opportunity.OPP_STATUS, required=False, label="Status")

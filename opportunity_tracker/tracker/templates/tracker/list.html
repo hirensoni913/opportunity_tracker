@@ -22,12 +22,16 @@
           <label for="title" class="form-label">Title</label>
         </div>
         <div class="form-floating col-md-4">
-          {{form.funding_agency|add_class:"form-select"}}
-          <label for="funding_agency" class="form-label">Funding Agency</label>
+          <div class="input-group">
+            <div class="input-group-text">Funding Agency</div>
+            {{form.funding_agency|add_class:"form-select"}}
+          </div>
         </div>
         <div class="form-floating col-md-4">
-          {{form.client|add_class:"form-select"}}
-          <label for="client" class="form-label">Client</label>
+          <div class="input-group">
+            <div class="input-group-text">Client</div>
+            {{form.client|add_class:"form-select"}}
+          </div>
         </div>
         <div class="form-floating col-md-4">
           {{form.status|add_class:"form-select"}}
@@ -91,6 +95,22 @@
       $("#id_country").select2({
         theme: "bootstrap-5",
         placeholder: "Choose country",
+        allowClear: true,
+      }).on("change", function (e) {
+        htmx.trigger(this, "change");
+      });
+
+      $("#id_funding_agency").select2({
+        theme: "bootstrap-5",
+        placeholder: "Choose funding agency",
+        allowClear: true,
+      }).on("change", function (e) {
+        htmx.trigger(this, "change");
+      });
+
+      $("#id_client").select2({
+        theme: "bootstrap-5",
+        placeholder: "Choose client",
         allowClear: true,
       }).on("change", function (e) {
         htmx.trigger(this, "change");
