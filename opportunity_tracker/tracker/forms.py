@@ -86,11 +86,22 @@ class UpdateOpportunityForm(forms.ModelForm):
         queryset=FundingAgency.objects.all(), required=False)
     client = ClientChoiceField(
         queryset=Client.objects.all(), required=False)
+    submission_date = forms.DateField(required=True,
+                                      error_messages={
+                                          'required': 'Please provide a submission date'},
+                                      widget=forms.DateInput(
+                                          attrs={'class': 'form-control', 'type': 'date'})
+                                      )
+    lead_institute = forms.ModelChoiceField(
+        queryset=Institute.objects.all(), required=True, label="Lead Organization", error_messages={'required': 'Select a Lead Organization'})
+
+    partners = forms.ModelMultipleChoiceField(
+        queryset=Institute.objects.all(), required=False, label="Partners")
 
     class Meta:
         model = Opportunity
         fields = ['ref_no', 'title', 'funding_agency', 'client', 'opp_type', 'countries',
-                  'due_date', 'clarification_date', 'intent_bid_date', 'duration_months', 'notes', 'status', 'currency', 'proposal_amount']
+                  'due_date', 'clarification_date', 'intent_bid_date', 'duration_months', 'notes', 'status', 'currency', 'proposal_amount', 'lead_unit', 'proposal_lead', 'submission_date', 'lead_institute', 'partners']
 
         widgets = {
             'ref_no': forms.TextInput(attrs={'readonly': 'readonly'}),
