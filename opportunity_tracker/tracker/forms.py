@@ -217,7 +217,7 @@ class OpportunitySearchForm(forms.Form):
     title = forms.CharField(required=False, label='Title')
 
     funding_agency = FundingAgencyChoiceField(
-        queryset=FundingAgency.objects.all(), required=False, label="Funding Agency", widget=forms.Select(attrs={'hx-get': '/opportunities/', 'hx-trigger': 'change delay:500ms'}))
+        queryset=FundingAgency.objects.all(), required=False, label="Funding Agency")
     client = ClientChoiceField(
         queryset=Client.objects.all(), required=False, label='Client')
     status = forms.ChoiceField(
