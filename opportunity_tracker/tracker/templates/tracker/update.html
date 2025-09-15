@@ -134,6 +134,62 @@
           {%endif%}
         </div>
 
+       {% if opportunity.status >= 2 %}
+        <div class="row g-2">
+          <div class="form-floating col-md-4">
+            <div class="input-group">
+              <div class="input-group-text">Lead Unit</div>
+              {{form.lead_unit|add_class:"form-select"}}
+            </div>
+            {%if form.lead_unit.errors%}
+            <div class="text-danger">{{form.lead_unit.errors|striptags}}</div>
+            {%endif%}
+          </div>
+
+          <div class="form-floating col-md-4">
+            <div class="input-group">
+              <div class="input-group-text">Proposal Lead</div>
+              {{form.proposal_lead|add_class:"form-select"}}
+            </div>
+            {%if form.proposal_lead.errors%}
+            <div class="text-danger">{{form.proposal_lead.errors|striptags}}</div>
+            {%endif%}
+          </div>
+          </div>
+        {% endif %}
+
+        {% if opportunity.status >= 5 %}
+          <div class="row g-2">
+          <div class="form-floating col-md-4">
+            <div class="input-group">
+              <div class="input-group-text">Lead Organization</div>
+              {{form.lead_institute|add_class:"form-select"}}
+            </div>
+            {%if form.lead_institute.errors%}
+            <div class="text-danger">{{form.lead_institute.errors|striptags}}</div>
+            {%endif%}
+          </div>
+
+          <div class="form-floating col-md-4">
+            <div class="input-group">
+              <div class="input-group-text">Partners</div>
+              {{form.partners|add_class:"form-select"}}
+            </div>
+            {%if form.partners.errors%}
+            <div class="text-danger">{{form.partners.errors|striptags}}</div>
+            {%endif%}
+          </div>
+
+          <div class="form-floating col-md-4">
+            {{form.submission_date|add_class:"form-control"}}
+            <label for="submission_date" class="form-label">Submission Date</label>
+            {%if form.submission_date.errors%}
+            <div class="text-danger">{{form.submission_date.errors|striptags}}</div>
+            {%endif%}
+          </div>
+          </div>
+          {% endif %}
+
         <div class="form-floating col-12">
           {{form.notes|add_class:"form-control"}}
           <label for="notes" class="form-label">Notes</label>
