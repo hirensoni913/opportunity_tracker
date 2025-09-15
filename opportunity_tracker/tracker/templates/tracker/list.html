@@ -61,7 +61,7 @@
 
 <div class="card mt-1">
   <div class="card-header">
-    <h4 id="oppCount">{{page_obj.paginator.count}} Opportunities Found</h4>
+    <h4 id="oppCount">{{opportunity_count}} Opportunities Found</h4>
     <a
       class="btn btn-lg btn-primary fab"
       href="{% url 'new_opportunity' %}"
@@ -121,15 +121,15 @@
     document.addEventListener("htmx:afterSwap", function (event) {
       formatTimeStamp();
 
-      const hiddenField = document.querySelector("#opportunity-count");
-      if (hiddenField) {
-        const oppCount = hiddenField.value;
-        if (oppCount) {
-          document.querySelector(
-            "#oppCount"
-          ).textContent = `${oppCount} Opportunities Found`;
-        }
+      const hiddenField = event.detail.target;
+      node = hiddenField.querySelector("#opportunity-count");
+      if (!node) return;
+
+      const oppCount = node.dataset.count;
+      if (oppCount) {
+        $("#oppCount").text(`${oppCount} Opportunities Found`);
       }
+
     });
 
     function formatTimeStamp() {
