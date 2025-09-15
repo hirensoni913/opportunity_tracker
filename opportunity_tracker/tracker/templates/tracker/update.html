@@ -47,15 +47,19 @@
         </div>
 
         <div class="form-floating col-md-4">
-          {{form.funding_agency|add_class:"form-select"}}
-          <label for="funding_agency" class="form-label">Funding Agency</label>
+          <div class="input-group">
+            <div class="input-group-text">Funding Agency</div>
+            {{form.funding_agency|add_class:"form-select"}}
+          </div>
           {%if form.funding_agency.errors%}
           <div class="text-danger">{{form.funding_agency.errors|striptags}}</div>
           {%endif%}
         </div>
         <div class="form-floating col-md-4">
-          {{form.client|add_class:"form-select"}}
-          <label for="client" class="form-label">Client</label>
+          <div class="input-group">
+            <div class="input-group-text">Client</div>
+            {{form.client|add_class:"form-select"}}
+          </div>
           {%if form.client.errors%}
           <div class="text-danger">{{form.client.errors|striptags}}</div>
           {%endif%}
@@ -260,6 +264,8 @@
 <script>
 
   $("#id_countries").select2({theme: 'bootstrap-5', placeholder: 'Choose countries', allowClear: true});
+  $("#id_funding_agency").select2({theme: 'bootstrap-5', placeholder: 'Choose funding agency', allowClear: true});
+  $("#id_client").select2({theme: 'bootstrap-5', placeholder: 'Choose client', allowClear: true});
   $("#id_lead_unit").select2({theme: 'bootstrap-5', placeholder: 'Choose a lead unit', allowClear: true});
   $("#id_proposal_lead").select2({theme: 'bootstrap-5', placeholder: 'Choose a proposal lead', allowClear: true});
   $("#id_lead_institute").select2({theme: 'bootstrap-5', placeholder: 'Choose a lead organization', allowClear: true});
