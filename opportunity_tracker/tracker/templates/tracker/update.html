@@ -12,7 +12,17 @@
           ><i class="fas fa-arrow-left"></i>
           Back to List
         </a>
-    <h3>Update Opportunity  <div class="float-end"><span class="badge bg-secondary">{{ opportunity.get_status_display }}</span></div></h3></div>
+    <h3>Update Opportunity  <div class="float-end">
+      {% if opportunity.status == 11 and opportunity.get_transferred_opportunity %}
+        <a href="{% url 'update_opportunity' opportunity.get_transferred_opportunity.id %}" 
+           class="badge bg-secondary text-decoration-none" 
+           title="Click to view the transferred RFP opportunity">
+          {{ opportunity.get_status_display }} <i class="fas fa-external-link-alt ms-1"></i>
+        </a>
+      {% else %}
+        <span class="badge bg-secondary">{{ opportunity.get_status_display }}</span>
+      {% endif %}
+    </div></h3></div>
   <div class="card-body">
     <form class="row g-3" 
       id="opportunityForm" 

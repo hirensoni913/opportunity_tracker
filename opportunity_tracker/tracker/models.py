@@ -198,6 +198,17 @@ class Opportunity(models.Model):
     def __str__(self):
         return self.ref_no
 
+    def get_status_display(self):
+        """Override the default get_status_display to show 'Transferred to RFP' for status 11"""
+        if self.status == 11:
+            return "Transferred to RFP"
+        # Call the auto-generated method directly
+        return dict(self.OPP_STATUS).get(self.status, str(self.status))
+
+    def get_transferred_opportunity(self):
+        """Get the RFP opportunity that was created from this opportunity transfer"""
+        return self.transferred.first() if self.status == 11 else None
+
 
 class OpportunityFile(models.Model):
     opportunity = models.ForeignKey(

@@ -153,12 +153,16 @@ class OpportunityCreateView(CreateView):
             return initial
 
     def form_valid(self, form):
+        from django.db import transaction
+
         form.instance.created_by = self.request.user
 
         # Check if this is a transfer operation and set parent if needed
         # Look for source_id in POST data first (from hidden input), then in GET parameters
         source_id = self.request.POST.get(
             'source_id') or self.request.GET.get('source_id')
+        parent_opportunity = None
+
         if source_id:
             try:
                 parent_opportunity = Opportunity.objects.get(id=source_id)
@@ -166,12 +170,20 @@ class OpportunityCreateView(CreateView):
             except Opportunity.DoesNotExist:
                 pass
 
-        response = super().form_valid(form)
+        # Use transaction to ensure atomicity of transfer operation
+        with transaction.atomic():
+            response = super().form_valid(form)
 
-        # Handle file upload
-        files = self.request.FILES.getlist("files")
-        for f in files:
-            OpportunityFile.objects.create(opportunity=self.object, file=f)
+            # Handle file upload
+            files = self.request.FILES.getlist("files")
+            for f in files:
+                OpportunityFile.objects.create(opportunity=self.object, file=f)
+
+            # If this is a transfer operation, update the parent opportunity status to "Transfer to RFP"
+            # Only update status after the new RFP opportunity is successfully created
+            if parent_opportunity and self.request.GET.get('is_transfer') == 'true':
+                parent_opportunity.status = 11  # Transfer to RFP
+                parent_opportunity.save()
 
         headers = {"HX-Trigger": "refresh_opp_list"}
         if self.request.htmx:
@@ -616,9 +628,8 @@ class TransferOpportunityView(View):
     def post(self, request, pk):
         opportunity = Opportunity.objects.get(id=pk)
 
-        # Update the status to 11 (Transfer to RFP)
-        opportunity.status = 11
-        opportunity.save()
+        # Don't update status here - it will be updated in OpportunityCreateView.form_valid
+        # only when the new RFP opportunity is successfully created
 
         # Use direct HttpResponseRedirect for more reliable redirection
         from django.http import HttpResponseRedirect
