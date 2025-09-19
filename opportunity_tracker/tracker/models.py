@@ -5,6 +5,7 @@ import uuid
 from django.contrib.auth.models import User
 from django.conf import settings
 import re
+from django.core.validators import MaxValueValidator
 
 
 class Entity(models.Model):
@@ -190,7 +191,8 @@ class Opportunity(models.Model):
         blank=True,
         related_name='transferred'
     )
-    submission_validity = models.IntegerField(blank=True, null=True)
+    submission_validity = models.PositiveIntegerField(
+        blank=True, null=True, validators=[MaxValueValidator(365)])
 
     class Meta:
         db_table = "opportunity"
