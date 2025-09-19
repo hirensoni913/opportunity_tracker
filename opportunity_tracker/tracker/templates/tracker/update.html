@@ -134,7 +134,7 @@
           {%endif%}
         </div>
 
-       {% if opportunity.status >= 2 %}
+       {% if opportunity.status >= 2 and not opportunity.status == 3 and not opportunity.status == 4 %}
         <div class="row g-2">
           <div class="form-floating col-md-4">
             <div class="input-group">

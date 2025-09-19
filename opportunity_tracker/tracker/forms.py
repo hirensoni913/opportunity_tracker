@@ -118,7 +118,7 @@ class UpdateOpportunityForm(forms.ModelForm):
         status = int(cleaned_data.get("status", 0))
 
         # make proposal_lead and lead_unit mandatory if the status is Go
-        if status >= 2:
+        if status >= 2 and not (status == 3 or status == 4):
             if not cleaned_data.get("proposal_lead"):
                 self.add_error("proposal_lead", "Proposal Lead is required")
             if not cleaned_data.get("lead_unit"):
