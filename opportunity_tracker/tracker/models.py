@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.conf import settings
 import re
 from django.core.validators import MaxValueValidator
+from datetime import timedelta
 
 
 class Entity(models.Model):
@@ -211,6 +212,19 @@ class Opportunity(models.Model):
     def get_transferred_opportunity(self):
         """Get the RFP opportunity that was created from this opportunity transfer"""
         return self.transferred.first() if self.status == 11 else None
+
+    @property
+    def submission_expiry(self):
+        """Return the last valid submission date calculated as submission_date + submission_validity days.
+
+        If either value is missing, returns None.
+        """
+        if self.submission_date and self.submission_validity is not None:
+            try:
+                return self.submission_date + timedelta(days=int(self.submission_validity))
+            except Exception:
+                return None
+        return None
 
 
 class OpportunityFile(models.Model):

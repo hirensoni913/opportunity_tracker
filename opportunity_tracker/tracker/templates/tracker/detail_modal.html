@@ -86,6 +86,16 @@
         <span class="detail-label">Submission Date:</span>
         <span class="detail-value">{{form.submission_date.value}}</span>
       </div>
+      <div class="detail-item">
+        <span class="detail-label">Submission Expiry:</span>
+        <span class="detail-value">
+          {% if form.instance.submission_expiry %}
+            {{ form.instance.submission_expiry}}
+          {% else %}
+            —
+          {% endif %}
+        </span>
+      </div>
     </div>
   </div>
 </div>
@@ -207,4 +217,5 @@
   </button>
 </div>
 </div>
+<!-- No inline script needed; expiry computed server-side via model property -->
 {% endblock content %}
