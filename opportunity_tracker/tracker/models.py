@@ -190,6 +190,7 @@ class Opportunity(models.Model):
         blank=True,
         related_name='transferred'
     )
+    submission_validity = models.IntegerField(blank=True, null=True)
 
     class Meta:
         db_table = "opportunity"

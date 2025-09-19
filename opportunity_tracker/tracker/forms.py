@@ -232,7 +232,7 @@ class SubmitProposalForm(forms.ModelForm):
     class Meta:
         model = Opportunity
         fields = ['status', 'lead_institute', 'partners',
-                  'submission_date']
+                  'submission_date', 'submission_validity']
 
 
 class OpportunityDetailForm(forms.ModelForm):
