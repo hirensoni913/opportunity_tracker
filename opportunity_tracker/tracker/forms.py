@@ -101,7 +101,8 @@ class UpdateOpportunityForm(forms.ModelForm):
     class Meta:
         model = Opportunity
         fields = ['ref_no', 'title', 'funding_agency', 'client', 'opp_type', 'countries',
-                  'due_date', 'clarification_date', 'intent_bid_date', 'duration_months', 'notes', 'status', 'currency', 'proposal_amount', 'lead_unit', 'proposal_lead', 'submission_date', 'lead_institute', 'partners']
+                  'due_date', 'clarification_date', 'intent_bid_date', 'duration_months', 'notes', 'status', 'currency', 'proposal_amount',
+                  'lead_unit', 'proposal_lead', 'submission_date', 'lead_institute', 'partners', 'submission_validity']
 
         widgets = {
             'ref_no': forms.TextInput(attrs={'readonly': 'readonly'}),
@@ -232,7 +233,7 @@ class SubmitProposalForm(forms.ModelForm):
     class Meta:
         model = Opportunity
         fields = ['status', 'lead_institute', 'partners',
-                  'submission_date']
+                  'submission_date', 'submission_validity']
 
 
 class OpportunityDetailForm(forms.ModelForm):

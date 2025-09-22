@@ -187,8 +187,17 @@
             <div class="text-danger">{{form.submission_date.errors|striptags}}</div>
             {%endif%}
           </div>
+
+          <div class="form-floating col-md-4">
+            {{form.submission_validity|add_class:"form-control"}}
+            <label for="submission_validity" class="form-label">Validity (days)</label>
+            {%if form.submission_validity.errors%}
+            <div class="text-danger">{{form.submission_validity.errors|striptags}}</div>
+            {%endif%}
           </div>
-          {% endif %}
+          
+          
+        {% endif %}
 
         <div class="form-floating col-12">
           {{form.notes|add_class:"form-control"}}
