@@ -1,11 +1,12 @@
 {% load static %} {% load form_tags %}
 
-<form 
-  id="updateStatusForm" 
-  class="modal-content" 
-  hx-post="{% url "udpate_status" opportunity.id %}?{{ request.GET.urlencode }}" 
-  hx-target="#dialog">
-  
+<form
+  id="updateStatusForm"
+  class="modal-content"
+  hx-post=""
+  hx-target="#dialog"
+  hx-include="#opportunityForm"
+>
   {% csrf_token %}
   <div class="modal-header">
     <h5 class="modal-title" id="updateStatusModalLabel">
@@ -26,8 +27,9 @@
           {% for choice in filtered_status %}
           <div class="form-check form-check-inline">
             <input class="form-check-input" type="radio" name="status"
-            id="status_{{choice.0}}" value="{{choice.0}}" 
-            {% if update_status_form.data.status == choice.0 or update_status_form.instance.status == choice.0 %}checked{% endif %}>
+            id="status_{{choice.0}}" value="{{choice.0}}" {% if
+            update_status_form.data.status == choice.0 or
+            update_status_form.instance.status == choice.0 %}checked{% endif %}>
             <label class="form-check-label" for="status_{{choice.0}}"
               >{{choice.1}}</label
             >
@@ -81,10 +83,10 @@
       Cancel
     </button>
     <button
-      type="submit"
+      type="button"
       class="btn btn-success"
       id="confirmUpdateStatusButton"
-      hx-indicator="#spinnerUpdate"
+      onclick="submitForm()"
     >
       {% if 1 <= form.status.value <= 4 %} Update Status {% elif
       form.status.value == 5 %} Update Result{% endif %} <img id="spinnerUpdate"
@@ -97,13 +99,87 @@
   $(document).ready(function () {
     $('input[name="status"]')
       .on("change", function () {
-        if ($("input[name='status']:checked").val() === "2") {
+        const selectedStatus = $("input[name='status']:checked").val();
+
+        if (selectedStatus === "2") {
           // "Go" corresponds to value 2
           $(".onlyForGo").show(); // Show the control
         } else {
           $(".onlyForGo").hide(); // Hide the control
         }
+
+        // Update button text based on selected status
+        if (selectedStatus === "11") {
+          $("#confirmUpdateStatusButton").text("Transfer to RFP");
+        } else if ({{ form.status.value }} <= 4) {
+          $("#confirmUpdateStatusButton").text("Update Status");
+        } else {
+          $("#confirmUpdateStatusButton").text("Update Result");
+        }
+
+        // Update form action based on selected status
+        updateFormAction();
       })
       .change();
   });
+  function updateFormAction() {
+    const form = document.getElementById('updateStatusForm');
+    const selectedStatus = $("input[name='status']:checked").val();
+
+    console.log("Updating form action. Selected status:", selectedStatus);
+
+    if (selectedStatus === "11") {
+      // If Transfer to RFP is selected, set action to transfer URL
+      console.log("Setting transfer URL");
+      form.setAttribute('hx-post', '{% url "transfer_opportunity" opportunity.id %}');
+    } else {
+      // For all other statuses, use the regular update URL
+      console.log("Setting regular update URL");
+      form.setAttribute('hx-post', '{% url "udpate_status" opportunity.id %}?{{ request.GET.urlencode }}');
+    }
+
+    console.log("Form action is now:", form.getAttribute('hx-post'));
+  }
+
+  function submitForm() {
+    // Make sure form action is up to date
+    updateFormAction();
+
+    const form = document.getElementById('updateStatusForm');
+    const selectedStatus = $("input[name='status']:checked").val();
+    console.log("Submitting form with status:", selectedStatus);
+    console.log("Form action URL:", form.getAttribute('hx-post'));
+
+    if (selectedStatus === "11") {
+      // For transfer, use fetch to ensure we get the redirect
+      console.log("Using fetch for transfer");
+
+      // Disable the button and show spinner
+      $("#confirmUpdateStatusButton").prop("disabled", true);
+      $("#spinnerUpdate").removeClass("d-none");
+
+      fetch(form.getAttribute('hx-post'), {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+        credentials: 'same-origin'
+      })
+      .then(response => {
+        console.log("Transfer response:", response);
+        // Get redirect URL from header
+        const redirectUrl = response.headers.get('HX-Redirect');
+        if (redirectUrl) {
+          window.location.href = redirectUrl;
+        } else {
+          // Fallback
+          window.location.href = "{% url 'new_opportunity' %}?source_id={{ opportunity.id }}&is_transfer=true";
+        }
+      });
+    } else {
+      // For normal update, use HTMX
+      console.log("Using HTMX for regular update");
+      htmx.trigger('#updateStatusForm', 'submit');
+    }
+  }
 </script>

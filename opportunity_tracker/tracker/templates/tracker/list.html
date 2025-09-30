@@ -6,7 +6,6 @@
   hx-target="#opportunity-container"
   hx-include="this"
   id="filterForm"
-  hx-trigger="every 1m"
 >
   <div class="card">
     <div class="card-header">
@@ -23,12 +22,16 @@
           <label for="title" class="form-label">Title</label>
         </div>
         <div class="form-floating col-md-4">
-          {{form.funding_agency|add_class:"form-select"}}
-          <label for="funding_agency" class="form-label">Funding Agency</label>
+          <div class="input-group">
+            <div class="input-group-text">Funding Agency</div>
+            {{form.funding_agency|add_class:"form-select"}}
+          </div>
         </div>
         <div class="form-floating col-md-4">
-          {{form.client|add_class:"form-select"}}
-          <label for="client" class="form-label">Client</label>
+          <div class="input-group">
+            <div class="input-group-text">Client</div>
+            {{form.client|add_class:"form-select"}}
+          </div>
         </div>
         <div class="form-floating col-md-4">
           {{form.status|add_class:"form-select"}}
@@ -58,7 +61,7 @@
 
 <div class="card mt-1">
   <div class="card-header">
-    <h4 id="oppCount">{{page_obj.paginator.count}} Opportunities Found</h4>
+    <h4 id="oppCount">{{opportunity_count}} Opportunities Found</h4>
     <a
       class="btn btn-lg btn-primary fab"
       href="{% url 'new_opportunity' %}"
@@ -97,20 +100,36 @@
         htmx.trigger(this, "change");
       });
 
+      $("#id_funding_agency").select2({
+        theme: "bootstrap-5",
+        placeholder: "Choose funding agency",
+        allowClear: true,
+      }).on("change", function (e) {
+        htmx.trigger(this, "change");
+      });
+
+      $("#id_client").select2({
+        theme: "bootstrap-5",
+        placeholder: "Choose client",
+        allowClear: true,
+      }).on("change", function (e) {
+        htmx.trigger(this, "change");
+      });
+
     });
 
     document.addEventListener("htmx:afterSwap", function (event) {
       formatTimeStamp();
 
-      const hiddenField = document.querySelector("#opportunity-count");
-      if (hiddenField) {
-        const oppCount = hiddenField.value;
-        if (oppCount) {
-          document.querySelector(
-            "#oppCount"
-          ).textContent = `${oppCount} Opportunities Found`;
-        }
+      const hiddenField = event.detail.target;
+      node = hiddenField.querySelector("#opportunity-count");
+      if (!node) return;
+
+      const oppCount = node.dataset.count;
+      if (oppCount) {
+        $("#oppCount").text(`${oppCount} Opportunities Found`);
       }
+
     });
 
     function formatTimeStamp() {

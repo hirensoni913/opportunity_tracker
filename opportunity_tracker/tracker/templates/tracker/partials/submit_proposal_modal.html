@@ -5,6 +5,7 @@
   class="modal-content" 
   hx-post = "{% url "submit_proposal" opportunity.id %}?{{ request.GET.urlencode }}" 
   hx-target="#dialog"
+  hx-include="#opportunityForm"
   >
   
   {% csrf_token %}
@@ -46,6 +47,24 @@
                   <div class="text-danger">{{submit_proposal_form.submission_date.errors|striptags}}</div>
                   {%endif%}
                 </div>
+
+                <div class="mb-3">
+                  <div class="form-floating">
+                    {{submit_proposal_form.submission_validity|add_class:"form-control"}}
+                    <label for="submission_validity" class="form-label">Validity (days)</label>
+                  </div>
+                  {%if submit_proposal_form.submission_validity.errors%}
+                  <div class="text-danger">{{submit_proposal_form.submission_validity.errors|striptags}}</div>
+                  {%endif%}
+                  <div id="submission_expiry_wrap" class="alert alert-info d-flex align-items-center py-2 px-3 mt-2 d-none" role="status" aria-live="polite">
+                    <div class="me-2" aria-hidden="true">📅</div>
+                    <div>
+                      <div id="submission_expiry_title" class="small text-uppercase fw-semibold opacity-75">Expires on</div>
+                      <div class="fw-semibold" id="submission_expiry_label"></div>
+                      <div class="small text-muted" id="submission_expiry_relative"></div>
+                    </div>
+                  </div>
+                </div>
   
             </div>
             
@@ -67,5 +86,78 @@
         theme: "bootstrap-5",
         placeholder: "Choose Partners",
         allowClear: true,
+      });
+      // Dynamic expiry label: submission_date + submission_validity (days)
+      function formatDateYYYYMMDD(d) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+      }
+
+      function parseDateFromInput(val) {
+        const parts = val ? val.split('-').map(Number) : null;
+        if (!parts || parts.length !== 3 || parts.some(Number.isNaN)) return null;
+        return new Date(parts[0], parts[1] - 1, parts[2]);
+      }
+
+      function updateExpiryLabel() {
+        const dateStr = $("#id_submission_date").val();
+        const validityStr = $("#id_submission_validity").val();
+        const days = parseInt(validityStr, 10);
+        const $label = $("#submission_expiry_label");
+        const $relative = $("#submission_expiry_relative");
+        const $wrap = $("#submission_expiry_wrap");
+        const $title = $("#submission_expiry_title");
+
+        if (typeof moment !== 'undefined' && dateStr && !Number.isNaN(days) && days >= 0) {
+          const base = moment(dateStr, 'YYYY-MM-DD', true);
+          if (base.isValid()) {
+            const expiry = base.clone().add(days, 'days');
+            $label.text(expiry.format('ddd, MMM DD, YYYY'));
+            // Store date-only to avoid UTC drift and parse strictly in local time for stable fromNow()
+            $relative.data('timestamp', expiry.format('YYYY-MM-DD'));
+            const rawTimeStamp = $relative.data('timestamp');
+            if (rawTimeStamp) {
+              const formattedTime = moment(rawTimeStamp, 'YYYY-MM-DD', true).fromNow();
+              $relative.text(`(${formattedTime})`);
+            } else {
+              $relative.text('');
+            }
+            $wrap.removeClass('d-none alert-info alert-warning alert-danger');
+            if (expiry.isBefore(moment(), 'day')) {
+              $title.text('Expired on');
+              $wrap.addClass('alert-danger');
+            } else if (expiry.isSame(moment(), 'day')) {
+              $title.text('Expires today');
+              $wrap.addClass('alert-warning');
+            } else {
+              $title.text('Expires on');
+              $wrap.addClass('alert-info');
+            }
+            return;
+          }
+        }
+
+        // Fallback without moment
+        const baseDate = parseDateFromInput(dateStr);
+        if (baseDate && !Number.isNaN(days) && days >= 0) {
+          const expiry = new Date(baseDate.getTime());
+          expiry.setDate(expiry.getDate() + days);
+          $label.text(formatDateYYYYMMDD(expiry));
+          $relative.text('');
+          $title.text('Expires on');
+          $wrap.removeClass('d-none alert-warning alert-danger').addClass('alert-info');
+        } else {
+          $label.text('');
+          $relative.text('');
+          $wrap.addClass('d-none');
+        }
+      }
+
+      $(document).ready(function() {
+        updateExpiryLabel();
+        $("#id_submission_date").on('change input', updateExpiryLabel);
+        $("#id_submission_validity").on('change input', updateExpiryLabel);
       });
     </script>

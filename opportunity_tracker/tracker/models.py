@@ -5,6 +5,8 @@ import uuid
 from django.contrib.auth.models import User
 from django.conf import settings
 import re
+from django.core.validators import MaxValueValidator
+from datetime import timedelta
 
 
 class Entity(models.Model):
@@ -141,6 +143,7 @@ class Opportunity(models.Model):
         (8, "Cancelled"),
         (9, "Assumed Lost"),
         (10, "N/A"),
+        (11, "Transfer to RFP")
     ]
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     ref_no = models.CharField(
@@ -182,6 +185,15 @@ class Opportunity(models.Model):
     net_amount = models.DecimalField(
         max_digits=10, decimal_places=2, blank=True, null=True)
     result_note = models.CharField(max_length=300, null=True, blank=True)
+    parent = models.ForeignKey(
+        'self',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='transferred'
+    )
+    submission_validity = models.PositiveIntegerField(
+        blank=True, null=True, validators=[MaxValueValidator(365)])
 
     class Meta:
         db_table = "opportunity"
@@ -189,6 +201,30 @@ class Opportunity(models.Model):
 
     def __str__(self):
         return self.ref_no
+
+    def get_status_display(self):
+        """Override the default get_status_display to show 'Transferred to RFP' for status 11"""
+        if self.status == 11:
+            return "Transferred to RFP"
+        # Call the auto-generated method directly
+        return dict(self.OPP_STATUS).get(self.status, str(self.status))
+
+    def get_transferred_opportunity(self):
+        """Get the RFP opportunity that was created from this opportunity transfer"""
+        return self.transferred.first() if self.status == 11 else None
+
+    @property
+    def submission_expiry(self):
+        """Return the last valid submission date calculated as submission_date + submission_validity days.
+
+        If either value is missing, returns None.
+        """
+        if self.submission_date and self.submission_validity is not None:
+            try:
+                return self.submission_date + timedelta(days=int(self.submission_validity))
+            except Exception:
+                return None
+        return None
 
 
 class OpportunityFile(models.Model):

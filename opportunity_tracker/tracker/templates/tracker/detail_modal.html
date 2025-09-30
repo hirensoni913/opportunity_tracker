@@ -36,11 +36,11 @@
   </div>
   <div class="detail-item">
     <span class="detail-label">Funding Agency:</span>
-    <span class="detail-value">{{form.instance.funding_agency}}</span>
+    <span class="detail-value">{{form.instance.funding_agency.code}} | {{form.instance.funding_agency}}</span>
   </div>
   <div class="detail-item">
     <span class="detail-label">Client:</span>
-    <span class="detail-value">{{form.instance.client}}</span>
+    <span class="detail-value">{{form.instance.client.code}} | {{form.instance.client}}</span>
   </div>
   <div class="detail-item">
     <span class="detail-label">Duration:</span>
@@ -85,6 +85,16 @@
       <div class="detail-item">
         <span class="detail-label">Submission Date:</span>
         <span class="detail-value">{{form.submission_date.value}}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Submission Expiry:</span>
+        <span class="detail-value">
+          {% if form.instance.submission_expiry %}
+            {{ form.instance.submission_expiry}}
+          {% else %}
+            —
+          {% endif %}
+        </span>
       </div>
     </div>
   </div>
@@ -207,4 +217,5 @@
   </button>
 </div>
 </div>
+<!-- No inline script needed; expiry computed server-side via model property -->
 {% endblock content %}

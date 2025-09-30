@@ -131,14 +131,59 @@ class OpportunityCreateView(CreateView):
     success_url = reverse_lazy("opportunities")
     login_url = "accounts:login"
 
-    def form_valid(self, form):
-        form.instance.created_by = self.request.user
-        response = super().form_valid(form)
+    def get_initial(self):
+        initial = super().get_initial()
+        # Check if there's initial data from a transfer request (via query params)
+        source_id = self.request.GET.get('source_id')
+        if source_id:
+            try:
+                opportunity = Opportunity.objects.get(id=source_id)
+                initial.update({
+                    'title': opportunity.title,
+                    'funding_agency': opportunity.funding_agency,
+                    'client': opportunity.client,
+                    'opp_type': 'RFP',  # Setting type to RFP
+                    'countries': opportunity.countries.all(),
+                    'status': 1,  # Set to "Entered" by default
+                    'parent': opportunity,  # Set the parent relationship
+                    'duration_months': opportunity.duration_months
+                })
+            except Opportunity.DoesNotExist:
+                pass
+            return initial
 
-        # Handle file upload
-        files = self.request.FILES.getlist("files")
-        for f in files:
-            OpportunityFile.objects.create(opportunity=self.object, file=f)
+    def form_valid(self, form):
+        from django.db import transaction
+
+        form.instance.created_by = self.request.user
+
+        # Check if this is a transfer operation and set parent if needed
+        # Look for source_id in POST data first (from hidden input), then in GET parameters
+        source_id = self.request.POST.get(
+            'source_id') or self.request.GET.get('source_id')
+        parent_opportunity = None
+
+        if source_id:
+            try:
+                parent_opportunity = Opportunity.objects.get(id=source_id)
+                form.instance.parent = parent_opportunity
+            except Opportunity.DoesNotExist:
+                pass
+
+        # Use transaction to ensure atomicity of transfer operation
+        with transaction.atomic():
+            response = super().form_valid(form)
+
+            # Handle file upload
+            files = self.request.FILES.getlist("files")
+            for f in files:
+                OpportunityFile.objects.create(opportunity=self.object, file=f)
+
+            # If this is a transfer operation, update the parent opportunity status to "Transfer to RFP"
+            # Only update status after the new RFP opportunity is successfully created
+            if parent_opportunity and self.request.GET.get('is_transfer') == 'true':
+                parent_opportunity.status = 11  # Transfer to RFP
+                parent_opportunity.save()
 
         headers = {"HX-Trigger": "refresh_opp_list"}
         if self.request.htmx:
@@ -151,6 +196,12 @@ class OpportunityCreateView(CreateView):
             return "tracker/new_modal.html"
         else:
             return self.template_name
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Add a flag to indicate if this is a transfer operation based on query param
+        context['is_transfer'] = self.request.GET.get('is_transfer') == 'true'
+        return context
 
 
 class OpportunityUpdateView(UpdateView):
@@ -233,6 +284,7 @@ class OpportunityUpdateView(UpdateView):
 
 
 class OpportunityStatusUpdateView(UpdateView):
+    print("Regular update....")
     model = Opportunity
     form_class = UpdateStatusForm
     template_name = "tracker/partials/update_status_modal.html"
@@ -247,6 +299,43 @@ class OpportunityStatusUpdateView(UpdateView):
             return f"{base_url}?{query_params.urlencode()}"
         return base_url
 
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        # Process both the status form and the main opportunity form
+        status_form = self.get_form()
+        main_form = UpdateOpportunityForm(
+            request.POST, request.FILES, instance=self.object)
+
+        if status_form.is_valid() and main_form.is_valid():
+            # Update the main form fields first
+            main_form.instance.updated_by = self.request.user
+            main_obj = main_form.save()
+
+            # Then update the status form fields (which are a subset of the opportunity model)
+            # Only keep status and status-specific fields from the status form
+            status_obj = status_form.save(commit=False)
+
+            # Set the fields that are specific to status updates
+            main_obj.status = status_obj.status
+            main_obj.lead_unit = status_obj.lead_unit
+            main_obj.proposal_lead = status_obj.proposal_lead
+            main_obj.result_note = status_obj.result_note
+            main_obj.save()
+
+            # Handle file uploads from the main form
+            files = self.request.FILES.getlist("files")
+            for f in files:
+                OpportunityFile.objects.create(opportunity=main_obj, file=f)
+
+            if self.request.htmx:
+                headers = {"HX-Redirect": str(self.get_success_url())}
+                return HttpResponse(status=204, headers=headers)
+
+            return super().form_valid(status_form)
+        else:
+            return self.form_invalid(status_form)
+
     def form_valid(self, form):
         self.object = form.save()
         if self.request.htmx:
@@ -260,8 +349,15 @@ class OpportunityStatusUpdateView(UpdateView):
         if self.request.htmx:
             errors = form.errors.as_json()
             print(errors)
+
+            # If there are errors in the main form, we need to render those too
+            main_form_data = {k: v for k, v in self.request.POST.items()}
+            main_form = UpdateOpportunityForm(
+                main_form_data, instance=self.object)
+
             context = self.get_context_data(
-                update_status_form=form)  # Pass the form with errors
+                update_status_form=form,
+                form=main_form)  # Pass both forms with errors
 
             headers = {"HX-Trigger": "form_invalid"}
             return self.render_to_response(context, headers=headers)
@@ -283,6 +379,8 @@ class OpportunityStatusUpdateView(UpdateView):
         elif self.object.status >= 5:
             context['filtered_status'] = [
                 (5, "Submitted"), (6, "Lost"), (7, "Won"), (8, "Cancelled"), (9, "Assumed Lost"), (10, "N/A")]
+            if self.object.opp_type.lower() == "eoi" and self.object.status == 7:
+                context['filtered_status'] += [(11, "Transfer to RFP")]
 
         return context
 
@@ -306,6 +404,41 @@ class OpportunitySubmitView(UpdateView):
         if query_params:
             return f"{base_url}?{query_params.urlencode()}"
         return base_url
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        # Process both the proposal submit form and the main opportunity form
+        proposal_form = self.get_form()
+        main_form = UpdateOpportunityForm(
+            request.POST, request.FILES, instance=self.object)
+
+        if proposal_form.is_valid() and main_form.is_valid():
+            # Update the main form fields first
+            main_form.instance.updated_by = self.request.user
+            main_obj = main_form.save()
+
+            # Then update the proposal form fields
+            proposal_obj = proposal_form.save(commit=False)
+            # Set the fields that are specific to proposal submission
+            main_obj.status = 5  # Set status to submitted (5)
+            main_obj.lead_institute = proposal_obj.lead_institute
+            main_obj.partners.set(proposal_obj.partners.all())
+            main_obj.submission_date = proposal_obj.submission_date
+            main_obj.save()
+
+            # Handle file uploads from the main form
+            files = self.request.FILES.getlist("files")
+            for f in files:
+                OpportunityFile.objects.create(opportunity=main_obj, file=f)
+
+            if self.request.htmx:
+                headers = {"HX-Redirect": str(self.get_success_url())}
+                return HttpResponse(status=204, headers=headers)
+
+            return self.form_valid(proposal_form)
+        else:
+            return self.form_invalid(proposal_form)
 
     def form_valid(self, form):
         self.object = form.save()
@@ -489,3 +622,29 @@ class NewClientView(View):
                 )
 
         return render(request, self.template_name, {"form": form})
+
+
+class TransferOpportunityView(View):
+    def post(self, request, pk):
+        opportunity = Opportunity.objects.get(id=pk)
+
+        # Don't update status here - it will be updated in OpportunityCreateView.form_valid
+        # only when the new RFP opportunity is successfully created
+
+        # Use direct HttpResponseRedirect for more reliable redirection
+        from django.http import HttpResponseRedirect
+        redirect_url = f"{reverse('new_opportunity')}?source_id={opportunity.id}&is_transfer=true"
+
+        print("Redirecting to:", redirect_url)
+
+        if request.htmx:
+            return HttpResponse(
+                "",  # Empty response body
+                status=200,  # Use 200 instead of 204 for more reliable processing
+                headers={
+                    "HX-Redirect": redirect_url
+                }
+            )
+        else:
+            # Fallback to standard redirect for non-HTMX requests
+            return HttpResponseRedirect(redirect_url)

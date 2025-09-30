@@ -86,22 +86,53 @@ class UpdateOpportunityForm(forms.ModelForm):
         queryset=FundingAgency.objects.all(), required=False)
     client = ClientChoiceField(
         queryset=Client.objects.all(), required=False)
+    # submission_date = forms.DateField(required=True,
+    #                                   error_messages={
+    #                                       'required': 'Please provide a submission date'},
+    #                                   widget=forms.DateInput(
+    #                                       attrs={'class': 'form-control', 'type': 'date'})
+    #                                   )
+    # lead_institute = forms.ModelChoiceField(
+    #     queryset=Institute.objects.all(), required=True, label="Lead Organization", error_messages={'required': 'Select a Lead Organization'})
+
+    partners = forms.ModelMultipleChoiceField(
+        queryset=Institute.objects.all(), required=False, label="Partners")
 
     class Meta:
         model = Opportunity
         fields = ['ref_no', 'title', 'funding_agency', 'client', 'opp_type', 'countries',
-                  'due_date', 'clarification_date', 'intent_bid_date', 'duration_months', 'notes', 'status', 'currency', 'proposal_amount']
+                  'due_date', 'clarification_date', 'intent_bid_date', 'duration_months', 'notes', 'status', 'currency', 'proposal_amount',
+                  'lead_unit', 'proposal_lead', 'submission_date', 'lead_institute', 'partners', 'submission_validity']
 
         widgets = {
             'ref_no': forms.TextInput(attrs={'readonly': 'readonly'}),
             'due_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'clarification_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'intent_bid_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'submission_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'files': forms.ClearableFileInput(),
         }
 
     def clean(self) -> dict[str, Any]:
         cleaned_data = super().clean()
+
+        status = int(cleaned_data.get("status", 0))
+
+        # make proposal_lead and lead_unit mandatory if the status is Go
+        if status >= 2 and not (status == 3 or status == 4):
+            if not cleaned_data.get("proposal_lead"):
+                self.add_error("proposal_lead", "Proposal Lead is required")
+            if not cleaned_data.get("lead_unit"):
+                self.add_error("lead_unit", "Lead Unit is required")
+
+        if status >= 5:
+            if not cleaned_data.get("submission_date"):
+                self.add_error("submission_date",
+                               "Submission date is required")
+
+                if not cleaned_data.get("lead_institute"):
+                    self.add_error("lead_institute",
+                                   "Lead organization is required")
 
         currency = cleaned_data.get("currency")
         proposal_amount = cleaned_data.get("proposal_amount")
@@ -119,6 +150,11 @@ class UpdateOpportunityForm(forms.ModelForm):
         from django.urls import reverse
         is_subscribed = kwargs.pop("is_subscribed", False)
         super().__init__(*args, **kwargs)
+
+        self.fields['proposal_lead'].queryset = User.objects.all()
+        self.fields['proposal_lead'].label_from_instance = lambda obj: f"{obj.first_name} {
+            obj.last_name}" if obj.first_name and obj.last_name else obj.username
+
         self.fields["is_subscribed"].initial = is_subscribed
         if self.instance.pk:
             toggle_url = reverse('notification:toggle_subscription', kwargs={
@@ -151,6 +187,7 @@ class UpdateStatusForm(forms.ModelForm):
         (8, "Cancelled"),
         (9, "Assumed Lost"),
         (10, "N/A"),
+        (11, "Transfer to RFP")
     ]
 
     class Meta:
@@ -196,7 +233,7 @@ class SubmitProposalForm(forms.ModelForm):
     class Meta:
         model = Opportunity
         fields = ['status', 'lead_institute', 'partners',
-                  'submission_date']
+                  'submission_date', 'submission_validity']
 
 
 class OpportunityDetailForm(forms.ModelForm):
@@ -214,9 +251,10 @@ class OpportunityDetailAnonymousForm(forms.ModelForm):
 class OpportunitySearchForm(forms.Form):
     ref_no = forms.CharField(required=False, label='Ref#')
     title = forms.CharField(required=False, label='Title')
-    funding_agency = forms.ModelChoiceField(
-        queryset=FundingAgency.objects.all(), required=False, label="Funding Agency", widget=forms.Select(attrs={'hx-get': '/opportunities/', 'hx-trigger': 'change delay:500ms'}))
-    client = forms.ModelChoiceField(
+
+    funding_agency = FundingAgencyChoiceField(
+        queryset=FundingAgency.objects.all(), required=False, label="Funding Agency")
+    client = ClientChoiceField(
         queryset=Client.objects.all(), required=False, label='Client')
     status = forms.ChoiceField(
         choices=[('', '')] + Opportunity.OPP_STATUS, required=False, label="Status")

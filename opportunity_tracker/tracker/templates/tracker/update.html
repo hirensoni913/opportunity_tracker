@@ -12,7 +12,17 @@
           ><i class="fas fa-arrow-left"></i>
           Back to List
         </a>
-    <h3>Update Opportunity  <div class="float-end"><span class="badge bg-secondary">{{ opportunity.get_status_display }}</span></div></h3></div>
+    <h3>Update Opportunity  <div class="float-end">
+      {% if opportunity.status == 11 and opportunity.get_transferred_opportunity %}
+        <a href="{% url 'update_opportunity' opportunity.get_transferred_opportunity.id %}" 
+           class="badge bg-secondary text-decoration-none" 
+           title="Click to view the transferred RFP opportunity">
+          {{ opportunity.get_status_display }} <i class="fas fa-external-link-alt ms-1"></i>
+        </a>
+      {% else %}
+        <span class="badge bg-secondary">{{ opportunity.get_status_display }}</span>
+      {% endif %}
+    </div></h3></div>
   <div class="card-body">
     <form class="row g-3" 
       id="opportunityForm" 
@@ -37,15 +47,19 @@
         </div>
 
         <div class="form-floating col-md-4">
-          {{form.funding_agency|add_class:"form-select"}}
-          <label for="funding_agency" class="form-label">Funding Agency</label>
+          <div class="input-group">
+            <div class="input-group-text">Funding Agency</div>
+            {{form.funding_agency|add_class:"form-select"}}
+          </div>
           {%if form.funding_agency.errors%}
           <div class="text-danger">{{form.funding_agency.errors|striptags}}</div>
           {%endif%}
         </div>
         <div class="form-floating col-md-4">
-          {{form.client|add_class:"form-select"}}
-          <label for="client" class="form-label">Client</label>
+          <div class="input-group">
+            <div class="input-group-text">Client</div>
+            {{form.client|add_class:"form-select"}}
+          </div>
           {%if form.client.errors%}
           <div class="text-danger">{{form.client.errors|striptags}}</div>
           {%endif%}
@@ -119,6 +133,71 @@
           <div class="text-danger">{{form.intent_bid_date.errors|striptags}}</div>
           {%endif%}
         </div>
+
+       {% if opportunity.status >= 2 and not opportunity.status == 3 and not opportunity.status == 4 %}
+        <div class="row g-2">
+          <div class="form-floating col-md-4">
+            <div class="input-group">
+              <div class="input-group-text">Lead Unit</div>
+              {{form.lead_unit|add_class:"form-select"}}
+            </div>
+            {%if form.lead_unit.errors%}
+            <div class="text-danger">{{form.lead_unit.errors|striptags}}</div>
+            {%endif%}
+          </div>
+
+          <div class="form-floating col-md-4">
+            <div class="input-group">
+              <div class="input-group-text">Proposal Lead</div>
+              {{form.proposal_lead|add_class:"form-select"}}
+            </div>
+            {%if form.proposal_lead.errors%}
+            <div class="text-danger">{{form.proposal_lead.errors|striptags}}</div>
+            {%endif%}
+          </div>
+          </div>
+        {% endif %}
+
+        {% if opportunity.status >= 5 %}
+          <div class="row g-2">
+          <div class="form-floating col-md-4">
+            <div class="input-group">
+              <div class="input-group-text">Lead Organization</div>
+              {{form.lead_institute|add_class:"form-select"}}
+            </div>
+            {%if form.lead_institute.errors%}
+            <div class="text-danger">{{form.lead_institute.errors|striptags}}</div>
+            {%endif%}
+          </div>
+
+          <div class="form-floating col-md-4">
+            <div class="input-group">
+              <div class="input-group-text">Partners</div>
+              {{form.partners|add_class:"form-select"}}
+            </div>
+            {%if form.partners.errors%}
+            <div class="text-danger">{{form.partners.errors|striptags}}</div>
+            {%endif%}
+          </div>
+
+          <div class="form-floating col-md-4">
+            {{form.submission_date|add_class:"form-control"}}
+            <label for="submission_date" class="form-label">Submission Date</label>
+            {%if form.submission_date.errors%}
+            <div class="text-danger">{{form.submission_date.errors|striptags}}</div>
+            {%endif%}
+          </div>
+
+          <div class="form-floating col-md-4">
+            {{form.submission_validity|add_class:"form-control"}}
+            <label for="submission_validity" class="form-label">Validity (days)</label>
+            {%if form.submission_validity.errors%}
+            <div class="text-danger">{{form.submission_validity.errors|striptags}}</div>
+            {%endif%}
+          </div>
+          
+          
+        {% endif %}
 
         <div class="form-floating col-12">
           {{form.notes|add_class:"form-control"}}
@@ -250,6 +329,8 @@
 <script>
 
   $("#id_countries").select2({theme: 'bootstrap-5', placeholder: 'Choose countries', allowClear: true});
+  $("#id_funding_agency").select2({theme: 'bootstrap-5', placeholder: 'Choose funding agency', allowClear: true});
+  $("#id_client").select2({theme: 'bootstrap-5', placeholder: 'Choose client', allowClear: true});
   $("#id_lead_unit").select2({theme: 'bootstrap-5', placeholder: 'Choose a lead unit', allowClear: true});
   $("#id_proposal_lead").select2({theme: 'bootstrap-5', placeholder: 'Choose a proposal lead', allowClear: true});
   $("#id_lead_institute").select2({theme: 'bootstrap-5', placeholder: 'Choose a lead organization', allowClear: true});
