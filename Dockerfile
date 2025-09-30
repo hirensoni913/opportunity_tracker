@@ -2,8 +2,8 @@
 FROM python:3.13-slim AS builder
 
 # Set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
 
 # RUN apt-get update && apt-get install -y \
@@ -26,16 +26,16 @@ RUN pip install --no-cache-dir -r requirements.txt
 FROM python:3.13-slim
 
 # Set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
 RUN apt-get update && apt-get install -y \
     libpango-1.0-0 \
     libpangoft2-1.0-0 \
     libcairo2 \
-    libgdk-pixbuf2.0-0 \
+    libgdk-pixbuf-2.0-0 \
     libffi-dev \
-    libglib2.0-0 \                
+    libglib2.0-0 \
     fonts-liberation \
     fonts-dejavu-core \
     shared-mime-info \
@@ -56,6 +56,9 @@ WORKDIR /app
 # Copy application code
 COPY --chown=django_user . .
 
+# Make entry file executable (before switching to non-root user)
+RUN chmod +x /app/entrypoint.prod.sh
+
 # Set working directory to your Django project folder
 WORKDIR /app/opportunity_tracker
 
@@ -64,9 +67,6 @@ USER django_user
 
 # Expose the port the app runs on
 EXPOSE 8000
-
-# Make entry file executable
-RUN chmod +x /app/entrypoint.prod.sh
 
 # Start the application 
 CMD ["/app/entrypoint.prod.sh"]
