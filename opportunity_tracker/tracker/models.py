@@ -176,7 +176,7 @@ class Opportunity(models.Model):
     lead_institute = models.ForeignKey(
         Institute, on_delete=models.PROTECT, blank=True, null=True, related_name="Opportunities")
     partners = models.ManyToManyField(
-        Institute, related_name="partner_Opportunities")
+        Institute, related_name="partner_Opportunities", blank=True, null=True)
     submission_date = models.DateField(blank=True, null=True)
     currency = models.ForeignKey(
         Currency, on_delete=models.PROTECT, blank=True, null=True, related_name="Opportunities")
