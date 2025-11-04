@@ -1,10 +1,12 @@
 from urllib.parse import urljoin
 from celery import shared_task
 import datetime
+import zoneinfo
 
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils import timezone
 
 from notification.models import NotificationSubscription
 from notification.tasks import execute_channel_send
@@ -14,9 +16,11 @@ from .models import Opportunity
 
 @shared_task
 def send_weekly_summary(channel: str, days: int = 7):
+    # Convert to local timezone for display
+    local_time = timezone.now().astimezone(zoneinfo.ZoneInfo(settings.TIME_ZONE))
     print(
-        f"📬 Sending a weekly summary for the channel {channel} at {datetime.datetime.now()}")
-    date_from = datetime.datetime.now() - datetime.timedelta(days=days)
+        f"📬 Sending a weekly summary for the channel {channel} at {local_time}")
+    date_from = timezone.now() - datetime.timedelta(days=days)
     opportunities = Opportunity.objects.filter(
         created_at__gte=date_from, status=1).order_by('-created_at')
 
@@ -31,7 +35,7 @@ def send_weekly_summary(channel: str, days: int = 7):
     context = {
         'opportunities': opportunities,
         'date_from': date_from,
-        'date_to': datetime.datetime.now(),
+        'date_to': timezone.now(),
         'site_url': settings.SITE_URL,
     }
     email_message = render_to_string(
