@@ -3,6 +3,7 @@ from django.utils import timezone
 from .pdf_processor import PDFProcessor
 from tracker.models import Opportunity
 from .forms import OpportunityFilterForm
+from .models import ReportConfig
 
 
 def reports(request):
@@ -10,8 +11,24 @@ def reports(request):
 
 
 def get_opportunities(request):
+    # Load the report config for 'opportunity' to determine field visibility
+    try:
+        report_config = ReportConfig.objects.get(slug='opportunity')
+        field_config = report_config.config or {}
+    except ReportConfig.DoesNotExist:
+        field_config = {}
+
     form = OpportunityFilterForm(request.GET or None)
-    context = {'form': form}
+
+    # Hide fields that are not visible in the config (where value is False)
+    from django import forms
+    for field_name, is_visible in field_config.items():
+        if not is_visible and field_name in form.fields:
+            # Use HiddenInput to hide the field instead of deleting it
+            form.fields[field_name].widget = forms.HiddenInput()
+            form.fields[field_name].required = False
+
+    context = {'form': form, 'field_config': field_config}
 
     if form.is_valid():
         opp_type = form.cleaned_data.get("opp_type", None)
