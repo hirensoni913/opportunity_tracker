@@ -31,13 +31,25 @@ def _send_new_opportunity_notification(opportunity):
     opportunity = Opportunity.objects.get(id=opportunity.id)
 
     # Fetch "New Opportunity" Notification channel
-    channel = NotificationChannel.objects.get(
-        name=os.environ.get("NEW_OPPORTUNITY_ALERT_CHANNEL"))
+    channel_name = os.environ.get("NEW_OPPORTUNITY_ALERT_CHANNEL")
+    if not channel_name:
+        # No channel configured, skip notification
+        return None
+
+    try:
+        channel = NotificationChannel.objects.get(name=channel_name)
+    except NotificationChannel.DoesNotExist:
+        # Channel not found in database, skip notification silently
+        return None
 
     # Get all the active subscriptions
     subscriptions = NotificationSubscription.objects.filter(
         channel=channel, is_active=True)
     subscription_ids = list(subscriptions.values_list('id', flat=True))
+
+    if not subscription_ids:
+        # No active subscriptions, skip notification
+        return None
 
     relative_url = reverse('opportunity_anonymous', kwargs={
         'pk': opportunity.pk})
@@ -62,6 +74,10 @@ def _send_opportunity_update_notification(opportunity):
     subscriptions = OpportunitySubscription.objects.filter(
         opportunity=opportunity, is_active=True)
     subscription_ids = list(subscriptions.values_list('id', flat=True))
+
+    if not subscription_ids:
+        # No active subscriptions, skip notification
+        return None
 
     relative_url = reverse('opportunity_anonymous', kwargs={
         'pk': opportunity.pk})
