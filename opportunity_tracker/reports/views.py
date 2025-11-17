@@ -52,6 +52,9 @@ def get_opportunities(request):
         submission_date_from = form.cleaned_data.get(
             "submission_date_from", None)
         submission_date_to = form.cleaned_data.get("submission_date_to", None)
+        result_date_from = form.cleaned_data.get(
+            "result_date_from", None)
+        result_date_to = form.cleaned_data.get("result_date_to", None)
         created_from = form.cleaned_data.get("created_at_from", None)
         created_to = form.cleaned_data.get("created_at_to", None)
 
@@ -97,6 +100,12 @@ def get_opportunities(request):
         if submission_date_to:
             opportunities = opportunities.filter(
                 submission_date__lte=submission_date_to)
+        if result_date_from:
+            opportunities = opportunities.filter(
+                result_date__gte=result_date_from)
+        if result_date_to:
+            opportunities = opportunities.filter(
+                result_date__lte=result_date_to)
         if created_from:
             opportunities = opportunities.filter(created_at__gte=created_from)
         if created_to:
