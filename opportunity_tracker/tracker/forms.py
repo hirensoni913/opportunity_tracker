@@ -1,3 +1,4 @@
+import datetime
 from django.forms.widgets import Select
 from typing import Any, Mapping
 from django import forms
@@ -102,7 +103,8 @@ class UpdateOpportunityForm(forms.ModelForm):
         model = Opportunity
         fields = ['ref_no', 'title', 'funding_agency', 'client', 'opp_type', 'countries',
                   'due_date', 'clarification_date', 'intent_bid_date', 'duration_months', 'notes', 'status', 'currency', 'proposal_amount',
-                  'lead_unit', 'proposal_lead', 'submission_date', 'lead_institute', 'partners', 'submission_validity']
+                  'lead_unit', 'proposal_lead', 'submission_date', 'lead_institute', 'partners', 'submission_validity', 'result_note']
+        # Note: result_date is intentionally excluded - it's only managed via UpdateStatusForm
 
         widgets = {
             'ref_no': forms.TextInput(attrs={'readonly': 'readonly'}),
@@ -133,6 +135,9 @@ class UpdateOpportunityForm(forms.ModelForm):
                 if not cleaned_data.get("lead_institute"):
                     self.add_error("lead_institute",
                                    "Lead organization is required")
+
+        # Note: result_date validation is handled in UpdateStatusForm only
+        # It's not validated here because result_date is not part of this form's fields
 
         currency = cleaned_data.get("currency")
         proposal_amount = cleaned_data.get("proposal_amount")
@@ -189,10 +194,15 @@ class UpdateStatusForm(forms.ModelForm):
         (10, "N/A"),
         (11, "Transfer to RFP")
     ]
+    result_date = forms.DateField(required=False,
+                                  widget=forms.DateInput(
+                                      attrs={'class': 'form-control', 'type': 'date', 'max': datetime.date.today().isoformat(), 'placeholder': 'dd/mm/yyyy'})
+                                  )
 
     class Meta:
         model = Opportunity
-        fields = ['status', 'lead_unit', 'proposal_lead', 'result_note']
+        fields = ['status', 'lead_unit', 'proposal_lead',
+                  'result_note', 'result_date']
 
     status = forms.ChoiceField(
         widget=forms.RadioSelect, label="status", choices=OPP_STATUS, required=True, error_messages={'required': 'Select at least one option'})
@@ -202,6 +212,11 @@ class UpdateStatusForm(forms.ModelForm):
         self.fields['proposal_lead'].queryset = User.objects.all()
         self.fields['proposal_lead'].label_from_instance = lambda obj: f"{obj.first_name} {
             obj.last_name}" if obj.first_name and obj.last_name else obj.username
+        if self.instance and self.instance.pk:
+            submission_date = self.instance.submission_date
+            if submission_date:
+                self.fields['result_date'].widget.attrs['min'] = submission_date.isoformat(
+                )
 
     def clean(self):
         cleaned_data = super().clean()
@@ -213,6 +228,11 @@ class UpdateStatusForm(forms.ModelForm):
                 self.add_error("proposal_lead", "Proposal Lead is required")
             if not cleaned_data.get("lead_unit"):
                 self.add_error("lead_unit", "Lead Unit is required")
+
+        # Make the result_date mandatory if the status is 6, 7, 8 or 9
+        if status in (6, 7, 8, 9):
+            if not cleaned_data.get("result_date"):
+                self.add_error("result_date", "Result date is required")
 
         return cleaned_data
 
