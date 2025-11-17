@@ -54,6 +54,10 @@ class OpportunityFilterForm(forms.Form):
         required=False, widget=forms.DateInput(attrs={'type': 'date'}))
     submission_date_to = forms.DateField(
         required=False, widget=forms.DateInput(attrs={'type': 'date'}))
+    result_date_from = forms.DateField(
+        required=False, widget=forms.DateInput(attrs={'type': 'date'}))
+    result_date_to = forms.DateField(
+        required=False, widget=forms.DateInput(attrs={'type': 'date'}))
     currency = forms.ModelChoiceField(
         Currency.objects.all(), empty_label="All", required=False)
 
