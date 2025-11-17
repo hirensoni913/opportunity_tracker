@@ -194,6 +194,7 @@ class Opportunity(models.Model):
     )
     submission_validity = models.PositiveIntegerField(
         blank=True, null=True, validators=[MaxValueValidator(365)])
+    result_date = models.DateField(blank=True, null=True)
 
     class Meta:
         db_table = "opportunity"
