@@ -453,6 +453,115 @@ class OpportunityModelTest(TestCase):
         self.assertEqual(opportunity.proposal_lead, self.user)
         self.assertEqual(opportunity.lead_institute, self.institute)
 
+    def test_opportunity_result_date_field(self):
+        """Test result_date field can be set and retrieved."""
+        result_date_value = date(2024, 11, 15)
+        opportunity = Opportunity.objects.create(
+            ref_no="OPP-2024-010",
+            title="Result Date Test",
+            opp_type="RFP",
+            created_by=self.user,
+            status=6,  # Lost
+            result_date=result_date_value
+        )
+
+        self.assertEqual(opportunity.result_date, result_date_value)
+
+    def test_opportunity_result_date_null(self):
+        """Test result_date can be null."""
+        opportunity = Opportunity.objects.create(
+            ref_no="OPP-2024-011",
+            title="No Result Date",
+            opp_type="RFP",
+            created_by=self.user,
+            status=1  # Entered
+        )
+
+        self.assertIsNone(opportunity.result_date)
+
+    def test_opportunity_result_date_for_won_status(self):
+        """Test result_date with Won status."""
+        result_date_value = date(2024, 12, 1)
+        opportunity = Opportunity.objects.create(
+            ref_no="OPP-2024-012",
+            title="Won Opportunity",
+            opp_type="RFP",
+            created_by=self.user,
+            status=7,  # Won
+            submission_date=date(2024, 10, 1),
+            result_date=result_date_value
+        )
+
+        self.assertEqual(opportunity.result_date, result_date_value)
+        self.assertEqual(opportunity.status, 7)
+
+    def test_opportunity_result_date_for_cancelled_status(self):
+        """Test result_date with Cancelled status."""
+        result_date_value = date(2024, 11, 20)
+        opportunity = Opportunity.objects.create(
+            ref_no="OPP-2024-013",
+            title="Cancelled Opportunity",
+            opp_type="RFP",
+            created_by=self.user,
+            status=8,  # Cancelled
+            result_date=result_date_value
+        )
+
+        self.assertEqual(opportunity.result_date, result_date_value)
+
+    def test_opportunity_result_date_for_assumed_lost_status(self):
+        """Test result_date with Assumed Lost status."""
+        result_date_value = date(2024, 11, 25)
+        opportunity = Opportunity.objects.create(
+            ref_no="OPP-2024-014",
+            title="Assumed Lost Opportunity",
+            opp_type="RFP",
+            created_by=self.user,
+            status=9,  # Assumed Lost
+            result_date=result_date_value
+        )
+
+        self.assertEqual(opportunity.result_date, result_date_value)
+
+    def test_opportunity_update_result_date(self):
+        """Test updating result_date field."""
+        opportunity = Opportunity.objects.create(
+            ref_no="OPP-2024-015",
+            title="Update Result Date Test",
+            opp_type="RFP",
+            created_by=self.user,
+            status=6  # Lost
+        )
+
+        # Initially no result_date
+        self.assertIsNone(opportunity.result_date)
+
+        # Update with result_date
+        new_result_date = date(2024, 11, 10)
+        opportunity.result_date = new_result_date
+        opportunity.save()
+
+        # Reload from database
+        opportunity.refresh_from_db()
+        self.assertEqual(opportunity.result_date, new_result_date)
+
+    def test_opportunity_with_result_date_and_result_note(self):
+        """Test result_date and result_note together."""
+        result_date_value = date(2024, 11, 15)
+        result_note_value = "Lost due to budget constraints"
+        opportunity = Opportunity.objects.create(
+            ref_no="OPP-2024-016",
+            title="Result with Note",
+            opp_type="RFP",
+            created_by=self.user,
+            status=6,  # Lost
+            result_date=result_date_value,
+            result_note=result_note_value
+        )
+
+        self.assertEqual(opportunity.result_date, result_date_value)
+        self.assertEqual(opportunity.result_note, result_note_value)
+
 
 @override_settings(MEDIA_ROOT='/tmp/test_media/')
 class OpportunityFileModelTest(TestCase):

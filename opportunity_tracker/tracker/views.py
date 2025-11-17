@@ -307,21 +307,38 @@ class OpportunityStatusUpdateView(UpdateView):
         main_form = UpdateOpportunityForm(
             request.POST, request.FILES, instance=self.object)
 
-        if status_form.is_valid() and main_form.is_valid():
+        # Validate both forms separately to ensure both are checked
+        status_valid = status_form.is_valid()
+        main_valid = main_form.is_valid()
+
+        print(f"Status form valid: {status_valid}")
+        print(f"Status form errors: {status_form.errors}")
+        print(f"Main form valid: {main_valid}")
+        print(f"Main form errors: {main_form.errors}")
+
+        if status_valid and main_valid:
+            # Save the original result_date before any modifications
+            original_result_date = self.object.result_date
+
             # Update the main form fields first
             main_form.instance.updated_by = self.request.user
-            main_obj = main_form.save()
 
-            # Then update the status form fields (which are a subset of the opportunity model)
-            # Only keep status and status-specific fields from the status form
+            # Override with status form fields (these take precedence)
             status_obj = status_form.save(commit=False)
+            main_form.instance.status = status_obj.status
+            main_form.instance.lead_unit = status_obj.lead_unit
+            main_form.instance.proposal_lead = status_obj.proposal_lead
+            main_form.instance.result_note = status_obj.result_note
 
-            # Set the fields that are specific to status updates
-            main_obj.status = status_obj.status
-            main_obj.lead_unit = status_obj.lead_unit
-            main_obj.proposal_lead = status_obj.proposal_lead
-            main_obj.result_note = status_obj.result_note
-            main_obj.save()
+            # Only update result_date if it's provided in the status form
+            # Otherwise, preserve the original value
+            if status_obj.result_date is not None:
+                main_form.instance.result_date = status_obj.result_date
+            else:
+                main_form.instance.result_date = original_result_date
+
+            # Save the combined data
+            main_obj = main_form.save()
 
             # Handle file uploads from the main form
             files = self.request.FILES.getlist("files")

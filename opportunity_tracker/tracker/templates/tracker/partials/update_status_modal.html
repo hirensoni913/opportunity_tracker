@@ -3,9 +3,10 @@
 <form
   id="updateStatusForm"
   class="modal-content"
-  hx-post=""
+  hx-post="{% url 'udpate_status' opportunity.id %}?{{ request.GET.urlencode }}"
   hx-target="#dialog"
   hx-include="#opportunityForm"
+  novalidate
 >
   {% csrf_token %}
   <div class="modal-header">
@@ -65,7 +66,20 @@
           {%endif%}
         </div>
 
-        {% if form.status.value >= 5 and form.status.value <= 7 %}
+        <div class="mb-3" id="result_date_container">
+          <div class="form-floating">
+            {{update_status_form.result_date|add_class:"form-control"}}
+            <label for="result_date" class="form-label">Result Date</label>
+          </div>
+          {%if update_status_form.result_date.errors%}
+          <div class="text-danger">
+            {{update_status_form.result_date.errors|striptags}}
+          </div>
+          {%endif%}
+        </div>
+        {% with
+        selected_status=update_status_form.data.status|default:form.status.value
+        %} {% if selected_status|add:0 >= 5 and selected_status|add:0 <= 7 %}
         <div class="mb-3 form-floating col-12">
           {{update_status_form.result_note|add_class:"form-control"}}
           <label for="result_note" class="form-label">Comment</label>
@@ -74,7 +88,7 @@
         <div class="text-danger">
           {{update_status_form.result_note.errors|striptags}}
         </div>
-        {%endif%} {% endif %}
+        {%endif%} {% endif %} {% endwith %}
       </div>
     </div>
   </div>
@@ -117,14 +131,27 @@
           $("#confirmUpdateStatusButton").text("Update Result");
         }
 
+        // Show the result date field only for the statuses Lost, Won, Cancelled and Assumed Lost
+        if (["6", "7", "8", "9"].includes(selectedStatus)) {
+          $("#result_date_container").show();
+
+        } else {
+          $("#result_date_container").hide();
+
+        }
+
         // Update form action based on selected status
         updateFormAction();
       })
       .change();
+
+    // Also set the form action immediately when modal loads
+    updateFormAction();
   });
   function updateFormAction() {
     const form = document.getElementById('updateStatusForm');
     const selectedStatus = $("input[name='status']:checked").val();
+    const queryString = form.getAttribute('data-query-string');
 
     console.log("Updating form action. Selected status:", selectedStatus);
 
@@ -135,7 +162,9 @@
     } else {
       // For all other statuses, use the regular update URL
       console.log("Setting regular update URL");
-      form.setAttribute('hx-post', '{% url "udpate_status" opportunity.id %}?{{ request.GET.urlencode }}');
+      const baseUrl = '{% url "udpate_status" opportunity.id %}';
+      const fullUrl = queryString ? `${baseUrl}?${queryString}` : baseUrl;
+      form.setAttribute('hx-post', fullUrl);
     }
 
     console.log("Form action is now:", form.getAttribute('hx-post'));
@@ -177,7 +206,7 @@
         }
       });
     } else {
-      // For normal update, use HTMX
+      // For normal update, submit the form and let HTMX handle it
       console.log("Using HTMX for regular update");
       htmx.trigger('#updateStatusForm', 'submit');
     }

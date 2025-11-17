@@ -417,6 +417,178 @@ class OpportunityStatusUpdateViewTest(TestCase):
         self.assertIn((5, "Submitted"), response.context['filtered_status'])
         self.assertIn((6, "Lost"), response.context['filtered_status'])
 
+    def test_status_update_to_lost_requires_result_date(self):
+        """Test that updating status to Lost requires result_date."""
+        self.client.login(username='testuser', password='testpass123')
+        form_data = {
+            'ref_no': 'OPP-2024-STATUS',
+            'title': 'Status Test',
+            'opp_type': 'RFP',
+            'status': '6',  # Lost
+            'countries': [self.country.code],
+        }
+        response = self.client.post(
+            reverse('udpate_status', kwargs={'pk': self.opportunity.pk}),
+            data=form_data
+        )
+
+        # Form should be invalid without result_date, status doesn't change
+        self.assertEqual(response.status_code, 200)  # Returns form with errors
+        self.opportunity.refresh_from_db()
+        # Status should not change
+        self.assertEqual(self.opportunity.status, 1)
+
+    def test_status_update_to_won_requires_result_date(self):
+        """Test that updating status to Won requires result_date."""
+        self.client.login(username='testuser', password='testpass123')
+        self.opportunity.status = 5  # Submitted
+        self.opportunity.submission_date = date.today()
+        self.opportunity.save()
+
+        form_data = {
+            'ref_no': 'OPP-2024-STATUS',
+            'title': 'Status Test',
+            'opp_type': 'RFP',
+            'status': '7',  # Won
+            'countries': [self.country.code],
+        }
+        response = self.client.post(
+            reverse('udpate_status', kwargs={'pk': self.opportunity.pk}),
+            data=form_data
+        )
+
+        # Form should be invalid without result_date
+        self.assertEqual(response.status_code, 200)
+        self.opportunity.refresh_from_db()
+        self.assertEqual(self.opportunity.status, 5)  # Status unchanged
+
+    def test_status_update_to_cancelled_requires_result_date(self):
+        """Test that updating status to Cancelled requires result_date."""
+        self.client.login(username='testuser', password='testpass123')
+        self.opportunity.status = 5
+        self.opportunity.save()
+
+        form_data = {
+            'ref_no': 'OPP-2024-STATUS',
+            'title': 'Status Test',
+            'opp_type': 'RFP',
+            'status': '8',  # Cancelled
+            'countries': [self.country.code],
+        }
+        response = self.client.post(
+            reverse('udpate_status', kwargs={'pk': self.opportunity.pk}),
+            data=form_data
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.opportunity.refresh_from_db()
+        self.assertEqual(self.opportunity.status, 5)  # Status unchanged
+
+    def test_status_update_to_assumed_lost_requires_result_date(self):
+        """Test that updating status to Assumed Lost requires result_date."""
+        self.client.login(username='testuser', password='testpass123')
+        self.opportunity.status = 5
+        self.opportunity.save()
+
+        form_data = {
+            'ref_no': 'OPP-2024-STATUS',
+            'title': 'Status Test',
+            'opp_type': 'RFP',
+            'status': '9',  # Assumed Lost
+            'countries': [self.country.code],
+        }
+        response = self.client.post(
+            reverse('udpate_status', kwargs={'pk': self.opportunity.pk}),
+            data=form_data
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.opportunity.refresh_from_db()
+        self.assertEqual(self.opportunity.status, 5)  # Status unchanged
+
+    def test_status_update_to_lost_with_result_date_valid(self):
+        """Test that updating status to Lost with result_date is successful."""
+        self.client.login(username='testuser', password='testpass123')
+        # Need to set status to 5 first to allow transition to Lost
+        self.opportunity.status = 5
+        self.opportunity.submission_date = date.today()
+        self.opportunity.lead_unit = self.unit
+        self.opportunity.proposal_lead = self.user
+        self.opportunity.save()
+
+        result_date_value = date.today()
+        form_data = {
+            'ref_no': 'OPP-2024-STATUS',
+            'title': 'Status Test',
+            'opp_type': 'RFP',
+            'status': '6',  # Lost
+            'result_date': result_date_value.isoformat(),
+            'countries': [self.country.code],
+            'submission_date': date.today().isoformat(),
+            'proposal_lead': self.user.id,
+            'lead_unit': self.unit.id,
+        }
+        response = self.client.post(
+            reverse('udpate_status', kwargs={'pk': self.opportunity.pk}),
+            data=form_data
+        )
+
+        self.opportunity.refresh_from_db()
+        self.assertEqual(self.opportunity.status, 6)
+        self.assertEqual(self.opportunity.result_date, result_date_value)
+
+    def test_status_update_to_won_with_result_date_valid(self):
+        """Test that updating status to Won with result_date is successful."""
+        self.client.login(username='testuser', password='testpass123')
+        self.opportunity.status = 5
+        self.opportunity.submission_date = date.today() - timedelta(days=30)
+        self.opportunity.lead_unit = self.unit
+        self.opportunity.proposal_lead = self.user
+        self.opportunity.save()
+
+        result_date_value = date.today()
+        form_data = {
+            'ref_no': 'OPP-2024-STATUS',
+            'title': 'Status Test',
+            'opp_type': 'RFP',
+            'status': '7',  # Won
+            'result_date': result_date_value.isoformat(),
+            'countries': [self.country.code],
+            'submission_date': (date.today() - timedelta(days=30)).isoformat(),
+            'proposal_lead': self.user.id,
+            'lead_unit': self.unit.id,
+        }
+        response = self.client.post(
+            reverse('udpate_status', kwargs={'pk': self.opportunity.pk}),
+            data=form_data
+        )
+
+        self.opportunity.refresh_from_db()
+        self.assertEqual(self.opportunity.status, 7)
+        self.assertEqual(self.opportunity.result_date, result_date_value)
+
+    def test_status_update_to_go_does_not_require_result_date(self):
+        """Test that updating status to Go does not require result_date."""
+        self.client.login(username='testuser', password='testpass123')
+        form_data = {
+            'ref_no': 'OPP-2024-STATUS',
+            'title': 'Status Test',
+            'opp_type': 'RFP',
+            'status': '2',  # Go
+            'proposal_lead': self.user.id,
+            'lead_unit': self.unit.id,
+            'countries': [self.country.code],
+            # No result_date
+        }
+        response = self.client.post(
+            reverse('udpate_status', kwargs={'pk': self.opportunity.pk}),
+            data=form_data
+        )
+
+        self.opportunity.refresh_from_db()
+        self.assertEqual(self.opportunity.status, 2)
+        self.assertIsNone(self.opportunity.result_date)
+
 
 class OpportunitySubmitViewTest(TestCase):
     """Test cases for OpportunitySubmitView."""

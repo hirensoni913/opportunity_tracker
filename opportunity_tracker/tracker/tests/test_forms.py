@@ -270,6 +270,53 @@ class UpdateOpportunityFormTest(TestCase):
         label = form.fields['proposal_lead'].label_from_instance(self.user)
         self.assertEqual(label, "Test User")
 
+    def test_update_form_result_date_not_in_form_fields(self):
+        """Test that result_date is not part of UpdateOpportunityForm fields.
+        result_date is only managed through UpdateStatusForm."""
+        form = UpdateOpportunityForm(instance=self.opportunity)
+        self.assertNotIn('result_date', form.fields)
+
+    def test_update_form_result_date_not_required_for_entered_status(self):
+        """Test that result_date is not required for status 1 (Entered)."""
+        form_data = {
+            'ref_no': 'OPP-2024-TEST',
+            'title': 'Test',
+            'opp_type': 'RFP',
+            'status': 1,  # Entered
+            'countries': [self.country.code],
+        }
+        form = UpdateOpportunityForm(data=form_data, instance=self.opportunity)
+        self.assertTrue(form.is_valid())
+
+    def test_update_form_result_date_not_required_for_go_status(self):
+        """Test that result_date is not required for status 2 (Go)."""
+        form_data = {
+            'ref_no': 'OPP-2024-TEST',
+            'title': 'Test',
+            'opp_type': 'RFP',
+            'status': 2,  # Go
+            'countries': [self.country.code],
+            'proposal_lead': self.user.id,
+            'lead_unit': self.unit.id,
+        }
+        form = UpdateOpportunityForm(data=form_data, instance=self.opportunity)
+        self.assertTrue(form.is_valid())
+
+    def test_update_form_result_date_not_required_for_submitted_status(self):
+        """Test that result_date is not required for status 5 (Submitted)."""
+        form_data = {
+            'ref_no': 'OPP-2024-TEST',
+            'title': 'Test',
+            'opp_type': 'RFP',
+            'status': 5,  # Submitted
+            'countries': [self.country.code],
+            'proposal_lead': self.user.id,
+            'lead_unit': self.unit.id,
+            'submission_date': date.today().isoformat(),
+        }
+        form = UpdateOpportunityForm(data=form_data, instance=self.opportunity)
+        self.assertTrue(form.is_valid())
+
 
 class UpdateStatusFormTest(TestCase):
     """Test cases for UpdateStatusForm."""
@@ -314,6 +361,131 @@ class UpdateStatusFormTest(TestCase):
             form = UpdateStatusForm(data=form_data, instance=self.opportunity)
             # Note: We're only checking status validation here
             # Status 5 might fail in UpdateOpportunityForm due to submission_date
+
+    def test_status_form_result_date_required_for_lost_status(self):
+        """Test that result_date is required when status is 6 (Lost)."""
+        form_data = {
+            'status': '6',  # Lost
+        }
+        form = UpdateStatusForm(data=form_data, instance=self.opportunity)
+        self.assertFalse(form.is_valid())
+        self.assertIn('result_date', form.errors)
+        self.assertEqual(form.errors['result_date']
+                         [0], 'Result date is required')
+
+    def test_status_form_result_date_required_for_won_status(self):
+        """Test that result_date is required when status is 7 (Won)."""
+        form_data = {
+            'status': '7',  # Won
+        }
+        form = UpdateStatusForm(data=form_data, instance=self.opportunity)
+        self.assertFalse(form.is_valid())
+        self.assertIn('result_date', form.errors)
+        self.assertEqual(form.errors['result_date']
+                         [0], 'Result date is required')
+
+    def test_status_form_result_date_required_for_cancelled_status(self):
+        """Test that result_date is required when status is 8 (Cancelled)."""
+        form_data = {
+            'status': '8',  # Cancelled
+        }
+        form = UpdateStatusForm(data=form_data, instance=self.opportunity)
+        self.assertFalse(form.is_valid())
+        self.assertIn('result_date', form.errors)
+        self.assertEqual(form.errors['result_date']
+                         [0], 'Result date is required')
+
+    def test_status_form_result_date_required_for_assumed_lost_status(self):
+        """Test that result_date is required when status is 9 (Assumed Lost)."""
+        form_data = {
+            'status': '9',  # Assumed Lost
+        }
+        form = UpdateStatusForm(data=form_data, instance=self.opportunity)
+        self.assertFalse(form.is_valid())
+        self.assertIn('result_date', form.errors)
+        self.assertEqual(form.errors['result_date']
+                         [0], 'Result date is required')
+
+    def test_status_form_result_date_valid_for_lost_status(self):
+        """Test that form is valid when result_date is provided for Lost status."""
+        form_data = {
+            'status': '6',  # Lost
+            'result_date': date.today().isoformat(),
+        }
+        form = UpdateStatusForm(data=form_data, instance=self.opportunity)
+        self.assertTrue(form.is_valid())
+
+    def test_status_form_result_date_valid_for_won_status(self):
+        """Test that form is valid when result_date is provided for Won status."""
+        form_data = {
+            'status': '7',  # Won
+            'result_date': date.today().isoformat(),
+        }
+        form = UpdateStatusForm(data=form_data, instance=self.opportunity)
+        self.assertTrue(form.is_valid())
+
+    def test_status_form_result_date_valid_for_cancelled_status(self):
+        """Test that form is valid when result_date is provided for Cancelled status."""
+        form_data = {
+            'status': '8',  # Cancelled
+            'result_date': date.today().isoformat(),
+        }
+        form = UpdateStatusForm(data=form_data, instance=self.opportunity)
+        self.assertTrue(form.is_valid())
+
+    def test_status_form_result_date_valid_for_assumed_lost_status(self):
+        """Test that form is valid when result_date is provided for Assumed Lost status."""
+        form_data = {
+            'status': '9',  # Assumed Lost
+            'result_date': date.today().isoformat(),
+        }
+        form = UpdateStatusForm(data=form_data, instance=self.opportunity)
+        self.assertTrue(form.is_valid())
+
+    def test_status_form_result_date_not_required_for_go_status(self):
+        """Test that result_date is not required for status 2 (Go)."""
+        form_data = {
+            'status': '2',  # Go
+            'proposal_lead': self.user.id,
+            'lead_unit': self.unit.id,
+        }
+        form = UpdateStatusForm(data=form_data, instance=self.opportunity)
+        self.assertTrue(form.is_valid())
+
+    def test_status_form_result_date_not_required_for_no_go_status(self):
+        """Test that result_date is not required for status 3 (NO-Go)."""
+        form_data = {
+            'status': '3',  # NO-Go
+        }
+        form = UpdateStatusForm(data=form_data, instance=self.opportunity)
+        self.assertTrue(form.is_valid())
+
+    def test_status_form_result_date_not_required_for_consider_status(self):
+        """Test that result_date is not required for status 4 (Consider)."""
+        form_data = {
+            'status': '4',  # Consider
+        }
+        form = UpdateStatusForm(data=form_data, instance=self.opportunity)
+        self.assertTrue(form.is_valid())
+
+    def test_status_form_result_date_min_value_with_submission_date(self):
+        """Test that result_date min attribute is set based on submission_date."""
+        self.opportunity.submission_date = date(2024, 1, 15)
+        self.opportunity.save()
+
+        form = UpdateStatusForm(instance=self.opportunity)
+        self.assertEqual(
+            form.fields['result_date'].widget.attrs['min'],
+            '2024-01-15'
+        )
+
+    def test_status_form_result_date_max_value_is_today(self):
+        """Test that result_date max attribute is set to today."""
+        form = UpdateStatusForm(instance=self.opportunity)
+        self.assertEqual(
+            form.fields['result_date'].widget.attrs['max'],
+            date.today().isoformat()
+        )
 
 
 class SubmitProposalFormTest(TestCase):
