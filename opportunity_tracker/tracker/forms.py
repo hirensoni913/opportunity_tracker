@@ -276,6 +276,10 @@ class OpportunitySearchForm(forms.Form):
         choices=[('', '')] + Opportunity.OPP_TYPE, required=False, label="Type")
     country = forms.ModelChoiceField(
         queryset=Country.objects.all(), required=False, label="Country")
+    is_noncompetitive = forms.ChoiceField(
+        choices=[('', 'Both'), (True, 'Non-competitive'),
+                 (False, 'Competitive')],
+        required=False, label="Competition Type")
     is_subscribed = forms.BooleanField(
         required=False, label="My Subscribed Opportunities",
         widget=forms.CheckboxInput(attrs={

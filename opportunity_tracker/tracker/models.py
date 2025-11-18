@@ -195,7 +195,8 @@ class Opportunity(models.Model):
     submission_validity = models.PositiveIntegerField(
         blank=True, null=True, validators=[MaxValueValidator(365)])
     result_date = models.DateField(blank=True, null=True)
-    is_noncompetitive = models.BooleanField(blank=True, null=True)
+    is_noncompetitive = models.BooleanField(
+        blank=True, null=True, default=False)
 
     class Meta:
         db_table = "opportunity"

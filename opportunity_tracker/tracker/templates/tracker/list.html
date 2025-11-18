@@ -47,6 +47,10 @@
             {{form.country|add_class:"form-select"}}
           </div>
         </div>
+        <div class="form-floating col-md-4">
+          {{form.is_noncompetitive|add_class:"form-select"}}
+          <label for="is_noncompetitive" class="form-label">Competition Type</label>
+        </div>
         <div class="col-md-4">
           <div class="form-check form-switch">
             {{form.is_subscribed}}
