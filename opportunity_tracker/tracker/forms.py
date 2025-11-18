@@ -88,14 +88,6 @@ class UpdateOpportunityForm(forms.ModelForm):
         queryset=FundingAgency.objects.all(), required=False)
     client = ClientChoiceField(
         queryset=Client.objects.all(), required=False)
-    # submission_date = forms.DateField(required=True,
-    #                                   error_messages={
-    #                                       'required': 'Please provide a submission date'},
-    #                                   widget=forms.DateInput(
-    #                                       attrs={'class': 'form-control', 'type': 'date'})
-    #                                   )
-    # lead_institute = forms.ModelChoiceField(
-    #     queryset=Institute.objects.all(), required=True, label="Lead Organization", error_messages={'required': 'Select a Lead Organization'})
 
     partners = forms.ModelMultipleChoiceField(
         queryset=Institute.objects.all(), required=False, label="Partners")
@@ -104,7 +96,7 @@ class UpdateOpportunityForm(forms.ModelForm):
         model = Opportunity
         fields = ['ref_no', 'title', 'funding_agency', 'client', 'opp_type', 'countries',
                   'due_date', 'clarification_date', 'intent_bid_date', 'duration_months', 'notes', 'status', 'currency', 'proposal_amount',
-                  'lead_unit', 'proposal_lead', 'submission_date', 'lead_institute', 'partners', 'submission_validity', 'result_note']
+                  'lead_unit', 'proposal_lead', 'submission_date', 'lead_institute', 'partners', 'submission_validity', 'result_note', 'is_noncompetitive']
         # Note: result_date is intentionally excluded - it's only managed via UpdateStatusForm
 
         widgets = {
@@ -114,6 +106,7 @@ class UpdateOpportunityForm(forms.ModelForm):
             'intent_bid_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'submission_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'files': forms.ClearableFileInput(),
+            'is_noncompetitive': forms.CheckboxInput(attrs={'class': 'form-check-input', 'role': 'switch'})
         }
 
     def clean(self) -> dict[str, Any]:

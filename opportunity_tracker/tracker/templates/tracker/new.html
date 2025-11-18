@@ -343,11 +343,11 @@ $(document).ready(function() {
       if ($nonCompetitiveSwitch.is(':checked')) {
         // Store current value before changing
         originalOppType = $oppTypeSelect.val();
-        // Set to RFP and disable
-        $oppTypeSelect.val('RFP').prop('disabled', true);
+        // Set to RFP and make it look disabled but keep enabled for form submission
+        $oppTypeSelect.val('RFP').css('pointer-events', 'none').css('opacity', '0.6');
       } else {
         // Re-enable and restore original value
-        $oppTypeSelect.prop('disabled', false).val(originalOppType);
+        $oppTypeSelect.css('pointer-events', 'auto').css('opacity', '1').val(originalOppType);
       }
     }
     
