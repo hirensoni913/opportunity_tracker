@@ -43,13 +43,14 @@ class OpportunityForm(forms.ModelForm):
     class Meta:
         model = Opportunity
         fields = ['ref_no', 'title', 'funding_agency', 'client', 'opp_type', 'countries',
-                  'due_date', 'clarification_date', 'intent_bid_date',  'duration_months', 'notes', 'status', 'currency', 'proposal_amount']
+                  'due_date', 'clarification_date', 'intent_bid_date',  'duration_months', 'notes', 'status', 'currency', 'proposal_amount', 'is_noncompetitive']
 
         widgets = {
             'due_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'clarification_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'intent_bid_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'files': forms.ClearableFileInput(),
+            'is_noncompetitive': forms.CheckboxInput(attrs={'class': 'form-check-input', 'role': 'switch'})
         }
 
     def __init__(self, *args, **kwargs):
