@@ -46,11 +46,15 @@ class OpportunityForm(forms.ModelForm):
                   'due_date', 'clarification_date', 'intent_bid_date',  'duration_months', 'notes', 'status', 'currency', 'proposal_amount', 'is_noncompetitive']
 
         widgets = {
+            'ref_no': forms.TextInput(attrs={'placeholder': 'Enter reference number'}),
             'due_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'clarification_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'intent_bid_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'files': forms.ClearableFileInput(),
-            'is_noncompetitive': forms.CheckboxInput(attrs={'class': 'form-check-input', 'role': 'switch'})
+            'is_noncompetitive': forms.CheckboxInput(attrs={'class': 'form-check-input', 'role': 'switch'}),
+            'duration_months': forms.TextInput(attrs={'placeholder': 'Enter duration in months'}),
+            'proposal_amount': forms.TextInput(attrs={'placeholder': 'Enter proposal amount'}),
+            'notes': forms.TextInput(attrs={'placeholder': 'Enter additional notes'})
         }
 
     def __init__(self, *args, **kwargs):
@@ -79,8 +83,11 @@ class OpportunityForm(forms.ModelForm):
         return cleaned_data
 
     status = forms.IntegerField(initial=1, widget=forms.HiddenInput())
-    title = forms.CharField(required=True, error_messages={
-                            "required": "Title is required"})
+    title = forms.CharField(
+        required=True,
+        error_messages={"required": "Title is required"},
+        widget=forms.TextInput(attrs={'placeholder': 'Enter title'})
+    )
 
 
 class UpdateOpportunityForm(forms.ModelForm):
@@ -100,13 +107,17 @@ class UpdateOpportunityForm(forms.ModelForm):
         # Note: result_date is intentionally excluded - it's only managed via UpdateStatusForm
 
         widgets = {
-            'ref_no': forms.TextInput(attrs={'readonly': 'readonly'}),
+            'ref_no': forms.TextInput(attrs={'readonly': 'readonly', 'placeholder': 'Enter reference number'}),
             'due_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'clarification_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'intent_bid_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'submission_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'files': forms.ClearableFileInput(),
-            'is_noncompetitive': forms.CheckboxInput(attrs={'class': 'form-check-input', 'role': 'switch'})
+            'is_noncompetitive': forms.CheckboxInput(attrs={'class': 'form-check-input', 'role': 'switch'}),
+            'duration_months': forms.TextInput(attrs={'placeholder': 'Enter duration in months'}),
+            'proposal_amount': forms.TextInput(attrs={'placeholder': 'Enter proposal amount'}),
+            'notes': forms.TextInput(attrs={'placeholder': 'Enter additional notes'}),
+            'submission_validity': forms.NumberInput(attrs={'placeholder': 'Enter validity days'})
         }
 
     def clean(self) -> dict[str, Any]:
@@ -143,7 +154,7 @@ class UpdateOpportunityForm(forms.ModelForm):
         return cleaned_data
 
     title = forms.CharField(required=True, error_messages={
-                            "required": "Title is required"})
+                            "required": "Title is required"}, widget=forms.TextInput(attrs={'placeholder': 'Enter title'}))
 
     def __init__(self, *args, **kwargs):
         from django.urls import reverse
@@ -198,6 +209,10 @@ class UpdateStatusForm(forms.ModelForm):
         fields = ['status', 'lead_unit', 'proposal_lead',
                   'result_note', 'result_date']
 
+        widgets = {
+            'result_note': forms.TextInput(attrs={'placeholder': 'Enter notes'})
+        }
+
     status = forms.ChoiceField(
         widget=forms.RadioSelect, label="status", choices=OPP_STATUS, required=True, error_messages={'required': 'Select at least one option'})
 
@@ -248,6 +263,9 @@ class SubmitProposalForm(forms.ModelForm):
         model = Opportunity
         fields = ['status', 'lead_institute', 'partners',
                   'submission_date', 'submission_validity']
+        widgets = {
+            'submission_validity': forms.NumberInput(attrs={'placeholder': 'Enter validity days'})
+        }
 
 
 class OpportunityDetailForm(forms.ModelForm):
@@ -263,8 +281,13 @@ class OpportunityDetailAnonymousForm(forms.ModelForm):
 
 
 class OpportunitySearchForm(forms.Form):
-    ref_no = forms.CharField(required=False, label='Ref#')
-    title = forms.CharField(required=False, label='Title')
+    ref_no = forms.CharField(
+        required=False,
+        label='Ref#',
+        widget=forms.TextInput(attrs={'placeholder': 'Enter reference number'})
+    )
+    title = forms.CharField(required=False, label='Title', widget=forms.TextInput(
+        attrs={'placeholder': 'Enter title'}))
 
     funding_agency = FundingAgencyChoiceField(
         queryset=FundingAgency.objects.all(), required=False, label="Funding Agency")
@@ -305,8 +328,18 @@ class FundingAgencyForm(forms.ModelForm):
         model = FundingAgency
         fields = ["code", "name"]
 
+        widgets = {
+            'code': forms.TextInput(attrs={'placeholder': 'Enter code'}),
+            'name': forms.TextInput(attrs={'placeholder': 'Enter name'})
+        }
+
 
 class ClientForm(forms.ModelForm):
     class Meta:
         model = Client
         fields = ["code", "name", "client_type"]
+
+        widgets = {
+            'code': forms.TextInput(attrs={'placeholder': 'Enter code'}),
+            'name': forms.TextInput(attrs={'placeholder': 'Enter name'})
+        }
