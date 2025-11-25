@@ -7,7 +7,7 @@
 >
   <div class="row g-3">
     {% if form.opp_type.field.widget.input_type != 'hidden' %}
-    <div class="form-floating col-md-4">
+    <div class="form-floating col-md-3">
       {{form.opp_type|add_class:"form-select"}}
       <label for="opp_type" class="form-label">Type</label>
       {%if form.opp_type.errors%}
@@ -15,7 +15,7 @@
       {%endif%}
     </div>
     {% endif %} {% if form.status.field.widget.input_type != 'hidden' %}
-    <div class="form-floating col-md-4">
+    <div class="form-floating col-md-3">
       {{form.status|add_class:"form-select"}}
       <label for="status" class="form-label">Status</label>
       {%if form.status.errors%}
@@ -23,11 +23,20 @@
       {%endif%}
     </div>
     {% endif %} {% if form.currency.field.widget.input_type != 'hidden' %}
-    <div class="form-floating col-md-4">
+    <div class="form-floating col-md-3">
       {{form.currency|add_class:"form-select"}}
       <label for="currency" class="form-label">Currency</label>
       {%if form.currency.errors%}
       <div class="text-danger">{{form.currency.errors|striptags}}</div>
+      {%endif%}
+    </div>
+    {% endif %} {% if form.is_noncompetitive.field.widget.input_type != 'hidden'
+    %}
+    <div class="form-floating col-md-3">
+      {{form.is_noncompetitive|add_class:"form-select"}}
+      <label for="is_noncompetitive" class="form-label">Competition Type</label>
+      {%if form.is_noncompetitive.errors%}
+      <div class="text-danger">{{form.is_noncompetitive.errors|striptags}}</div>
       {%endif%}
     </div>
     {% endif %} {% if form.client.field.widget.input_type != 'hidden' %}
@@ -183,14 +192,10 @@
     </div>
     {% endif %} {% if form.result_date_to.field.widget.input_type != 'hidden' %}
     <div class="form-floating col-md-6">
-      {{form.submission_date_to|add_class:"form-control"}}
-      <label for="submission_date_to" class="form-label"
-        >Submission Date To</label
-      >
-      {%if form.submission_date_to.errors%}
-      <div class="text-danger">
-        {{form.submission_date_to.errors|striptags}}
-      </div>
+      {{form.result_date_to|add_class:"form-control"}}
+      <label for="result_date_to" class="form-label">Result Date To</label>
+      {%if form.result_date_to.errors%}
+      <div class="text-danger">{{form.result_date_to.errors|striptags}}</div>
       {%endif%}
     </div>
     {% endif %} {% if form.created_at_from.field.widget.input_type != 'hidden'

@@ -67,6 +67,8 @@ class OpportunityListView(ListView):
             opp_type = form.cleaned_data.get('opp_type', None)
             country = form.cleaned_data.get('country', None)
             is_subscribed = form.cleaned_data.get('is_subscribed', None)
+            is_noncompetitive = form.cleaned_data.get(
+                'is_noncompetitive', None)
 
             if ref_no:
                 opportunities = opportunities.filter(ref_no__icontains=ref_no)
@@ -83,6 +85,9 @@ class OpportunityListView(ListView):
                 opportunities = opportunities.filter(opp_type=opp_type)
             if country:
                 opportunities = opportunities.filter(countries=country)
+            if is_noncompetitive:
+                opportunities = opportunities.filter(
+                    is_noncompetitive=is_noncompetitive)
             if is_subscribed:
                 subscriptions = OpportunitySubscription.objects.filter(
                     user=self.request.user,

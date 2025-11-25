@@ -20,6 +20,12 @@ class OpportunityFilterForm(forms.Form):
         (9, "Assumed Lost"),
         (10, "N/A"),
     ]
+    COMPETITION_TYPE = [
+        (None, "All"),
+        (False, "Competitive"),
+        (True, "Non-Competitive")
+    ]
+
     opp_type = forms.ChoiceField(choices=OPP_TYPE, required=False)
     due_date_from = forms.DateField(
         required=False, widget=forms.DateInput(attrs={'type': 'date'}))
@@ -60,6 +66,9 @@ class OpportunityFilterForm(forms.Form):
         required=False, widget=forms.DateInput(attrs={'type': 'date'}))
     currency = forms.ModelChoiceField(
         Currency.objects.all(), empty_label="All", required=False)
+    is_noncompetitive = forms.ChoiceField(
+        choices=COMPETITION_TYPE, required=False
+    )
 
     def __init__(self, *args, **kwargs):
         super(OpportunityFilterForm, self).__init__(*args, **kwargs)

@@ -8,6 +8,14 @@
     color: #555;
   }
 
+  {% if footnote %}
+    @bottom-center {
+      content: "{{ footnote|escapejs }}";
+      font-size: 10px;
+      color: #000;
+    }
+  {% endif %}
+  
   @bottom-right {
     content: "Page " counter(page) " of " counter(pages);
     font-size: 10px;
