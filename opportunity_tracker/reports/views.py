@@ -29,6 +29,7 @@ def get_opportunities(request):
             form.fields[field_name].required = False
 
     context = {'form': form, 'field_config': field_config}
+    subtitle = []
 
     if form.is_valid():
         opp_type = form.cleaned_data.get("opp_type", None)
@@ -63,61 +64,101 @@ def get_opportunities(request):
 
         if opp_type:
             opportunities = opportunities.filter(opp_type=opp_type)
+            subtitle.append("Type: " + opp_type)
         if status:
             opportunities = opportunities.filter(status=status)
+            # Get the human-readable status label
+            status_display = dict(Opportunity.OPP_STATUS).get(
+                int(status), status)
+            subtitle.append("Status: " + str(status_display))
         if currency:
             opportunities = opportunities.filter(currency=currency)
+            subtitle.append("Currency: " + str(currency))
         if client:
             opportunities = opportunities.filter(client=client)
+            subtitle.append("Client: " + client.code)
         if funding_agency:
             opportunities = opportunities.filter(funding_agency=funding_agency)
+            subtitle.append("Funding Agency: " + funding_agency.code)
         if lead_unit:
             opportunities = opportunities.filter(lead_unit=lead_unit)
+            subtitle.append("Lead Unit: " + lead_unit.code)
         if lead_institute:
             opportunities = opportunities.filter(lead_institute=lead_institute)
+            subtitle.append("Lead Institute: " + lead_institute.code)
         if proposal_lead:
             opportunities = opportunities.filter(proposal_lead=proposal_lead)
+            subtitle.append(
+                "Proposal Lead: " + proposal_lead.first_name + ' ' + proposal_lead.last_name)
         if created_by:
             opportunities = opportunities.filter(created_by=created_by)
+            subtitle.append(
+                "Created by: " + created_by.first_name + ' ' + created_by.last_name)
         if due_date_from:
             opportunities = opportunities.filter(due_date__gte=due_date_from)
+            subtitle.append("Due date from: " +
+                            due_date_from.strftime("%d.%m.%Y"))
         if due_date_to:
             opportunities = opportunities.filter(due_date__lte=due_date_to)
+            subtitle.append("Due date to: " +
+                            due_date_to.strftime("%d.%m.%Y"))
         if clarification_date_from:
             opportunities = opportunities.filter(
                 clarification_date__gte=clarification_date_from)
+            subtitle.append("Clarification date from: " +
+                            clarification_date_from.strftime("%d.%m.%Y"))
         if clarification_date_to:
             opportunities = opportunities.filter(
                 clarification_date__lte=clarification_date_to)
+            subtitle.append("Clarification date to: " +
+                            clarification_date_to.strftime("%d.%m.%Y"))
         if intent_bid_date_from:
             opportunities = opportunities.filter(
                 intent_bid_date__gte=intent_bid_date_from)
+            subtitle.append("Intent to bid from: " +
+                            intent_bid_date_from.strftime("%d.%m.%Y"))
         if intent_bid_date_to:
             opportunities = opportunities.filter(
                 intent_bid_date__lte=intent_bid_date_to)
+            subtitle.append("Intent to bid to: " +
+                            intent_bid_date_to.strftime("%d.%m.%Y"))
         if submission_date_from:
             opportunities = opportunities.filter(
                 submission_date__gte=submission_date_from)
+            subtitle.append("Submission date from: " +
+                            submission_date_from.strftime("%d.%m.%Y"))
         if submission_date_to:
             opportunities = opportunities.filter(
                 submission_date__lte=submission_date_to)
+            subtitle.append("Submission date to: " +
+                            submission_date_to.strftime("%d.%m.%Y"))
         if result_date_from:
             opportunities = opportunities.filter(
                 result_date__gte=result_date_from)
+            subtitle.append("Result date from: " +
+                            result_date_from.strftime("%d.%m.%Y"))
         if result_date_to:
             opportunities = opportunities.filter(
                 result_date__lte=result_date_to)
+            subtitle.append("Result date to: " +
+                            result_date_to.strftime("%d.%m.%Y"))
         if created_from:
             opportunities = opportunities.filter(created_at__gte=created_from)
+            subtitle.append("Created date from: " +
+                            created_from.strftime("%d.%m.%Y"))
         if created_to:
             opportunities = opportunities.filter(created_at__lte=created_to)
+            subtitle.append("Created date to: " +
+                            created_to.strftime("%d.%m.%Y"))
         if is_noncompetitive:
             opportunities = opportunities.filter(
                 is_noncompetitive=is_noncompetitive)
+            subtitle.append(
+                "Competition Type: " + ("Non-Competitive" if is_noncompetitive == "True" else "Competitive"))
 
         template = "reports/report_templates/opportunities.html"
         response = PDFProcessor.process(
-            request, template, opportunities, footnote="Opportunities in light green are non competitive", filename="Opportunities.pdf")
+            request, template, opportunities, subtitle=" | ".join(subtitle),  footnote="Opportunities in green are non competitive", filename="Opportunities.pdf")
         return response
 
     return render(request, "reports/opportunities.html", context)

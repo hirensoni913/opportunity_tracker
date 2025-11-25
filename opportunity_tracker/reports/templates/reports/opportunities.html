@@ -192,14 +192,10 @@
     </div>
     {% endif %} {% if form.result_date_to.field.widget.input_type != 'hidden' %}
     <div class="form-floating col-md-6">
-      {{form.submission_date_to|add_class:"form-control"}}
-      <label for="submission_date_to" class="form-label"
-        >Submission Date To</label
-      >
-      {%if form.submission_date_to.errors%}
-      <div class="text-danger">
-        {{form.submission_date_to.errors|striptags}}
-      </div>
+      {{form.result_date_to|add_class:"form-control"}}
+      <label for="result_date_to" class="form-label">Result Date To</label>
+      {%if form.result_date_to.errors%}
+      <div class="text-danger">{{form.result_date_to.errors|striptags}}</div>
       {%endif%}
     </div>
     {% endif %} {% if form.created_at_from.field.widget.input_type != 'hidden'
