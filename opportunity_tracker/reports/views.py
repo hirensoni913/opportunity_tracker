@@ -57,6 +57,7 @@ def get_opportunities(request):
         result_date_to = form.cleaned_data.get("result_date_to", None)
         created_from = form.cleaned_data.get("created_at_from", None)
         created_to = form.cleaned_data.get("created_at_to", None)
+        is_noncompetitive = form.cleaned_data.get("is_noncompetitive", None)
 
         opportunities = Opportunity.objects.all().order_by("-created_at")
 
@@ -110,14 +111,13 @@ def get_opportunities(request):
             opportunities = opportunities.filter(created_at__gte=created_from)
         if created_to:
             opportunities = opportunities.filter(created_at__lte=created_to)
-
-        # return render(request, "reports/report_templates/opportunities.html", {
-        #     "data": opportunities
-        # })
+        if is_noncompetitive:
+            opportunities = opportunities.filter(
+                is_noncompetitive=is_noncompetitive)
 
         template = "reports/report_templates/opportunities.html"
         response = PDFProcessor.process(
-            request, template, opportunities, filename="Opportunities.pdf")
+            request, template, opportunities, footnote="Opportunities in light green are non competitive", filename="Opportunities.pdf")
         return response
 
     return render(request, "reports/opportunities.html", context)

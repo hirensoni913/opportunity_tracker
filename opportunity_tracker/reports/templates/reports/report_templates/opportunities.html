@@ -28,7 +28,15 @@
   </thead>
   <tbody>
     {% for opportunity in data %}
-    <tr>
+    <tr
+      {%
+      if
+      opportunity.is_noncompetitive
+      %}style="background-color: #e2fce3ff;"
+      {%
+      endif
+      %}
+    >
       <td>{{ forloop.counter }}</td>
       <td>{{ opportunity.ref_no }}</td>
       <td>{{ opportunity.title }}</td>
