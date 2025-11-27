@@ -22,6 +22,11 @@
       >{{form.instance.get_status_display}}</span
     >
   </div>
+  {% if form.instance.is_noncompetitive %}
+    <div class="text-center">
+      <span class="text-success fw-bold">This is a non-competitive opportunity</span>
+    </div>
+    {% endif %}
   <div class="detail-item">
     <span class="detail-label">Reference No:</span>
     <span class="detail-value">{{form.ref_no.value}}</span>

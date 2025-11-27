@@ -1,4 +1,4 @@
-{% extends "core/base.html" %} {% block title %}Opportunities{% endblock title %}
+{% extends "core/base.html" %} {% block title %}Create a new opportunity{% endblock title %}
 {%block content %}
 {% load form_tags %}
 {% load file_filters %}
@@ -31,6 +31,21 @@
         <input type="hidden" name="source_id" value="{{ request.GET.source_id }}">
       {% endif %}
       {{form.status}}
+
+      <div class="col-md-12 p-3 mb-2 bg-light border rounded">
+        <div class="form-check form-switch">
+          {{ form.is_noncompetitive }}
+          <label class="form-check-label fw-bold" for="is_noncompetitive">
+              This is a non-competitive opportunity
+          </label>
+          {% if form.is_noncompetitive.errors %}
+              <div class="text-danger">
+                  {{ form.is_noncompetitive.errors|striptags }}
+              </div>
+          {% endif %}
+        </div>
+      </div>
+      
       <div class="form-floating col-md-3">
         {{form.ref_no|add_class:"form-control"}}
         <label for="ref_no" class="form-label">Ref# *</label>
@@ -314,6 +329,35 @@ function handleHTMXAfterRequest(event) {
 
 // Attach the event listener globally, ensuring it's only added once
 document.addEventListener("htmx:afterRequest", handleHTMXAfterRequest);
+
+// Handle non-competitive switch behavior
+$(document).ready(function() {
+  const $nonCompetitiveSwitch = $('#id_is_noncompetitive');
+  const $oppTypeSelect = $('#id_opp_type');
+  
+  if ($nonCompetitiveSwitch.length && $oppTypeSelect.length) {
+    // Store the original value
+    let originalOppType = $oppTypeSelect.val();
+    
+    function handleSwitchChange() {
+      if ($nonCompetitiveSwitch.is(':checked')) {
+        // Store current value before changing
+        originalOppType = $oppTypeSelect.val();
+        // Set to RFP and make it look disabled but keep enabled for form submission
+        $oppTypeSelect.val('RFP').css('pointer-events', 'none').css('opacity', '0.6');
+      } else {
+        // Re-enable and restore original value
+        $oppTypeSelect.css('pointer-events', 'auto').css('opacity', '1').val(originalOppType);
+      }
+    }
+    
+    // Set initial state
+    handleSwitchChange();
+    
+    // Listen for changes
+    $nonCompetitiveSwitch.on('change', handleSwitchChange);
+  }
+});
 
 </script>
 {% endblock %}
