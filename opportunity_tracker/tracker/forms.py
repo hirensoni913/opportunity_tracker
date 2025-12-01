@@ -54,7 +54,7 @@ class OpportunityForm(forms.ModelForm):
             'is_noncompetitive': forms.CheckboxInput(attrs={'class': 'form-check-input', 'role': 'switch'}),
             'duration_months': forms.TextInput(attrs={'placeholder': 'Enter duration in months'}),
             'proposal_amount': forms.TextInput(attrs={'placeholder': 'Enter proposal amount'}),
-            'notes': forms.TextInput(attrs={'placeholder': 'Enter additional notes'})
+            'notes': forms.Textarea(attrs={'placeholder': 'Enter additional notes'})
         }
 
     def __init__(self, *args, **kwargs):
@@ -116,7 +116,7 @@ class UpdateOpportunityForm(forms.ModelForm):
             'is_noncompetitive': forms.CheckboxInput(attrs={'class': 'form-check-input', 'role': 'switch'}),
             'duration_months': forms.TextInput(attrs={'placeholder': 'Enter duration in months'}),
             'proposal_amount': forms.TextInput(attrs={'placeholder': 'Enter proposal amount'}),
-            'notes': forms.TextInput(attrs={'placeholder': 'Enter additional notes'}),
+            'notes': forms.Textarea(attrs={'placeholder': 'Enter additional notes'}),
             'submission_validity': forms.NumberInput(attrs={'placeholder': 'Enter validity days'})
         }
 
