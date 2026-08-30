@@ -1,6 +1,7 @@
-{% extends "reports/base_report.html" %} {% block title %}Financial Report{%
+{% extends "reports/base_report.html" %} {% block title %} Financial Report {%
 endblock title %} {% block page_style %} {% include "reports/page_landscape.css"
 %} {% load l10n %} {% endblock page_style %} {% block content %}
+
 <style>
   td,
   th {
@@ -10,7 +11,31 @@ endblock title %} {% block page_style %} {% include "reports/page_landscape.css"
   .total-row td {
     font-weight: bold;
   }
+
+  .report-row {
+    width: 100%;
+    margin-bottom: 25px;
+  }
+
+  .report-table {
+    width: 49%;
+    display: inline-block;
+    vertical-align: top;
+    margin-right: 1%;
+  }
+
+  .report-chart {
+    width: 49%;
+    display: inline-block;
+    vertical-align: top;
+  }
+
+  .report-chart img {
+    width: 100%;
+    height: auto;
+  }
 </style>
+
 <h1>
   Financial Report
   <hr />
@@ -27,58 +52,70 @@ endblock title %} {% block page_style %} {% include "reports/page_landscape.css"
   </small>
 </h1>
 
-<div style="width: 100%; white-space: nowrap">
-  <table
-    style="
-      width: 49%;
-      display: inline-table;
-      vertical-align: top;
-      margin-right: 1%;
-    "
-  >
-    <thead>
-      <tr>
-        <th style="text-align: left">Won</th>
-        <th>{{ context.two_years_ago|unlocalize }}</th>
-        <th>{{ context.previous_year|unlocalize }}</th>
-        <th>{{ context.current_year|unlocalize }} Projection</th>
-        <th>to {{ context.report_date|date:"d.m.Y" }}</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for row in data %}
-      <tr class="{% if row.agency_type == 'All' %}total-row{% endif %}">
-        <td style="text-align: left">{{ row.agency_type }}</td>
-        <td>{{ row.won_previous_year }}</td>
-        <td>{{ row.won_last_year }}</td>
-        <td>{{ row.won_projection }}</td>
-        <td>{{ row.won_to_date }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<!-- Won -->
+<div class="report-row">
+  <div class="report-table">
+    <table style="width: 100%">
+      <thead>
+        <tr>
+          <th style="text-align: left">Won</th>
+          <th>{{ context.two_years_ago|unlocalize }}</th>
+          <th>{{ context.previous_year|unlocalize }}</th>
+          <th>{{ context.current_year|unlocalize }} Projection</th>
+          <th>to {{ context.report_date|date:"d.m.Y" }}</th>
+        </tr>
+      </thead>
 
-  <table style="width: 49%; display: inline-table; vertical-align: top">
-    <thead>
-      <tr>
-        <th style="text-align: left">Submitted</th>
-        <th>{{ context.two_years_ago|unlocalize }}</th>
-        <th>{{ context.previous_year|unlocalize }}</th>
-        <th>{{ context.current_year|unlocalize }} Projection</th>
-        <th>to {{ context.report_date|date:"d.m.Y" }}</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for row in data %}
-      <tr class="{% if row.agency_type == 'All' %}total-row{% endif %}">
-        <td style="text-align: left">{{ row.agency_type }}</td>
-        <td>{{ row.submitted_previous_year }}</td>
-        <td>{{ row.submitted_last_year }}</td>
-        <td>{{ row.submitted_projection }}</td>
-        <td>{{ row.submitted_to_date }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+      <tbody>
+        {% for row in data %}
+        <tr class="{% if row.agency_type == 'All' %}total-row{% endif %}">
+          <td style="text-align: left">{{ row.agency_type }}</td>
+          <td>{{ row.won_previous_year }}</td>
+          <td>{{ row.won_last_year }}</td>
+          <td>{{ row.won_projection }}</td>
+          <td>{{ row.won_to_date }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="report-chart">
+    <img src="data:image/svg+xml;base64,{{ context.won_chart }}" />
+  </div>
 </div>
+
+<!-- Submitted -->
+<div class="report-row">
+  <div class="report-table">
+    <table style="width: 100%">
+      <thead>
+        <tr>
+          <th style="text-align: left">Submitted</th>
+          <th>{{ context.two_years_ago|unlocalize }}</th>
+          <th>{{ context.previous_year|unlocalize }}</th>
+          <th>{{ context.current_year|unlocalize }} Projection</th>
+          <th>to {{ context.report_date|date:"d.m.Y" }}</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for row in data %}
+        <tr class="{% if row.agency_type == 'All' %}total-row{% endif %}">
+          <td style="text-align: left">{{ row.agency_type }}</td>
+          <td>{{ row.submitted_previous_year }}</td>
+          <td>{{ row.submitted_last_year }}</td>
+          <td>{{ row.submitted_projection }}</td>
+          <td>{{ row.submitted_to_date }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="report-chart">
+    <img src="data:image/svg+xml;base64,{{ context.submitted_chart }}" />
+  </div>
+</div>
+
 {% endblock content %}
