@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.utils import timezone
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Sum
 
 from tracker.workflows.service import get_statuses_by_group
 from tracker.workflows.registry import get_active_workflow
@@ -169,9 +169,17 @@ def get_opportunities(request):
             subtitle.append(
                 "Competition Type: " + ("Non-Competitive" if is_noncompetitive == "True" else "Competitive"))
 
+        # Get the total amount
+        total_amount = opportunities.aggregate(
+            total=Sum("proposal_amount"))["total"]
+
+        context = {
+            "total_amount": total_amount
+        }
+
         template = "reports/report_templates/opportunities.html"
         response = PDFProcessor.process(
-            request, template, opportunities, subtitle=" | ".join(subtitle),  footnote="Opportunities in green are non competitive", filename="Opportunities.pdf")
+            request, template, opportunities, subtitle=" | ".join(subtitle),  footnote="Opportunities in green are non competitive", filename="Opportunities.pdf", context=context)
         return response
 
     return render(request, "reports/opportunities.html", context)
@@ -269,8 +277,22 @@ def get_financial(request):
                         submission_date__year=two_years_ago,
                     ),
                 ),
+                won_amount_previous_year=Sum(
+                    "proposal_amount",
+                    filter=Q(
+                        status=won_status_id,
+                        submission_date__year=two_years_ago,
+                    ),
+                ),
                 won_last_year=Count(
                     "id",
+                    filter=Q(
+                        status=won_status_id,
+                        submission_date__year=previous_year,
+                    ),
+                ),
+                won_amount_last_year=Sum(
+                    "proposal_amount",
                     filter=Q(
                         status=won_status_id,
                         submission_date__year=previous_year,
@@ -284,8 +306,23 @@ def get_financial(request):
                         submission_date__lte=report_date,
                     ),
                 ),
+                won_amount_to_date=Sum(
+                    "proposal_amount",
+                    filter=Q(
+                        status=won_status_id,
+                        submission_date__gte=start_of_current_year,
+                        submission_date__lte=report_date,
+                    ),
+                ),
                 submitted_previous_year=Count(
                     "id",
+                    filter=Q(
+                        status__in=submitted_status_ids,
+                        submission_date__year=two_years_ago,
+                    ),
+                ),
+                submitted_amount_previous_year=Sum(
+                    "proposal_amount",
                     filter=Q(
                         status__in=submitted_status_ids,
                         submission_date__year=two_years_ago,
@@ -298,8 +335,23 @@ def get_financial(request):
                         submission_date__year=previous_year,
                     ),
                 ),
+                submitted_amount_last_year=Sum(
+                    "proposal_amount",
+                    filter=Q(
+                        status__in=submitted_status_ids,
+                        submission_date__year=previous_year,
+                    ),
+                ),
                 submitted_to_date=Count(
                     "id",
+                    filter=Q(
+                        status__in=submitted_status_ids,
+                        submission_date__gte=start_of_current_year,
+                        submission_date__lte=report_date,
+                    ),
+                ),
+                submitted_amount_to_date=Sum(
+                    "proposal_amount",
                     filter=Q(
                         status__in=submitted_status_ids,
                         submission_date__gte=start_of_current_year,
@@ -317,27 +369,39 @@ def get_financial(request):
                 "agency_type": agency_type_labels.get(
                     agency_type_value, "Unknown"),
                 "won_previous_year": opportunity["won_previous_year"],
+                "won_amount_previous_year": opportunity["won_amount_previous_year"],
                 "won_last_year": opportunity["won_last_year"],
+                "won_amount_last_year": opportunity["won_amount_last_year"],
                 "won_projection": round(opportunity["won_to_date"] * project_ratio),
                 "won_to_date": opportunity["won_to_date"],
+                "won_amount_to_date": opportunity["won_amount_to_date"],
                 "submitted_previous_year": opportunity["submitted_previous_year"],
+                "submitted_amount_previous_year": opportunity["submitted_amount_previous_year"],
                 "submitted_last_year": opportunity["submitted_last_year"],
+                "submitted_amount_last_year": opportunity["submitted_amount_last_year"],
                 "submitted_projection": round(opportunity["submitted_to_date"] * project_ratio),
                 "submitted_to_date": opportunity["submitted_to_date"],
+                "submitted_amount_to_date": opportunity["submitted_amount_to_date"],
             })
 
         total_fields = (
             "won_previous_year",
+            "won_amount_previous_year",
             "won_last_year",
+            "won_amount_last_year",
             "won_projection",
             "won_to_date",
+            "won_amount_to_date",
             "submitted_previous_year",
+            "submitted_amount_previous_year",
             "submitted_last_year",
+            "submitted_amount_last_year",
             "submitted_projection",
             "submitted_to_date",
+            "submitted_amount_to_date",
         )
         totals = {
-            field: sum(row[field] for row in rows)
+            field: sum((row[field] or 0) for row in rows)
             for field in total_fields
         }
         rows.append({"agency_type": "All", **totals})

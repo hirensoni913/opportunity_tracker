@@ -8,7 +8,7 @@ class PDFProcessor:
     @staticmethod
     def process(request, template_path, data, subtitle="", context=None, footnote="", filename="report.pdf"):
         context = context or {}
-        printed_date = timezone.now().strftime("%Y-%m-%d %H:%M")
+        printed_date = timezone.localtime().strftime("%Y-%m-%d %H:%M")
         template = get_template(template_path)
         html = template.render(
             {'data': data, 'printed_date': printed_date, 'subtitle': subtitle, 'context': context, 'footnote': footnote})
