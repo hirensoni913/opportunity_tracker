@@ -273,7 +273,8 @@ def get_won_to_lost_rfp(request):
     )
     counts = opportunities.values("status").annotate(count=Count("id"))
     status_counts = {record["status"]: record["count"] for record in counts}
+    won_count = status_counts.get(7, 0)
     lost_count = status_counts.get(6, 0)
-    ratio = status_counts.get(7, 0) / lost_count if lost_count else 0
+    ratio = won_count / (won_count + lost_count) if lost_count else 0
 
     return HttpResponse(ratio * 100)
