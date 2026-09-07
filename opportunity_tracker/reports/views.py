@@ -10,6 +10,8 @@ from tracker.models import FundingAgency, GoReason, NoGoReason, Opportunity
 from .forms import FinancialFilterForm, OpportunityFilterForm, RationalFilterForm
 from .models import ReportConfig
 
+from .chart_processor import ChartProcessor, ChartType, ChartSeries
+
 
 def reports(request):
     return render(request, "reports/reports.html")
@@ -340,11 +342,86 @@ def get_financial(request):
         }
         rows.append({"agency_type": "All", **totals})
 
+        # Prepare the charts
+        chart_rows = [
+            row for row in rows
+            if row["agency_type"] != "All"
+        ]
+
+        categories = [
+            row["agency_type"]
+            for row in chart_rows
+        ]
+
+        won_series = [
+            ChartSeries(
+                label=str(two_years_ago),
+                values=[
+                    row["won_previous_year"]
+                    for row in chart_rows
+                ],
+            ),
+            ChartSeries(
+                label=str(previous_year),
+                values=[
+                    row["won_last_year"]
+                    for row in chart_rows
+                ],
+            ),
+            ChartSeries(
+                label=f"{current_year} Projection",
+                values=[
+                    row["won_projection"]
+                    for row in chart_rows
+                ],
+            ),
+        ]
+
+        won_chart = ChartProcessor.create(
+            chart_type=ChartType.BAR,
+            title="RFP Submissions WON",
+            categories=categories,
+            series=won_series,
+        )
+
+        submitted_series = [
+            ChartSeries(
+                label=str(two_years_ago),
+                values=[
+                    row["submitted_previous_year"]
+                    for row in chart_rows
+                ],
+            ),
+            ChartSeries(
+                label=str(previous_year),
+                values=[
+                    row["submitted_last_year"]
+                    for row in chart_rows
+                ],
+            ),
+            ChartSeries(
+                label=f"{current_year} Projection",
+                values=[
+                    row["submitted_projection"]
+                    for row in chart_rows
+                ],
+            ),
+        ]
+
+        submitted_chart = ChartProcessor.create(
+            chart_type=ChartType.BAR,
+            title="RFP Submissions TOTAL",
+            categories=categories,
+            series=submitted_series,
+        )
+
         context.update({
             "current_year": current_year,
             "previous_year": previous_year,
             "two_years_ago": two_years_ago,
             "report_date": report_date,
+            "won_chart": won_chart,
+            "submitted_chart": submitted_chart,
         })
 
         template = "reports/report_templates/financial.html"
