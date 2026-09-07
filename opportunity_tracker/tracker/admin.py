@@ -106,7 +106,7 @@ class OpportunityAdmin(ModelAdmin, ImportExportModelAdmin):
         if not obj:
             return []
 
-        if obj.status == 2:
+        if obj.status != 3:
             return [OpportunityGoReasonAdmin]
 
         if obj.status == 3:
